@@ -46,8 +46,8 @@ void Window::RegisterWindowClass(HINSTANCE hInstance, HINSTANCE hPrevInstance, L
 
 void Window::CreateWind(HINSTANCE hInstance)
 {
-	RECT wr = { 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT };
-	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);
+	RECT wr = { 0, 0, CLIENT_WIDTH, CLIENT_HEIGHT };
+	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE); // This function takes in client size (where we want to draw) and returns rect that is window size (includes bars)
 
 	hwnd = CreateWindowEx(NULL, "WindowClass1", "PPV Ubihard", WS_OVERLAPPEDWINDOW, 300, 25, wr.right - wr.left, wr.bottom - wr.top, NULL, NULL, hInstance, NULL);
 
@@ -61,9 +61,7 @@ void Window::CreateWind(HINSTANCE hInstance)
 
 void Window::ShowWind(int nCmdShow)
 {
-	bool result = ShowWindow(hwnd, nCmdShow);
-
-	cout << result;
+	ShowWindow(hwnd, nCmdShow);
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)

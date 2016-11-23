@@ -1,7 +1,7 @@
 #pragma once
 #include "Includes.h"
 
-class Scene
+class Model
 {
 private:
 

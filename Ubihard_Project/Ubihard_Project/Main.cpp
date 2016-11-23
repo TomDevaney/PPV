@@ -14,6 +14,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	while (true)
 	{
+		devResources.Present();
+
 		if (projectWindow.Update() != WM_QUIT) //run game
 		{
 
