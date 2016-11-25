@@ -1,6 +1,7 @@
 #pragma once
 //libraries
 #pragma comment (lib, "d3d11.lib")
+#pragma comment (lib, "d3dcompiler.lib")
 
 //includes
 #include <iostream>
@@ -8,9 +9,18 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <DirectXColors.h>
+#include <vector>
+#include <string>
+#include <d3dcompiler.h> //needed to compile shaders
 
 //defines
 #define CLIENT_WIDTH 1000
 #define CLIENT_HEIGHT 800
+
+//enums
+enum Shadertypes
+{
+	BASIC = 0,
+};
 
 using namespace std;

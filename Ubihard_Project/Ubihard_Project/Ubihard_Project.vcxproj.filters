@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Content">
+      <UniqueIdentifier>{318b8900-aa92-4c77-b1a6-b4905a30af73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Shaders">
+      <UniqueIdentifier>{47475d7c-25d5-4068-95e7-90fe11b04e14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Shaders\Vertex">
+      <UniqueIdentifier>{6d5071fd-f651-4894-96b9-3d7c2da68b35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Shaders\Pixel">
+      <UniqueIdentifier>{1f3195ec-780e-4c60-8c5b-dbc77ca2e1ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -25,6 +37,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DeviceResources.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,5 +56,19 @@
     <ClInclude Include="DeviceResources.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderStructures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="VS_Basic.hlsl">
+      <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Basic.hlsl">
+      <Filter>Content\Shaders\Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -8,12 +8,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	Window projectWindow;
 	projectWindow.Init(hInstance, hPrevInstance, lpCmdLine, nCmdShow);
 
-	//create scene
+	//create device resources
 	DeviceResources devResources;
 	devResources.Init(projectWindow.GetHWND());
 
+	//create scene
+	Scene scene;
+	scene.Init(&devResources);
+	scene.CreateModels();
+
 	while (true)
 	{
+		//render scene
+		scene.Render();
+
+		//present backbuffer and clear views
 		devResources.Present();
 
 		if (projectWindow.Update() != WM_QUIT) //run game
