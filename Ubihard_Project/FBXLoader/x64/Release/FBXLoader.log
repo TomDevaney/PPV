@@ -1,0 +1,12 @@
+﻿  FBXLoader.cpp
+FBXLoader.cpp(44): warning C4018: '<': signed/unsigned mismatch
+FBXLoader.cpp(62): warning C4018: '<': signed/unsigned mismatch
+FBXLoader.cpp(70): warning C4018: '<': signed/unsigned mismatch
+     Creating library C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Release\FBXLoader.lib and object C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Release\FBXLoader.exp
+  Generating code
+  73 of 73 functions (100.0%) were compiled, the rest were copied from previous compilation.
+    72 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  FBXLoader.vcxproj -> C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Release\FBXLoader.dll
+  FBXLoader.vcxproj -> C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Release\FBXLoader.pdb (Full PDB)

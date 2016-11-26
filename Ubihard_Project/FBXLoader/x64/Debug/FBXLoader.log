@@ -1,0 +1,6 @@
+﻿  FBXLoader.cpp
+c:\users\ifakey\desktop\ppv\ubihard_project\fbxloader\fbxloader.cpp(44): warning C4018: '<': signed/unsigned mismatch
+c:\users\ifakey\desktop\ppv\ubihard_project\fbxloader\fbxloader.cpp(62): warning C4018: '<': signed/unsigned mismatch
+c:\users\ifakey\desktop\ppv\ubihard_project\fbxloader\fbxloader.cpp(70): warning C4018: '<': signed/unsigned mismatch
+  FBXLoader.vcxproj -> C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\FBXLoader.dll
+  FBXLoader.vcxproj -> C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\FBXLoader.pdb (Full PDB)
