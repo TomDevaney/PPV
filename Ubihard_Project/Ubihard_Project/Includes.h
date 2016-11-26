@@ -13,6 +13,7 @@
 #include <string>
 #include <d3dcompiler.h> //needed to compile shaders
 
+
 //defines
 #define CLIENT_WIDTH 1000
 #define CLIENT_HEIGHT 800

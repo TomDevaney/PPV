@@ -11,7 +11,6 @@ class Scene
 private:
 	XMFLOAT4X4 camera;
 	XMFLOAT4X4 projection;
-
 	vector<Model> models;
 	//vector of lights
 

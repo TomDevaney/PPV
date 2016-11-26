@@ -34,15 +34,15 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicVSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicPSBuffer;
 
-	D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "main", "vs_4_0", NULL, NULL, basicVSBuffer.GetAddressOf(), NULL);
-	D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", NULL, NULL, basicPSBuffer.GetAddressOf(), NULL);
+	HRESULT vsCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "main", "vs_4_0", NULL, NULL, basicVSBuffer.GetAddressOf(), NULL);
+	HRESULT psCompResult = D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", NULL, NULL, basicPSBuffer.GetAddressOf(), NULL);
 
 	//create shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 
-	device->CreateVertexShader(basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), NULL, basicVS.GetAddressOf());
-	device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
+	HRESULT vsCrtResult = device->CreateVertexShader(basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), NULL, basicVS.GetAddressOf());
+	HRESULT psCrtResult = device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
 
 	vertexShaders.push_back(basicVS);
 	pixelShaders.push_back(basicPS);
@@ -55,7 +55,7 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	device->CreateInputLayout(basicInputElementDescs, ARRAYSIZE(basicInputElementDescs), basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), inputLayout.GetAddressOf());
+	HRESULT inputResult = device->CreateInputLayout(basicInputElementDescs, ARRAYSIZE(basicInputElementDescs), basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), inputLayout.GetAddressOf());
 
 	//might need to make input layout more dynamic if shaders use a different vertex
 	devContext->IASetInputLayout(inputLayout.Get());
@@ -92,6 +92,7 @@ void Scene::CreateModels()
 	groundPlane.SetIndices(indices);
 	groundPlane.SetModel(XMMatrixIdentity());
 	groundPlane.SetView(camera);
+	groundPlane.SetProjection(projection);
 	groundPlane.CreateDevResources(device, devContext);
 
 	models.push_back(groundPlane);
@@ -106,6 +107,7 @@ void Scene::CreateModels()
 	testModel.SetVertices(vertices);
 	testModel.SetModel(XMMatrixIdentity());
 	testModel.SetView(camera);
+	testModel.SetProjection(projection);
 	testModel.CreateDevResources(device, devContext);
 	models.push_back(testModel);
 

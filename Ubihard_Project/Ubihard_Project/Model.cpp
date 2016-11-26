@@ -8,20 +8,22 @@ void Model::CreateDevResources(ID3D11Device* device, ID3D11DeviceContext* devCon
 	vertexBufferData.SysMemPitch = 0;
 	vertexBufferData.SysMemSlicePitch = 0;
 
-	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(Vertex) * vertices.size(), D3D11_BIND_VERTEX_BUFFER);
+	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(Vertex) * (unsigned int)vertices.size(), D3D11_BIND_VERTEX_BUFFER);
 
 	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
 
 	//create index buffer
-	D3D11_SUBRESOURCE_DATA indexBufferData;
-	indexBufferData.pSysMem = indices.data();
-	indexBufferData.SysMemPitch = 0;
-	indexBufferData.SysMemSlicePitch = 0;
+	if (indices.data())
+	{
+		D3D11_SUBRESOURCE_DATA indexBufferData;
+		indexBufferData.pSysMem = indices.data();
+		indexBufferData.SysMemPitch = 0;
+		indexBufferData.SysMemSlicePitch = 0;
 
-	CD3D11_BUFFER_DESC indexBufferDesc(sizeof(unsigned int) * indices.size(), D3D11_BIND_INDEX_BUFFER);
+		CD3D11_BUFFER_DESC indexBufferDesc(sizeof(unsigned int) * (unsigned int)indices.size(), D3D11_BIND_INDEX_BUFFER);
 
-	device->CreateBuffer(&indexBufferDesc, &indexBufferData, indexBuffer.GetAddressOf());
-
+		device->CreateBuffer(&indexBufferDesc, &indexBufferData, indexBuffer.GetAddressOf());
+	}
 	//create constant buffers
 	CD3D11_BUFFER_DESC mvpBufferDesc(sizeof(ModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&mvpBufferDesc, NULL, mvpConstantBuffer.GetAddressOf());
@@ -51,7 +53,14 @@ void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
 	devContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 	//and finally... draw model
-	devContext->DrawIndexed(indices.size(), 0, 0);
+	if (indices.data())
+	{
+		devContext->DrawIndexed((unsigned int)indices.size(), 0, 0);
+	}
+	else
+	{
+		devContext->Draw((unsigned int)vertices.size(), 0);
+	}
 }
 
 void Model::SetModel(XMMATRIX& model)
