@@ -10,19 +10,33 @@ void Window::Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	ShowWind(nCmdShow);
 }
 
-int Window::Update()
+int Window::Update(WPARAM& wparam)
 {
 	MSG msg;
+	bool handledMsg = false;
 
 	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 	{
-		TranslateMessage(&msg);
-
-		//send message to windowproc
-		DispatchMessage(&msg);
+		if (msg.message == WM_KEYDOWN)
+		{
+			handledMsg = true;
+			wparam = msg.wParam;
+		}
+		
+		if (msg.message == WM_MOUSEMOVE)
+		{
+			handledMsg = true;
+		}
+		
+		if (!handledMsg) //let windows handle message
+		{
+			//send message to windowproc
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
 	}
 
-	return msg.wParam;
+	return msg.message;
 }
 
 void Window::RegisterWindowClass(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)

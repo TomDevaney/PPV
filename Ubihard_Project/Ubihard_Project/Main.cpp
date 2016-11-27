@@ -17,8 +17,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	scene.Init(&devResources);
 	scene.CreateModels();
 
+	//wparam is used for storing keys and mouse events
+	WPARAM wparam;
+
 	while (true)
 	{
+		//clear wparam
+		wparam = 0;
+
 		//clear views
 		devResources.Clear();
 
@@ -28,14 +34,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//present backbuffer
 		devResources.Present();
 
-		if (projectWindow.Update() != WM_QUIT) //run game
-		{
+		int windowResult = projectWindow.Update(wparam); //check window for messages
 
-		}
-		else
+		if (windowResult == WM_QUIT) 
 		{
 			break;
 		}
+		else //handle game code
+		{
+			
+		}
+
+		scene.Update(wparam); //handle 
 
 	}
 

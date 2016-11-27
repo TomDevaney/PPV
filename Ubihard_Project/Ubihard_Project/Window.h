@@ -17,6 +17,6 @@ private:
 
 public:
 	void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow); //initializes window
-	int Update(); //runs window msg loop and also handles running directx11 stuff
+	int Update(WPARAM& wparam); //runs window msg loop and also handles running directx11 stuff
 	const HWND GetHWND();
 };

@@ -9,11 +9,14 @@
 class Scene
 {
 private:
+	//buffer data
 	XMFLOAT4X4 camera;
 	XMFLOAT4X4 projection;
+
+	time_t previousTime; //deltaTime
+
 	vector<Model> models;
 	//vector of lights
-
 
 	ID3D11Device* device;
 	ID3D11DeviceContext* devContext;
@@ -23,9 +26,11 @@ private:
 
 	//private helper functions
 	void CreateDevResources(DeviceResources const * devResources);
+	void UpdateCamera(float dt, const float moveSpeed, const float rotSpeed, WPARAM wparam);
+	//void CheckForInput(float dt);
 public:
 	void Init(DeviceResources const * devResources);
 	void CreateModels();
-	void Update();
+	void Update(WPARAM wparam);
 	void Render();
 };
