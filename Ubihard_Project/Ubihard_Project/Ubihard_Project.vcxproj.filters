@@ -70,5 +70,11 @@
     <FxCompile Include="PS_Basic.hlsl">
       <Filter>Content\Shaders\Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="VS_Simple.hlsl">
+      <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Simple.hlsl">
+      <Filter>Content\Shaders\Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float4 resultColor;
 
 	//just basic test
-	resultColor = float4(1, 0, 0, 1);
+	resultColor = float4(0, 1, 0, 1);
 
 	return resultColor;
 }

@@ -17,12 +17,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	scene.Init(&devResources);
 	scene.CreateModels();
 
+		//clear views
+		devResources.Clear();
 	while (true)
 	{
-		//render scene
+
+		//render scene (every object)
 		scene.Render();
 
-		//present backbuffer and clear views
+		//present backbuffer
 		devResources.Present();
 
 		if (projectWindow.Update() != WM_QUIT) //run game

@@ -8,7 +8,7 @@ void Scene::Init(DeviceResources const * devResources)
 	static const XMVECTORF32 at = { 0.0f, -0.1f, 0.0f, 0.0f };
 	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
 
-	XMStoreFloat4x4(&camera, XMMatrixTranspose(XMMatrixInverse(nullptr, XMMatrixLookAtLH(eye, at, up))));
+	XMStoreFloat4x4(&camera, XMMatrixTranspose((nullptr, XMMatrixLookAtLH(eye, at, up))));
 
 	//set projection matrix
 	float aspectRatio = CLIENT_WIDTH / CLIENT_HEIGHT;
@@ -34,8 +34,10 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicVSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicPSBuffer;
 
-	HRESULT vsCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "main", "vs_4_0", NULL, NULL, basicVSBuffer.GetAddressOf(), NULL);
-	HRESULT psCompResult = D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", NULL, NULL, basicPSBuffer.GetAddressOf(), NULL);
+	UINT flags = D3DCOMPILE_DEBUG;
+
+	HRESULT vsCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, basicVSBuffer.GetAddressOf(), NULL);
+	HRESULT psCompResult = D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, basicPSBuffer.GetAddressOf(), NULL);
 
 	//create shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
@@ -75,10 +77,10 @@ void Scene::CreateModels()
 
 	vector<Vertex> vertices =
 	{
-		{ XMFLOAT3(-0.5f, -0.5f, -0.5f) }, //left bottom
-		{ XMFLOAT3(0.5f, -0.5f,  -0.5f) }, //right bottom
-		{ XMFLOAT3(-0.5f,  0.5f, -0.5f) }, //left top
-		{ XMFLOAT3(0.5f,  0.5f,  -0.5f) }, //right top
+		{ XMFLOAT3(-0.5f, -0.5f, 0.5f)}, //left bottom
+		{ XMFLOAT3(0.5f, -0.5f,  0.5f)}, //right bottom
+		{ XMFLOAT3(-0.5f,  0.5f, 0.5f)}, //left top
+		{ XMFLOAT3(0.5f,  0.5f,  0.5f)} //right top
 	};
 
 	//clockwise
@@ -109,7 +111,7 @@ void Scene::CreateModels()
 	testModel.SetView(camera);
 	testModel.SetProjection(projection);
 	testModel.CreateDevResources(device, devContext);
-	models.push_back(testModel);
+	//models.push_back(testModel);
 
 
 }

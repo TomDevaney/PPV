@@ -17,6 +17,7 @@ private:
 public:
 	void Init(HWND hwnd);
 	void Present();
+	void Clear();
 
 	//Getters
 	ID3D11Device* GetDevice() const { return device.Get(); }

@@ -14,6 +14,7 @@ private:
 	vector<Model> models;
 	//vector of lights
 
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* devContext;
 	vector<Microsoft::WRL::ComPtr<ID3D11PixelShader>> pixelShaders;

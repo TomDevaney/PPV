@@ -50,11 +50,11 @@ void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
 	devContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
 
 	//set index buffer
-	devContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-	//and finally... draw model
 	if (indices.data())
 	{
+		devContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+
+		//and finally... draw model
 		devContext->DrawIndexed((unsigned int)indices.size(), 0, 0);
 	}
 	else
@@ -65,8 +65,8 @@ void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
 
 void Model::SetModel(XMMATRIX& model)
 {
-	 XMFLOAT4X4 mod;
+	XMFLOAT4X4 tempModel;
 
-	 XMStoreFloat4x4(&mod, model);
-	 mvpData.model = mod; 
+	XMStoreFloat4x4(&tempModel, model);
+	mvpData.model = tempModel;
 }
