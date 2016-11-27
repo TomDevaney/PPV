@@ -43,7 +43,7 @@ void DeviceResources::Init(HWND hwnd)
 	HRESULT dsvResult = device->CreateDepthStencilView(depthStencilBuffer.Get(), &depthStencilViewDesc, depthStencilView.GetAddressOf());
 
 	//set render target view and link depth stencil view with rtv
-	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), NULL);
+	deviceContext->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 
 	//set up viewport
 	ZeroMemory(&viewPort, sizeof(D3D11_VIEWPORT));

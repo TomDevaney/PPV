@@ -5,7 +5,8 @@
 class Model
 {
 private:
-	string filePath;
+	//string filePath;
+	string texturePath;
 	vector<Vertex> vertices;
 	vector<unsigned int> indices;
 	
@@ -14,6 +15,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader > pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRV;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> wrapSamplerState;
 
 	//constant buffer data
 	ModelViewProjectionConstantBuffer mvpData;
@@ -26,7 +29,8 @@ public:
 	//getters
 
 	//setters 
-	void SetFilePath(string path) { filePath = path; }
+	//void SetFilePath(string path) { filePath = path; }
+	void SetTexturePath(string path) { texturePath = path; }
 	void SetVertexShader(ID3D11VertexShader* vs) { vertexShader = vs; }
 	void SetPixelShader(ID3D11PixelShader* ps) { pixelShader = ps; }
 	void SetVertices(vector<Vertex> verts) { vertices = verts; }

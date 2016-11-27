@@ -97,13 +97,14 @@ void Scene::CreateModels()
 	groundPlane.SetProjection(projection);
 	groundPlane.CreateDevResources(device, devContext);
 
-	models.push_back(groundPlane);
+	//models.push_back(groundPlane);
 
 
 	//test model for fbx loading 
 	Model testModel;
 	testModel.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
 	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
+	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	vertices.clear();
 	FBXLoader::Functions::FBXLoadFile(&vertices, "..\\Assets\\Box_Idle.fbx");
 	testModel.SetVertices(vertices);
@@ -111,7 +112,7 @@ void Scene::CreateModels()
 	testModel.SetView(camera);
 	testModel.SetProjection(projection);
 	testModel.CreateDevResources(device, devContext);
-	//models.push_back(testModel);
+	models.push_back(testModel);
 
 
 }

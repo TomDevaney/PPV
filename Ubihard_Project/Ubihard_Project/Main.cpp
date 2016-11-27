@@ -17,10 +17,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	scene.Init(&devResources);
 	scene.CreateModels();
 
-		//clear views
-		devResources.Clear();
 	while (true)
 	{
+		//clear views
+		devResources.Clear();
 
 		//render scene (every object)
 		scene.Render();
