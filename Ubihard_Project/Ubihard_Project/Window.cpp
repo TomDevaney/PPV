@@ -10,7 +10,7 @@ void Window::Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine,
 	ShowWind(nCmdShow);
 }
 
-int Window::Update(WPARAM& wparam)
+int Window::Update(WPARAM& wparam, LPARAM& lparam)
 {
 	MSG msg;
 	bool handledMsg = false;
@@ -22,10 +22,17 @@ int Window::Update(WPARAM& wparam)
 			handledMsg = true;
 			wparam = msg.wParam;
 		}
-		
-		if (msg.message == WM_MOUSEMOVE)
+		else if (msg.message == WM_KEYUP)
 		{
 			handledMsg = true;
+			wparam = msg.wParam;
+		}
+
+		if (msg.message == WM_MOUSEMOVE) //i'm worried that this will overwrite the wparam of the keyboard. But maybe only one can happen honestly
+		{
+			handledMsg = true;
+			wparam = msg.wParam; 
+			lparam = msg.lParam;
 		}
 		
 		if (!handledMsg) //let windows handle message

@@ -5,10 +5,10 @@
 
 class Window
 {
-//Window Members
 private:
 	WNDCLASSEX wc;
 	HWND hwnd;
+
 
 	//Window helper functions
 	void RegisterWindowClass(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
@@ -17,6 +17,6 @@ private:
 
 public:
 	void Init(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow); //initializes window
-	int Update(WPARAM& wparam); //runs window msg loop and also handles running directx11 stuff
+	int Update(WPARAM& wparam, LPARAM& lparam); //runs window msg loop and also handles running directx11 stuff
 	const HWND GetHWND();
 };

@@ -6,6 +6,9 @@ void Scene::Init(DeviceResources const * devResources)
 	//set previousTime to current time
 	previousTime = time(nullptr);
 
+	//set buttons to zero
+	memset(buttons, 0, sizeof(buttons));
+
 	//set camera initial position
 	static const XMVECTORF32 eye = { 0.0f, 0.7f, -1.5f, 0.0f };
 	static const XMVECTORF32 at = { 0.0f, -0.1f, 0.0f, 0.0f };
@@ -13,10 +16,12 @@ void Scene::Init(DeviceResources const * devResources)
 
 	XMStoreFloat4x4(&camera, XMMatrixInverse(nullptr, XMMatrixLookAtLH(eye, at, up)));
 
+	camPitch = camYaw = 0.0f;
+
 	//set projection matrix
 	float aspectRatio = CLIENT_WIDTH / CLIENT_HEIGHT;
 	float fovAngleY = 70.0f * XM_PI / 180.0f;
-	
+
 	if (aspectRatio < 1.0f)
 	{
 		fovAngleY *= 2.0f;
@@ -54,7 +59,7 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	pixelShaders.push_back(basicPS);
 
 	//set up input layouts
-	D3D11_INPUT_ELEMENT_DESC basicInputElementDescs[] = 
+	D3D11_INPUT_ELEMENT_DESC basicInputElementDescs[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -88,7 +93,7 @@ void Scene::CreateModels()
 	};
 
 	//clockwise
-	vector<unsigned int> indices = 
+	vector<unsigned int> indices =
 	{
 		2, 1, 0,
 		2, 3, 1
@@ -126,19 +131,11 @@ void Scene::Update(WPARAM wparam)
 	//calculate delta time
 	time_t currentTime = time(nullptr);
 	float dt; //delta time
-	//double dt2;
-
-	//dt = (float)difftime(currentTime, previousTime);
-	//dt2 = difftime(currentTime, previousTime);
-	//previousTime = currentTime;
 
 	dt = 1.0f / 60.0f;
 
-	//check for input
-	//CheckForInput(dt);
-
 	//update anything that every model needs to know about (e.g., lights)
-	
+
 
 	//update camera (private function)
 	UpdateCamera(dt, 5.0f, 0.75f, wparam);
@@ -160,49 +157,92 @@ void Scene::Update(WPARAM wparam)
 //	IDirectInput
 //}
 
-void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotSpeed, WPARAM wparam)
+void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam)
 {
-	switch (wparam) //switch on keyboard keys
-	{
-	case ('W'):
+	if (buttons['W'])
 	{
 		XMMATRIX translation = XMMatrixTranslation(0.0f, 0.0f, moveSpeed * dt);
 		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
 		XMMATRIX newCamera = XMMatrixMultiply(translation, tempCamera);
 		XMStoreFloat4x4(&camera, newCamera);
-		break;
 	}
-	case ('S'):
+
+	if (buttons['S'])
 	{
 		XMMATRIX translation = XMMatrixTranslation(0.0f, 0.0f, -moveSpeed * dt);
 		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
 		XMMATRIX newCamera = XMMatrixMultiply(translation, tempCamera);
 		XMStoreFloat4x4(&camera, newCamera);
-		break;
 	}
-	case ('A'):
+
+	if (buttons['A'])
 	{
 		XMMATRIX translation = XMMatrixTranslation(-moveSpeed * dt, 0.0f, 0.0f);
 		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
 		XMMATRIX newCamera = XMMatrixMultiply(translation, tempCamera);
 		XMStoreFloat4x4(&camera, newCamera);
-		break;
 	}
-	case ('D'):
+
+	if (buttons['D'])
 	{
 		XMMATRIX translation = XMMatrixTranslation(moveSpeed * dt, 0.0f, 0.0f);
 		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
 		XMMATRIX newCamera = XMMatrixMultiply(translation, tempCamera);
 		XMStoreFloat4x4(&camera, newCamera);
-		break;
-	}
 	}
 
-	//check if right button is pressed
-	if (wparam & MK_RBUTTON)
+	if (buttons['Q']) //up
 	{
-		//I might need lparam to see if the curPosition != prevPosition
+		XMMATRIX translation = XMMatrixTranslation(0.0f, moveSpeed * dt, 0.0f);
+		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
+		XMMATRIX newCamera = XMMatrixMultiply(translation, tempCamera);
+		XMStoreFloat4x4(&camera, newCamera);
 	}
+
+	if (buttons['E']) //down
+	{
+		XMMATRIX translation = XMMatrixTranslation(0.0f, -moveSpeed * dt, 0.0f);
+		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
+		XMMATRIX newCamera = XMMatrixMultiply(translation, tempCamera);
+		XMStoreFloat4x4(&camera, newCamera);
+	}
+
+	if (mouseX && mouseY)
+	{
+		if (rightClick && prevMouseX && prevMouseY)
+		{
+			float dx = mouseX - prevMouseX;
+			float dy = mouseY - prevMouseY;
+
+			//store old cam position
+			XMFLOAT3 camPosition = XMFLOAT3(camera._41, camera._42, camera._43);
+
+			camera._41 = 0;
+			camera._42 = 0;
+			camera._43 = 0;
+
+			XMMATRIX rotX = XMMatrixRotationX(dy * rotateSpeed * dt);
+			XMMATRIX rotY = XMMatrixRotationY(dx * rotateSpeed * dt);
+
+			//apply rotations to camera
+			XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
+			tempCamera = XMMatrixMultiply(rotX, tempCamera);
+			tempCamera = XMMatrixMultiply(tempCamera, rotY);
+
+			//store new camera
+			XMStoreFloat4x4(&camera, tempCamera);
+
+			//change position to where it was earlier
+			camera._41 = camPosition.x;
+			camera._42 = camPosition.y;
+			camera._43 = camPosition.z;
+		}
+
+		prevMouseX = mouseX;
+		prevMouseY = mouseY;
+	}
+
+
 }
 
 void Scene::Render()

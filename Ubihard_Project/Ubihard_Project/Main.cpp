@@ -2,6 +2,8 @@
 #include "Scene.h"
 #include "DeviceResources.h"
 
+//maybe put everything in a class called App, and then winmain just has an app and that's it
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	//create window
@@ -17,13 +19,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	scene.Init(&devResources);
 	scene.CreateModels();
 
-	//wparam is used for storing keys and mouse events
+	//create wparam and lparam
 	WPARAM wparam;
+	LPARAM lparam; 
+
+	//create keyboard buffer
+	bool buttons[256];
+	memset(buttons, 0, sizeof(buttons)); //zero them out
+
+	//create mouse variables
+	int mouseX, mouseY;
+	bool rightButtonPressed, leftButtonPressed;
 
 	while (true)
 	{
-		//clear wparam
+		//clear wparam and lparam
 		wparam = 0;
+		lparam = 0;
 
 		//clear views
 		devResources.Clear();
@@ -34,7 +46,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//present backbuffer
 		devResources.Present();
 
-		int windowResult = projectWindow.Update(wparam); //check window for messages
+		//check window for messages and get input
+		int windowResult = projectWindow.Update(wparam, lparam); 
 
 		if (windowResult == WM_QUIT) 
 		{
@@ -45,6 +58,46 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			
 		}
 
+		//set button based off of wparam
+		if (windowResult == WM_KEYDOWN)
+		{
+			buttons[wparam] = true;
+		}
+		else if (windowResult == WM_KEYUP)
+		{
+			buttons[wparam] = false;
+		}
+
+		//check if mouse button are beind held
+		if (wparam & MK_RBUTTON)
+		{
+			rightButtonPressed = true;
+		}
+		else
+		{
+			rightButtonPressed = false;
+		}
+
+		if (wparam & MK_LBUTTON)
+		{
+			leftButtonPressed = true;
+		}
+		else
+		{
+			leftButtonPressed = false;
+		}
+
+		//set mouse positions based off of lparam
+		mouseX = GET_X_LPARAM(lparam);
+		mouseY = GET_Y_LPARAM(lparam);
+
+		//update input members in scene
+		scene.SetMousePosition(mouseX, mouseY);
+		scene.SetButtons(buttons);
+		scene.SetLeftClick(leftButtonPressed);
+		scene.SetRightClick(rightButtonPressed);
+
+		//update scene
 		scene.Update(wparam); //handle 
 
 	}
