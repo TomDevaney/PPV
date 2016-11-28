@@ -101,7 +101,7 @@ void Scene::CreateModels()
 
 	groundPlane.SetVertices(vertices);
 	groundPlane.SetIndices(indices);
-	groundPlane.SetModel(XMMatrixIdentity());
+	groundPlane.SetModel(XMMatrixTranspose(XMMatrixRotationX(90)));
 	groundPlane.SetView(camera);
 	groundPlane.SetProjection(projection);
 	groundPlane.CreateDevResources(device, devContext);

@@ -54,6 +54,9 @@
     <ClCompile Include="DDSTextureLoader.cpp">
       <Filter>Content\DDSLoader</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -77,6 +80,9 @@
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>Content\DDSLoader</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VS_Basic.hlsl">
@@ -93,8 +99,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Assets\Box_Idle.fbm\TestCube.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
+    <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />
   </ItemGroup>
 </Project>

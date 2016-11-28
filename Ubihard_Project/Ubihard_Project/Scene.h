@@ -1,6 +1,7 @@
 #pragma once
 #include "ShaderStructures.h"
 #include "Model.h"
+#include "Light.h"
 #include "DeviceResources.h"
 
 // in regards to shaders and what not, if we want multiple ones, we can have an enum and a member to choose which num from enum we want
@@ -26,7 +27,7 @@ private:
 	time_t previousTime; //deltaTime
 
 	vector<Model> models;
-	//vector of lights
+	vector<Light> lights;
 
 	ID3D11Device* device;
 	ID3D11DeviceContext* devContext;

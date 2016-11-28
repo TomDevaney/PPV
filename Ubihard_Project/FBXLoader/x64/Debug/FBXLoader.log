@@ -1,7 +1,6 @@
 ﻿  FBXLoader.cpp
-c:\users\thyasianman\documents\full sail\month 16\rta (ppv)\ppv\ubihard_project\fbxloader\fbxloader.cpp(44): warning C4018: '<': signed/unsigned mismatch
-c:\users\thyasianman\documents\full sail\month 16\rta (ppv)\ppv\ubihard_project\fbxloader\fbxloader.cpp(62): warning C4018: '<': signed/unsigned mismatch
-c:\users\thyasianman\documents\full sail\month 16\rta (ppv)\ppv\ubihard_project\fbxloader\fbxloader.cpp(70): warning C4018: '<': signed/unsigned mismatch
-     Creating library C:\Users\Thyasianman\Documents\Full Sail\Month 16\RTA (PPV)\PPV\Ubihard_Project\x64\Debug\FBXLoader.lib and object C:\Users\Thyasianman\Documents\Full Sail\Month 16\RTA (PPV)\PPV\Ubihard_Project\x64\Debug\FBXLoader.exp
-  FBXLoader.vcxproj -> C:\Users\Thyasianman\Documents\Full Sail\Month 16\RTA (PPV)\PPV\Ubihard_Project\x64\Debug\FBXLoader.dll
-  FBXLoader.vcxproj -> C:\Users\Thyasianman\Documents\Full Sail\Month 16\RTA (PPV)\PPV\Ubihard_Project\x64\Debug\FBXLoader.pdb (Full PDB)
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\fbxloader\fbxloader.cpp(44): warning C4018: '<': signed/unsigned mismatch
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\fbxloader\fbxloader.cpp(62): warning C4018: '<': signed/unsigned mismatch
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\fbxloader\fbxloader.cpp(70): warning C4018: '<': signed/unsigned mismatch
+  FBXLoader.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\x64\Debug\FBXLoader.dll
+  FBXLoader.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\x64\Debug\FBXLoader.pdb (Full PDB)

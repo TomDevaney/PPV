@@ -1,7 +1,6 @@
 #pragma once
 #include <DirectXMath.h>
 
-
 using namespace DirectX;
 
 struct ModelViewProjectionConstantBuffer
@@ -9,6 +8,21 @@ struct ModelViewProjectionConstantBuffer
 	XMFLOAT4X4 model;
 	XMFLOAT4X4 view;
 	XMFLOAT4X4 projection;
+};
+
+struct DirectionalLightConstantBuffer
+{
+
+};
+
+struct PointLightConstantBuffer
+{
+
+};
+
+struct SpotLightConstantBuffer
+{
+
 };
 
 struct VS_BasicInput
