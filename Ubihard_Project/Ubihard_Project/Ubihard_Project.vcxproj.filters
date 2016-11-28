@@ -25,6 +25,15 @@
     <Filter Include="Content\Shaders\Pixel">
       <UniqueIdentifier>{1f3195ec-780e-4c60-8c5b-dbc77ca2e1ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{5b2640e9-3d8a-49d7-ad6e-a883d122b10a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures">
+      <UniqueIdentifier>{55845588-9f68-4b8e-9633-1446d69528a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\DDSLoader">
+      <UniqueIdentifier>{3ec57287-b4f1-451e-9b55-deb0382faeab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -41,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="Model.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>Content\DDSLoader</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +74,9 @@
     <ClInclude Include="ShaderStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>Content\DDSLoader</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VS_Basic.hlsl">
@@ -70,5 +85,16 @@
     <FxCompile Include="PS_Basic.hlsl">
       <Filter>Content\Shaders\Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="VS_Simple.hlsl">
+      <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Simple.hlsl">
+      <Filter>Content\Shaders\Pixel</Filter>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Assets\Box_Idle.fbm\TestCube.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>

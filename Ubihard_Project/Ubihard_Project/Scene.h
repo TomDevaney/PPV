@@ -9,8 +9,22 @@
 class Scene
 {
 private:
+	//buffer data
 	XMFLOAT4X4 camera;
 	XMFLOAT4X4 projection;
+
+	float camYaw;
+	float camPitch;
+
+	//input data
+	bool buttons[256];
+	bool leftClick;
+	bool rightClick;
+	int prevMouseX, prevMouseY;
+	int mouseX, mouseY;
+
+	time_t previousTime; //deltaTime
+
 	vector<Model> models;
 	//vector of lights
 
@@ -22,9 +36,17 @@ private:
 
 	//private helper functions
 	void CreateDevResources(DeviceResources const * devResources);
+	void UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam);
+	//void CheckForInput(float dt);
 public:
 	void Init(DeviceResources const * devResources);
 	void CreateModels();
-	void Update();
+	void Update(WPARAM wparam);
 	void Render();
+	
+	//setters
+	void SetButtons(bool butts[256]) { memcpy(buttons, butts, sizeof(buttons)); }
+	void SetLeftClick(bool clicked) { leftClick = clicked; }
+	void SetRightClick(bool clicked) { rightClick = clicked; }
+	void SetMousePosition(int x, int y) { mouseX = x; mouseY = y; }
 };

@@ -12,7 +12,8 @@
 #include <vector>
 #include <string>
 #include <d3dcompiler.h> //needed to compile shaders
-
+#include <time.h>
+#include "DDSTextureLoader.h"	
 
 //defines
 #define CLIENT_WIDTH 1000

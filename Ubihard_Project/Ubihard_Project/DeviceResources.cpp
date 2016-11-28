@@ -7,20 +7,24 @@ void DeviceResources::Init(HWND hwnd)
 
 	ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 
+	//swapChainDesc.BufferDesc = braynsBufferDesc;
 	swapChainDesc.Windowed = true;
 	swapChainDesc.BufferCount = 1;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.OutputWindow = hwnd;
 	swapChainDesc.SampleDesc.Count = 1;
+	swapChainDesc.SampleDesc.Quality = 0;
+	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	//create swapchain and device
 	UINT flags = NULL;
 
-	if (_DEBUG)
+#if (_DEBUG)
 	{
 		flags = D3D11_CREATE_DEVICE_DEBUG;
 	}
+#endif
 
 	HRESULT swapResult = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, NULL, D3D11_SDK_VERSION, &swapChainDesc, swapChain.GetAddressOf(), device.GetAddressOf(), NULL, deviceContext.GetAddressOf());
 
@@ -48,17 +52,22 @@ void DeviceResources::Init(HWND hwnd)
 	viewPort.TopLeftY = 0;
 	viewPort.Width = CLIENT_HEIGHT;
 	viewPort.Height = CLIENT_HEIGHT;
+	viewPort.MinDepth = 0.0f;
+	viewPort.MaxDepth = 1.0f;
 
 	deviceContext->RSSetViewports(1, &viewPort);
 
 }
 
-void DeviceResources::Present()
+void DeviceResources::Clear()
 {
-	//swap back buffer with buffer
-	swapChain->Present(1, 0);
-
 	//clear views
 	deviceContext->ClearRenderTargetView(renderTargetView.Get(), DirectX::Colors::Red);
 	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+}
+
+void DeviceResources::Present()
+{
+	//swap back buffer with buffer
+	HRESULT swapResult = swapChain->Present(1, 0);
 }
