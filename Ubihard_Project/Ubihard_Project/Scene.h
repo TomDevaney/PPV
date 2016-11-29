@@ -57,7 +57,7 @@ public:
 	void CreateModels();
 	void Update(WPARAM wparam);
 	void Render();
-	
+
 	//setters
 	void SetButtons(bool butts[256]) { memcpy(buttons, butts, sizeof(buttons)); }
 	void SetLeftClick(bool clicked) { leftClick = clicked; }

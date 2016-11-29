@@ -83,7 +83,7 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
@@ -184,7 +184,7 @@ void Scene::CreateModels()
 
 	vector<VS_BasicInput> basicVertices =
 	{
-		{ XMFLOAT3(-5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(0.0f, 1.0f)}, //left bottom
+		{ XMFLOAT3(-5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(0.0f, 1.0f) }, //left bottom
 		{ XMFLOAT3(5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(1.0f, 1.0f) }, //right bottom
 		{ XMFLOAT3(-5.5f,  0, 5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(0.0f, 0.0f) }, //left top
 		{ XMFLOAT3(5.5f,  0,  5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(1.0f, 0.0f) } //right top
@@ -210,14 +210,14 @@ void Scene::CreateModels()
 
 	//test model for fbx loading 
 	vector<Vertex> bindVertices;
-
+	vector<XMFLOAT4X4> boneMats;
 	Model testModel;
 	testModel.SetVertexShader(vertexShaders[Shadertypes::BIND].Get(), Shadertypes::BIND);
 	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
 	testModel.SetInputLayout(inputLayouts[Shadertypes::BIND].Get());
 	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	bindVertices.clear();
-	FBXLoader::Functions::FBXLoadFile(&bindVertices, "..\\Assets\\Box_Idle.fbx");
+	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMats, "..\\Assets\\Box_Idle.fbx");
 	testModel.SetVertices(bindVertices);
 	testModel.SetModel(XMMatrixIdentity());
 	testModel.SetView(camera);
