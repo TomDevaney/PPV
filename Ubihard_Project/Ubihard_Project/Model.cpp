@@ -4,13 +4,23 @@ void Model::CreateDevResources(ID3D11Device* device, ID3D11DeviceContext* devCon
 {
 	//create vertex bufer
 	D3D11_SUBRESOURCE_DATA vertexBufferData;
-	vertexBufferData.pSysMem = vertices.data();
 	vertexBufferData.SysMemPitch = 0;
 	vertexBufferData.SysMemSlicePitch = 0;
 
-	CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(Vertex) * (unsigned int)vertices.size(), D3D11_BIND_VERTEX_BUFFER);
+	if (vertexType == Shadertypes::BASIC) //vertices are a vector of Vertex though, not VS_BasicInput, but because it's a pointer to memory, we're ok as long as the stride is good
+	{
+		vertexBufferData.pSysMem = basicVertices.data();
 
-	device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VS_BasicInput) * (unsigned int)basicVertices.size(), D3D11_BIND_VERTEX_BUFFER);
+		device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
+	}
+	else if (vertexType == Shadertypes::BIND)
+	{
+		vertexBufferData.pSysMem = vertices.data();
+
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(Vertex) * (unsigned int)vertices.size(), D3D11_BIND_VERTEX_BUFFER);
+		device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
+	}
 
 	//create index buffer
 	if (indices.data())
@@ -27,7 +37,14 @@ void Model::CreateDevResources(ID3D11Device* device, ID3D11DeviceContext* devCon
 
 	//create constant buffers
 	CD3D11_BUFFER_DESC mvpBufferDesc(sizeof(ModelViewProjectionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
-	device->CreateBuffer(&mvpBufferDesc, NULL, mvpConstantBuffer.GetAddressOf());
+	HRESULT hrtemp = device->CreateBuffer(&mvpBufferDesc, NULL, mvpConstantBuffer.GetAddressOf());
+
+	//bone offsets
+	if (vertexType == Shadertypes::BIND)
+	{
+		CD3D11_BUFFER_DESC boneOffsetDesc(sizeof(BoneOffsetConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+		device->CreateBuffer(&boneOffsetDesc, NULL, boneOffsetConstantBuffer.GetAddressOf());
+	}
 
 	//create shader resource view with texture path
 	wstring wideTexturePath = wstring(texturePath.begin(), texturePath.end());
@@ -40,17 +57,40 @@ void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
 	devContext->VSSetShader(vertexShader.Get(), NULL, NULL);
 	devContext->PSSetShader(pixelShader.Get(), NULL, NULL);
 
+	//set input layout
+	devContext->IASetInputLayout(inputLayout.Get());
+
 	//update constant buffers
 	devContext->UpdateSubresource(mvpConstantBuffer.Get(), NULL, NULL, &mvpData, NULL, NULL);
+
+	if (vertexType == Shadertypes::BIND)
+	{
+		devContext->UpdateSubresource(boneOffsetConstantBuffer.Get(), NULL, NULL, &boneOffsetData, NULL, NULL);
+	}
 
 	//set constant buffers
 	devContext->VSSetConstantBuffers(0, 1, mvpConstantBuffer.GetAddressOf());
 
-	//set vertex buffer
-	UINT stride = sizeof(Vertex);
-	UINT offset = 0;
+	if (vertexType == Shadertypes::BIND)
+	{
+		devContext->VSSetConstantBuffers(1, 1, boneOffsetConstantBuffer.GetAddressOf());
+	}
 
-	devContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+	//set vertex buffer
+	if (vertexType == Shadertypes::BIND)
+	{
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+
+		devContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+	}
+	else
+	{
+		UINT stride = sizeof(VS_BasicInput);
+		UINT offset = 0;
+
+		devContext->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
+	}
 
 	//set shader resource view
 	devContext->PSSetShaderResources(0, 1, textureSRV.GetAddressOf());

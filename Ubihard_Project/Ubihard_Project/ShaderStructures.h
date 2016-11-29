@@ -1,4 +1,5 @@
 #pragma once
+#define MAXBONES 4
 #include <DirectXMath.h>
 #include <algorithm>
 #include <vector>
@@ -31,6 +32,11 @@ struct SpotLightConstantBuffer
 	XMFLOAT4 spotLightColor;
 	XMFLOAT4 coneRatio; //treat as float
 	XMFLOAT4 coneDirection;
+};
+
+struct BoneOffsetConstantBuffer
+{
+	XMFLOAT4X4 boneOffsets[MAXBONES];
 };
 
 struct VS_BasicInput
@@ -73,35 +79,19 @@ struct Vertex
 
 //	std::vector<VertexBlendingInfo> mVertexBlendingInfos;
 
-	void SortBlendingInfoByWeight()
-	{
-		std::sort(mVertexBlendingInfos.begin(), mVertexBlendingInfos.end());
-	}
+	//void SortBlendingInfoByWeight()
+	//{
+	//	std::sort(mVertexBlendingInfos.begin(), mVertexBlendingInfos.end());
+	//}
 
 	bool operator==(const Vertex& rhs) const
 	{
-
-		// We only compare the blending info when there is blending info
-		if (!(mVertexBlendingInfos.empty() && rhs.mVertexBlendingInfos.empty()))
-		{
-			// Each vertex should only have 4 index-weight blending info pairs
-			for (unsigned int i = 0; i < 4; ++i)
-			{
-				if (mVertexBlendingInfos[i].mBlendingIndex != rhs.mVertexBlendingInfos[i].mBlendingIndex)
-				{
-					return false;
-				}
-				if (abs(mVertexBlendingInfos[i].mBlendingWeight - rhs.mVertexBlendingInfos[i].mBlendingWeight) > 0.001)
-				{
-					return false;
-				}
-			}
-		}
-
 		bool r1 = (position.x == rhs.position.x && position.y == rhs.position.y && position.z == rhs.position.z);
 		bool r2 = (normal.x == rhs.normal.x && normal.y == rhs.normal.y && normal.z == rhs.normal.z);
 		bool r3 = (uv.x == rhs.uv.x && uv.y == rhs.uv.y);
+		bool r4 = (blendingIndices.x == rhs.blendingIndices.x && blendingIndices.y == rhs.blendingIndices.y && blendingIndices.z == rhs.blendingIndices.z);
+		bool r5 = (blendingWeight.x == rhs.blendingWeight.x && blendingWeight.y == rhs.blendingWeight.y && blendingWeight.z == rhs.blendingWeight.z);
 
-		return r1 && r2 && r3;
+		return r1 && r2 && r3 && r4 && r5;
 	}
 };

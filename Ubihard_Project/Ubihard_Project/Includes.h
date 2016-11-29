@@ -13,6 +13,7 @@
 #include <string>
 #include <d3dcompiler.h> //needed to compile shaders
 #include <time.h>
+#include <vld.h>
 #include "DDSTextureLoader.h"	
 
 //defines
@@ -25,5 +26,11 @@ enum Shadertypes
 	BASIC = 0,
 	BIND,
 };
+
+//enum InputTypes
+//{
+//	BASIC = 0,
+//	BIND,
+//};
 
 using namespace std;

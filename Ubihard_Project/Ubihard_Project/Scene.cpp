@@ -65,6 +65,8 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	pixelShaders.push_back(basicPS);
 
 	//set up input layouts
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicInput;
+
 	D3D11_INPUT_ELEMENT_DESC basicInputElementDescs[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -72,7 +74,9 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	HRESULT inputResult = device->CreateInputLayout(basicInputElementDescs, ARRAYSIZE(basicInputElementDescs), basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), inputLayout.GetAddressOf());
+	HRESULT inputResult = device->CreateInputLayout(basicInputElementDescs, ARRAYSIZE(basicInputElementDescs), basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), basicInput.GetAddressOf());
+
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> bindInput;
 
 	D3D11_INPUT_ELEMENT_DESC bindInputElementDescs[] =
 	{
@@ -83,11 +87,13 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
-	HRESULT bindInputResult = device->CreateInputLayout(bindInputElementDescs, ARRAYSIZE(bindInputElementDescs), bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), inputLayout.GetAddressOf());
+	HRESULT bindInputResult = device->CreateInputLayout(bindInputElementDescs, ARRAYSIZE(bindInputElementDescs), bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), bindInput.GetAddressOf());
 
+	inputLayouts.push_back(basicInput);
+	inputLayouts.push_back(bindInput);
 
-	//might need to make input layout more dynamic if shaders use a different vertex
-	devContext->IASetInputLayout(inputLayout.Get());
+	////might need to make input layout more dynamic if shaders use a different vertex
+	//devContext->IASetInputLayout(inputLayout.Get());
 
 	//set topology
 	devContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -172,11 +178,11 @@ void Scene::CreateModels()
 	//then make them create their device resources
 
 	Model groundPlane;
-	groundPlane.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
+	groundPlane.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get(), Shadertypes::BASIC);
 	groundPlane.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
 	groundPlane.SetTexturePath("../Resources/FloorTexture.dds");
 
-	vector<Vertex> vertices =
+	vector<VS_BasicInput> basicVertices =
 	{
 		{ XMFLOAT3(-5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(0.0f, 1.0f)}, //left bottom
 		{ XMFLOAT3(5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(1.0f, 1.0f) }, //right bottom
@@ -191,8 +197,9 @@ void Scene::CreateModels()
 		2, 3, 1
 	};
 
-	groundPlane.SetVertices(vertices);
+	groundPlane.SetVertices(basicVertices);
 	groundPlane.SetIndices(indices);
+	groundPlane.SetInputLayout(inputLayouts[Shadertypes::BASIC].Get());
 	groundPlane.SetModel(XMMatrixIdentity());
 	groundPlane.SetView(camera);
 	groundPlane.SetProjection(projection);
@@ -202,13 +209,16 @@ void Scene::CreateModels()
 
 
 	//test model for fbx loading 
+	vector<Vertex> bindVertices;
+
 	Model testModel;
-	testModel.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
+	testModel.SetVertexShader(vertexShaders[Shadertypes::BIND].Get(), Shadertypes::BIND);
 	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
+	testModel.SetInputLayout(inputLayouts[Shadertypes::BIND].Get());
 	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
-	vertices.clear();
-	FBXLoader::Functions::FBXLoadFile(&vertices, "..\\Assets\\Box_Idle.fbx");
-	testModel.SetVertices(vertices);
+	bindVertices.clear();
+	FBXLoader::Functions::FBXLoadFile(&bindVertices, "..\\Assets\\Box_Idle.fbx");
+	testModel.SetVertices(bindVertices);
 	testModel.SetModel(XMMatrixIdentity());
 	testModel.SetView(camera);
 	testModel.SetProjection(projection);
