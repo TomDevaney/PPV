@@ -19,7 +19,7 @@ void Scene::Init(DeviceResources const * devResources)
 	camPitch = camYaw = 0.0f;
 
 	//set projection matrix
-	float aspectRatio = CLIENT_WIDTH / CLIENT_HEIGHT;
+	float aspectRatio = (float)CLIENT_WIDTH / (float)CLIENT_HEIGHT;
 	float fovAngleY = 70.0f * XM_PI / 180.0f;
 
 	if (aspectRatio < 1.0f)
@@ -32,6 +32,7 @@ void Scene::Init(DeviceResources const * devResources)
 
 	//create all the device resources
 	CreateDevResources(devResources);
+	CreateLights();
 }
 
 void Scene::CreateDevResources(DeviceResources const * devResources)
@@ -73,6 +74,77 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 
 	//set topology
 	devContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	//create sampler state
+	CD3D11_SAMPLER_DESC samplerDesc = {};
+
+	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // do D3D11_FILTER_ANISOTROPIC for better quality
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.MaxAnisotropy = 1; //16 for anisotropic
+	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerDesc.MipLODBias = 0.0f;
+	samplerDesc.MinLOD = 0;
+	samplerDesc.BorderColor[0] = 0;
+	samplerDesc.BorderColor[1] = 0;
+	samplerDesc.BorderColor[2] = 0;
+	samplerDesc.BorderColor[3] = 0;
+
+	HRESULT wrapSampleResult = device->CreateSamplerState(&samplerDesc, &wrapSamplerState);
+
+	devContext->PSSetSamplers(0, 1, wrapSamplerState.GetAddressOf());
+
+	//create lighting buffers and set them
+}
+
+void Scene::CreateLights()
+{
+	//create only directional light
+	dirLight.Create({ 0.577f, 0.577f, -0.577f, 0 }, { 0.75f, 0.75f, 0.94f, 1.0f }, { 0.3f, 0.3f, 0.3f, 0.3f });
+
+	//create point lights
+	PointLight pointLight0;
+
+	pointLight0.Create({ 2, 3.0f, 2, 0 }, { 1, 0, 0, 0 }, 5.0f);
+
+	pointLights.push_back(pointLight0);
+
+	//create spot lights
+	//Light spotLight;
+
+	//spotLight.CreatePointLight({ 2, 3.0f, 2, 0 }, { 1, 0, 0, 0 }, 5.0f);
+
+	//spotLights.push_back(spotLight);
+
+	//create directional light constant buffer
+	CD3D11_BUFFER_DESC dirLightConstantBufferDesc(sizeof(DirectionalLightConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&dirLightConstantBufferDesc, nullptr, &dirLightConstantBuffer);
+
+	devContext->UpdateSubresource(dirLightConstantBuffer.Get(), NULL, NULL, &dirLight, NULL, NULL);
+
+	devContext->PSSetConstantBuffers(0, 1, dirLightConstantBuffer.GetAddressOf());
+
+	//create point light constant buffer
+	CD3D11_BUFFER_DESC pointLightConstantBufferDesc(sizeof(PointLightConstantBuffer) * NUMOFPOINTLIGHTS, D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&pointLightConstantBufferDesc, nullptr, &pointLightConstantBuffer);
+
+	devContext->UpdateSubresource(pointLightConstantBuffer.Get(), NULL, NULL, pointLights.data(), NULL, NULL);
+
+	devContext->PSSetConstantBuffers(1, 1, pointLightConstantBuffer.GetAddressOf());
+
+	//Create spot light constant buffer
+	if (NUMOFSPOTLIGHTS)
+	{
+		CD3D11_BUFFER_DESC spotLightConstantBufferDesc(sizeof(SpotLightConstantBuffer) * NUMOFSPOTLIGHTS, D3D11_BIND_CONSTANT_BUFFER);
+		device->CreateBuffer(&spotLightConstantBufferDesc, nullptr, &spotLightConstantBuffer);
+
+		devContext->UpdateSubresource(spotLightConstantBuffer.Get(), NULL, NULL, spotLights.data(), NULL, NULL);
+
+		devContext->PSSetConstantBuffers(2, 1, spotLightConstantBuffer.GetAddressOf());
+	}
+	
 }
 
 void Scene::CreateModels()
@@ -86,10 +158,10 @@ void Scene::CreateModels()
 
 	vector<Vertex> vertices =
 	{
-		{ XMFLOAT3(-0.5f, -0.5f, 0.5f)}, //left bottom
-		{ XMFLOAT3(0.5f, -0.5f,  0.5f)}, //right bottom
-		{ XMFLOAT3(-0.5f,  0.5f, 0.5f)}, //left top
-		{ XMFLOAT3(0.5f,  0.5f,  0.5f)} //right top
+		{ XMFLOAT3(-5.5f, 0, -5.5f)}, //left bottom
+		{ XMFLOAT3(5.5f, 0,  -5.5f)}, //right bottom
+		{ XMFLOAT3(-5.5f,  0, 5.5f)}, //left top
+		{ XMFLOAT3(5.5f,  0,  5.5f)} //right top
 	};
 
 	//clockwise
@@ -101,12 +173,12 @@ void Scene::CreateModels()
 
 	groundPlane.SetVertices(vertices);
 	groundPlane.SetIndices(indices);
-	groundPlane.SetModel(XMMatrixTranspose(XMMatrixRotationX(90)));
+	groundPlane.SetModel(XMMatrixIdentity());
 	groundPlane.SetView(camera);
 	groundPlane.SetProjection(projection);
 	groundPlane.CreateDevResources(device, devContext);
 
-	//models.push_back(groundPlane);
+	models.push_back(groundPlane);
 
 
 	//test model for fbx loading 
@@ -135,7 +207,7 @@ void Scene::Update(WPARAM wparam)
 	dt = 1.0f / 60.0f;
 
 	//update anything that every model needs to know about (e.g., lights)
-
+	//set the lights after
 
 	//update camera (private function)
 	UpdateCamera(dt, 5.0f, 0.75f, wparam);
@@ -211,8 +283,8 @@ void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpee
 	{
 		if (rightClick && prevMouseX && prevMouseY)
 		{
-			float dx = mouseX - prevMouseX;
-			float dy = mouseY - prevMouseY;
+			float dx = (float)mouseX - (float)prevMouseX;
+			float dy = (float)mouseY - (float)prevMouseY;
 
 			//store old cam position
 			XMFLOAT3 camPosition = XMFLOAT3(camera._41, camera._42, camera._43);

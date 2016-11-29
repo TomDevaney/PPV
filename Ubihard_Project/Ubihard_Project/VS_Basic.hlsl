@@ -20,6 +20,7 @@ struct PS_BasicInput
 	float4 pos : SV_POSITION;
 	float3 normal : NORMAL;
 	float3 uv : TEXCOORD;
+	float4 worldPosition : POSITION0;
 };
 
 // Simple shader to do vertex processing on the GPU.
@@ -30,6 +31,7 @@ PS_BasicInput main(VertexShaderInput input)
 
 	// Transform the vertex position into projected space.
 	pos = mul(pos, model);
+	output.worldPosition = pos;
 	pos = mul(pos, view);
 	pos = mul(pos, projection);
 	output.pos = pos;

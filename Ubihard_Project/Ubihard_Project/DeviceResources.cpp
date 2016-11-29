@@ -35,7 +35,7 @@ void DeviceResources::Init(HWND hwnd)
 	HRESULT rtvResult = device->CreateRenderTargetView(swapChainBuffer.Get(), nullptr, renderTargetView.GetAddressOf());
 
 	//create depth stencil buffer 
-	CD3D11_TEXTURE2D_DESC dsDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, lround(CLIENT_WIDTH), lround(CLIENT_HEIGHT), 1, 1, D3D11_BIND_DEPTH_STENCIL);
+	CD3D11_TEXTURE2D_DESC dsDesc(DXGI_FORMAT_D24_UNORM_S8_UINT, lround((float)CLIENT_WIDTH), lround((float)CLIENT_HEIGHT), 1, 1, D3D11_BIND_DEPTH_STENCIL);
 	HRESULT dsvBufferResult = device->CreateTexture2D(&dsDesc, nullptr, depthStencilBuffer.GetAddressOf());
 
 	//create depth stencil view now that depth stencil buffer is done created
@@ -50,7 +50,7 @@ void DeviceResources::Init(HWND hwnd)
 
 	viewPort.TopLeftX = 0;
 	viewPort.TopLeftY = 0;
-	viewPort.Width = CLIENT_HEIGHT;
+	viewPort.Width = CLIENT_WIDTH;
 	viewPort.Height = CLIENT_HEIGHT;
 	viewPort.MinDepth = 0.0f;
 	viewPort.MaxDepth = 1.0f;
