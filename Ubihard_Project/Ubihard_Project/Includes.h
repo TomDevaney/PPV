@@ -23,6 +23,7 @@
 enum Shadertypes
 {
 	BASIC = 0,
+	BIND,
 };
 
 using namespace std;

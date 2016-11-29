@@ -67,23 +67,15 @@ struct VertexBlendingInfo
 	unsigned int index;
 	double weight;
 
-	VertexBlendingInfo() :
-		index(0),
-		weight(0.25)
-	{}
-
-	bool operator < (const VertexBlendingInfo& rhs)
-	{
-		return (weight > rhs.weight);
-	}
-};
-
 struct Vertex
 {
 	XMFLOAT3 position;
 	XMFLOAT3 normal;
 	XMFLOAT2 uv;
-	std::vector<VertexBlendingInfo> vertBlendingInfos;
+	XMFLOAT4 blendingIndices;
+	XMFLOAT4 blendingWeight;
+
+//	std::vector<VertexBlendingInfo> mVertexBlendingInfos;
 
 	void SortBlendingInfoByWeight()
 	{

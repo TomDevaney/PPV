@@ -124,13 +124,12 @@
     <FxCompile Include="PS_Basic.hlsl">
       <Filter>Content\Shaders\Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="VS_Bind.hlsl">
+      <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\Resources\FloorTexture.dds">
-      <Filter>Assets\Textures</Filter>
-    </Image>
+    <Media Include="..\Resources\FloorTexture.dds" />
   </ItemGroup>
 </Project>
