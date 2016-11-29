@@ -203,19 +203,19 @@ void Scene::CreateModels()
 
 	//box model for fbx loading 
 	vector<XMFLOAT4X4> bonePos;
-	Model AnimBox;
-	AnimBox.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
-	AnimBox.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
-	AnimBox.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
+	Model testModel;
+	testModel.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
+	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
+	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	vertices.clear();
 	FBXLoader::Functions::FBXLoadFile(&vertices, &indices, &bonePos, "..\\Assets\\Box_Idle.fbx");
-	AnimBox.SetVertices(vertices);
-	AnimBox.SetIndices(indices);
-	AnimBox.SetModel(XMMatrixIdentity());
-	AnimBox.SetView(camera);
-	AnimBox.SetProjection(projection);
-	AnimBox.CreateDevResources(device, devContext);
-	models.push_back(AnimBox);
+	testModel.SetVertices(vertices);
+	testModel.SetIndices(indices);
+	testModel.SetModel(XMMatrixIdentity());
+	testModel.SetView(camera);
+	testModel.SetProjection(projection);
+	testModel.CreateDevResources(device, devContext);
+	models.push_back(testModel);
 }
 
 void Scene::Update(WPARAM wparam)

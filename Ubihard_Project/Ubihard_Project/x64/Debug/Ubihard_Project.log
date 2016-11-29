@@ -1,16 +1,8 @@
-﻿  compilation object save succeeded; see C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\PS_Basic.cso
-  compilation object save succeeded; see C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\VS_Basic.cso
-  compilation object save succeeded; see C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\VS_Bind.cso
-  Window.cpp
-  SpotLight.cpp
+﻿  SpotLight.cpp
   Scene.cpp
   PointLight.cpp
-  Model.cpp
-  Main.cpp
-  Light.cpp
   DirectionalLight.cpp
-  DeviceResources.cpp
-  DDSTextureLoader.cpp
   Generating Code...
+  LINK : C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\Ubihard_Project.exe not found or not built by the last incremental link; performing full link
   Ubihard_Project.vcxproj -> C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\Ubihard_Project.exe
   Ubihard_Project.vcxproj -> C:\Users\iFakey\Desktop\PPV\Ubihard_Project\x64\Debug\Ubihard_Project.pdb (Partial PDB)
