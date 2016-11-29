@@ -113,6 +113,20 @@ namespace FBXLoader
 		}
 	}
 
+	int FindVertex(const Vertex& inTargetVertex, const std::vector<Vertex>& uniqueVertices)
+	{
+		for (unsigned int i = 0; i < uniqueVertices.size(); ++i)
+		{
+			if (inTargetVertex == uniqueVertices[i])
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+
 	bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, const char * filePath)
 	{
 		//if the FbxManager is not created. Create it.
@@ -191,6 +205,8 @@ namespace FBXLoader
 						LoadNormal(mesh, iCtrlPoint, vertCounter, vert);
 						
 						outVerts->push_back(vert);
+						++vertCounter;
+
 					}
 				}
 			}
