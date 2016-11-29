@@ -8,6 +8,9 @@ FbxManager* fbxManager = nullptr;
 
 namespace FBXLoader
 {
+	/*----------------------------------------------------------------------------------------------------------------------------------
+	-----------------------------------------------------Helper Functions---------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------*/
 	void LoadUV(FbxMesh* iMesh, int iCtrlPoint, int iTextureUVIndex, int iUVLayer, Vertex& iVert)
 	{
 		//invalid paramaters
@@ -115,6 +118,12 @@ namespace FBXLoader
 		vert.normal.x = -vert.normal.x;
 	}
 
+	void InitSkeleton(Vertex& iVert)
+	{
+		iVert.blendingIndices = XMFLOAT4(0, 0, 0, 0);
+		iVert.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
+	}
+
 	int FindVertex(const Vertex& inTargetVertex, const std::vector<Vertex>& uniqueVertices)
 	{
 		for (unsigned int i = 0; i < uniqueVertices.size(); ++i)
@@ -136,11 +145,14 @@ namespace FBXLoader
 		// Now we update the index buffer
 		for (unsigned int i = 0; i < mVertices.size(); ++i)
 			mIndices[i] = FindVertex(mVertices[i], uniqueVertices);
-	
+
 		mVertices.clear();
 		mVertices = uniqueVertices;
 		uniqueVertices.clear();
 	}
+	/*----------------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------*/
+
 
 	bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, const char * filePath)
 	{
@@ -221,6 +233,8 @@ namespace FBXLoader
 
 						// sort so its easier to remove duplicates
 						vert.SortBlendingInfoByWeight();
+
+						InitSkeleton(vert);
 
 						outVerts->push_back(vert);
 						++vertCounter;

@@ -47,19 +47,34 @@ struct PS_BasicInput
 	XMFLOAT2 uv;
 }; 
 
+struct Bone
+{
+	XMFLOAT4X4 worldMat; 
+	XMFLOAT4X4 bindPoseInv;
+	Bone() 
+	{
+		XMStoreFloat4x4(&worldMat, XMMatrixIdentity());
+		XMStoreFloat4x4(&bindPoseInv, XMMatrixIdentity());
+	}
+};
+
+struct Skeleton
+{
+	std::vector<Bone> bones;
+};
 struct VertexBlendingInfo
 {
-	unsigned int mBlendingIndex;
-	double mBlendingWeight;
+	unsigned int index;
+	double weight;
 
 	VertexBlendingInfo() :
-		mBlendingIndex(0),
-		mBlendingWeight(0.25)
+		index(0),
+		weight(0.25)
 	{}
 
 	bool operator < (const VertexBlendingInfo& rhs)
 	{
-		return (mBlendingWeight > rhs.mBlendingWeight);
+		return (weight > rhs.weight);
 	}
 };
 
@@ -68,27 +83,27 @@ struct Vertex
 	XMFLOAT3 position;
 	XMFLOAT3 normal;
 	XMFLOAT2 uv;
-	std::vector<VertexBlendingInfo> mVertexBlendingInfos;
+	std::vector<VertexBlendingInfo> vertBlendingInfos;
 
 	void SortBlendingInfoByWeight()
 	{
-		std::sort(mVertexBlendingInfos.begin(), mVertexBlendingInfos.end());
+		std::sort(vertBlendingInfos.begin(), vertBlendingInfos.end());
 	}
 
 	bool operator==(const Vertex& rhs) const
 	{
 
 		// We only compare the blending info when there is blending info
-		if (!(mVertexBlendingInfos.empty() && rhs.mVertexBlendingInfos.empty()))
+		if (!(vertBlendingInfos.empty() && rhs.vertBlendingInfos.empty()))
 		{
 			// Each vertex should only have 4 index-weight blending info pairs
 			for (unsigned int i = 0; i < 4; ++i)
 			{
-				if (mVertexBlendingInfos[i].mBlendingIndex != rhs.mVertexBlendingInfos[i].mBlendingIndex)
+				if (vertBlendingInfos[i].index != rhs.vertBlendingInfos[i].index)
 				{
 					return false;
 				}
-				if (abs(mVertexBlendingInfos[i].mBlendingWeight - rhs.mVertexBlendingInfos[i].mBlendingWeight) > 0.001)
+				if (abs(vertBlendingInfos[i].weight - rhs.vertBlendingInfos[i].weight) > 0.001)
 				{
 					return false;
 				}

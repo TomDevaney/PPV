@@ -182,20 +182,20 @@ void Scene::CreateModels()
 	models.push_back(groundPlane);
 
 
-	//test model for fbx loading 
-	Model testModel;
-	testModel.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
-	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
-	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
+	//box model for fbx loading 
+	Model AnimBox;
+	AnimBox.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
+	AnimBox.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
+	AnimBox.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	vertices.clear();
 	FBXLoader::Functions::FBXLoadFile(&vertices, &indices, "..\\Assets\\Box_Idle.fbx");
-	testModel.SetVertices(vertices);
-	testModel.SetIndices(indices);
-	testModel.SetModel(XMMatrixIdentity());
-	testModel.SetView(camera);
-	testModel.SetProjection(projection);
-	testModel.CreateDevResources(device, devContext);
-	models.push_back(testModel);
+	AnimBox.SetVertices(vertices);
+	AnimBox.SetIndices(indices);
+	AnimBox.SetModel(XMMatrixIdentity());
+	AnimBox.SetView(camera);
+	AnimBox.SetProjection(projection);
+	AnimBox.CreateDevResources(device, devContext);
+	models.push_back(AnimBox);
 
 
 }
@@ -270,7 +270,7 @@ void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpee
 		XMStoreFloat4x4(&camera, newCamera);
 	}
 
-	if (buttons['Q']) //up
+	if (buttons[VK_SPACE]) //up
 	{
 		XMMATRIX translation = XMMatrixTranslation(0.0f, moveSpeed * dt, 0.0f);
 		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
@@ -278,7 +278,7 @@ void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpee
 		XMStoreFloat4x4(&camera, newCamera);
 	}
 
-	if (buttons['E']) //down
+	if (buttons['Q']) //down
 	{
 		XMMATRIX translation = XMMatrixTranslation(0.0f, -moveSpeed * dt, 0.0f);
 		XMMATRIX tempCamera = XMLoadFloat4x4(&camera);
