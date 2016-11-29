@@ -6,8 +6,8 @@ class PointLight
 private:
 	PointLightConstantBuffer pointLight;
 
-	const float maxRadius = 2.5f;
-	float radiusChange = 0.001f;
+	const float maxRadius = 5.0f;
+	float radiusChange = 1.0f / 60.0f;
 public:
 	void Create(XMFLOAT4 position, XMFLOAT4 color, float radius);
 	void DoRadiusEffect();

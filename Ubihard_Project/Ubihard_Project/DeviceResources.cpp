@@ -62,7 +62,7 @@ void DeviceResources::Init(HWND hwnd)
 void DeviceResources::Clear()
 {
 	//clear views
-	deviceContext->ClearRenderTargetView(renderTargetView.Get(), DirectX::Colors::Red);
+	deviceContext->ClearRenderTargetView(renderTargetView.Get(), DirectX::Colors::SkyBlue);
 	deviceContext->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 

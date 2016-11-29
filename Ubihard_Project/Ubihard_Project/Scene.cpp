@@ -107,7 +107,7 @@ void Scene::CreateLights()
 	//create point lights
 	PointLight pointLight0;
 
-	pointLight0.Create({ 2, 3.0f, 2, 0 }, { 1, 0, 0, 0 }, 5.0f);
+	pointLight0.Create({ 0, 1.0f, -2.0f, 0 }, { 1, 0, 0, 0 }, 5.0f);
 
 	pointLights.push_back(pointLight0);
 
@@ -155,13 +155,14 @@ void Scene::CreateModels()
 	Model groundPlane;
 	groundPlane.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
 	groundPlane.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
+	groundPlane.SetTexturePath("../Resources/FloorTexture.dds");
 
 	vector<Vertex> vertices =
 	{
-		{ XMFLOAT3(-5.5f, 0, -5.5f)}, //left bottom
-		{ XMFLOAT3(5.5f, 0, -5.5f)}, //right bottom
-		{ XMFLOAT3(-5.5f,  0, 5.5f)}, //left top
-		{ XMFLOAT3(5.5f,  0,  5.5f)} //right top
+		{ XMFLOAT3(-5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(0.0f, 1.0f)}, //left bottom
+		{ XMFLOAT3(5.5f, 0, -5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(1.0f, 1.0f) }, //right bottom
+		{ XMFLOAT3(-5.5f,  0, 5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(0.0f, 0.0f) }, //left top
+		{ XMFLOAT3(5.5f,  0,  5.5f), XMFLOAT3(0, 1.0f, 0), XMFLOAT2(1.0f, 0.0f) } //right top
 	};
 
 	//clockwise
@@ -208,6 +209,11 @@ void Scene::Update(WPARAM wparam)
 
 	//update anything that every model needs to know about (e.g., lights)
 	//set the lights after
+	pointLights[0].DoRadiusEffect();
+
+	devContext->UpdateSubresource(pointLightConstantBuffer.Get(), NULL, NULL, pointLights.data(), NULL, NULL);
+
+	devContext->PSSetConstantBuffers(1, 1, pointLightConstantBuffer.GetAddressOf());
 
 	//update camera (private function)
 	UpdateCamera(dt, 5.0f, 0.75f, wparam);

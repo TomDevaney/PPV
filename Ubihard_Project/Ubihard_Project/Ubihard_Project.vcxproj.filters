@@ -128,4 +128,9 @@
   <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />
   </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resources\FloorTexture.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
+  </ItemGroup>
 </Project>

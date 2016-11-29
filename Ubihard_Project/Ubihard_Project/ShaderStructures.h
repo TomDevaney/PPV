@@ -54,7 +54,7 @@ struct VertexBlendingInfo
 
 	VertexBlendingInfo() :
 		mBlendingIndex(0),
-		mBlendingWeight(0.0)
+		mBlendingWeight(0.25)
 	{}
 
 	bool operator < (const VertexBlendingInfo& rhs)

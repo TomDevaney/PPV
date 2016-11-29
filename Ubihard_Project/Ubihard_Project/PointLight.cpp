@@ -9,6 +9,8 @@ void PointLight::Create(XMFLOAT4 position, XMFLOAT4 color, float radius)
 
 void PointLight::DoRadiusEffect()
 {
+	pointLight.lightRadius.x += radiusChange;
+
 	if (pointLight.lightRadius.x > maxRadius)
 	{
 		pointLight.lightRadius.x = maxRadius;
@@ -19,7 +21,4 @@ void PointLight::DoRadiusEffect()
 		pointLight.lightRadius.x = 0.0f;
 		radiusChange = -radiusChange;
 	}
-
-	pointLight.lightRadius.x += radiusChange;
-
 }
