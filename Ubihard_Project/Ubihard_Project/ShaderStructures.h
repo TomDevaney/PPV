@@ -47,28 +47,31 @@ struct PS_BasicInput
 	XMFLOAT2 uv;
 }; 
 
-struct VertexBlendingInfo
-{
-	unsigned int mBlendingIndex;
-	double mBlendingWeight;
-
-	VertexBlendingInfo() :
-		mBlendingIndex(0),
-		mBlendingWeight(0.25)
-	{}
-
-	bool operator < (const VertexBlendingInfo& rhs)
-	{
-		return (mBlendingWeight > rhs.mBlendingWeight);
-	}
-};
+//struct VertexBlendingInfo
+//{
+//	unsigned int mBlendingIndex;
+//	float mBlendingWeight;
+//
+//	VertexBlendingInfo() :
+//		mBlendingIndex(0),
+//		mBlendingWeight(0.25f)
+//	{}
+//
+//	bool operator < (const VertexBlendingInfo& rhs)
+//	{
+//		return (mBlendingWeight > rhs.mBlendingWeight);
+//	}
+//};
 
 struct Vertex
 {
 	XMFLOAT3 position;
 	XMFLOAT3 normal;
 	XMFLOAT2 uv;
-	std::vector<VertexBlendingInfo> mVertexBlendingInfos;
+	XMFLOAT4 blendingIndices;
+	XMFLOAT4 blendingWeight;
+
+//	std::vector<VertexBlendingInfo> mVertexBlendingInfos;
 
 	void SortBlendingInfoByWeight()
 	{

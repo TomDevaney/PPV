@@ -35,6 +35,8 @@ private:
 	vector<PointLight> pointLights;
 	vector<SpotLight> spotLights;
 
+	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
+
 	ID3D11Device* device;
 	ID3D11DeviceContext* devContext;
 	vector<Microsoft::WRL::ComPtr<ID3D11PixelShader>> pixelShaders;

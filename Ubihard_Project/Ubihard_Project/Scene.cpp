@@ -43,20 +43,25 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	//compile shaders
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicVSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicPSBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> bindVSBuffer;
 
 	UINT flags = D3DCOMPILE_DEBUG;
 
 	HRESULT vsCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, basicVSBuffer.GetAddressOf(), NULL);
 	HRESULT psCompResult = D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, basicPSBuffer.GetAddressOf(), NULL);
+	HRESULT vsBindCompResult = D3DCompileFromFile(L"VS_Bind.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, bindVSBuffer.GetAddressOf(), NULL);
 
 	//create shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> bindVS;
 
 	HRESULT vsCrtResult = device->CreateVertexShader(basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), NULL, basicVS.GetAddressOf());
 	HRESULT psCrtResult = device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
+	HRESULT vsBindCrtResult = device->CreateVertexShader(bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), NULL, bindVS.GetAddressOf());
 
 	vertexShaders.push_back(basicVS);
+	vertexShaders.push_back(bindVS);
 	pixelShaders.push_back(basicPS);
 
 	//set up input layouts
@@ -68,6 +73,18 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	};
 
 	HRESULT inputResult = device->CreateInputLayout(basicInputElementDescs, ARRAYSIZE(basicInputElementDescs), basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), inputLayout.GetAddressOf());
+
+	D3D11_INPUT_ELEMENT_DESC bindInputElementDescs[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+
+	HRESULT bindInputResult = device->CreateInputLayout(bindInputElementDescs, ARRAYSIZE(bindInputElementDescs), bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), inputLayout.GetAddressOf());
+
 
 	//might need to make input layout more dynamic if shaders use a different vertex
 	devContext->IASetInputLayout(inputLayout.Get());
@@ -106,15 +123,18 @@ void Scene::CreateLights()
 
 	//create point lights
 	PointLight pointLight0;
+	pointLight0.Create({ 0, 1.0f, 2.0f, 0 }, { 1, 0, 0, 0 }, 5.0f);
 
-	pointLight0.Create({ 0, 1.0f, -2.0f, 0 }, { 1, 0, 0, 0 }, 5.0f);
+	PointLight pointLight1;
+	pointLight1.Create({ 0, 1.0f, 2.0f, 0 }, { 0, 1.0f, 0, 0 }, 7.0f);
 
 	pointLights.push_back(pointLight0);
+	pointLights.push_back(pointLight1);
 
 	//create spot lights
 	//Light spotLight;
 
-	//spotLight.CreatePointLight({ 2, 3.0f, 2, 0 }, { 1, 0, 0, 0 }, 5.0f);
+	//spotLight.CreateSpotlight({ 2, 3.0f, 2, 0 }, { 1, 0, 0, 0 }, 5.0f);
 
 	//spotLights.push_back(spotLight);
 
@@ -127,7 +147,7 @@ void Scene::CreateLights()
 	devContext->PSSetConstantBuffers(0, 1, dirLightConstantBuffer.GetAddressOf());
 
 	//create point light constant buffer
-	CD3D11_BUFFER_DESC pointLightConstantBufferDesc(sizeof(PointLightConstantBuffer) * NUMOFPOINTLIGHTS, D3D11_BIND_CONSTANT_BUFFER);
+	CD3D11_BUFFER_DESC pointLightConstantBufferDesc(sizeof(PointLightConstantBuffer) * (UINT)pointLights.size(), D3D11_BIND_CONSTANT_BUFFER);
 	device->CreateBuffer(&pointLightConstantBufferDesc, nullptr, &pointLightConstantBuffer);
 
 	devContext->UpdateSubresource(pointLightConstantBuffer.Get(), NULL, NULL, pointLights.data(), NULL, NULL);
@@ -137,14 +157,13 @@ void Scene::CreateLights()
 	//Create spot light constant buffer
 	if (NUMOFSPOTLIGHTS)
 	{
-		CD3D11_BUFFER_DESC spotLightConstantBufferDesc(sizeof(SpotLightConstantBuffer) * NUMOFSPOTLIGHTS, D3D11_BIND_CONSTANT_BUFFER);
+		CD3D11_BUFFER_DESC spotLightConstantBufferDesc(sizeof(SpotLightConstantBuffer) * (UINT)spotLights.size(), D3D11_BIND_CONSTANT_BUFFER);
 		device->CreateBuffer(&spotLightConstantBufferDesc, nullptr, &spotLightConstantBuffer);
 
 		devContext->UpdateSubresource(spotLightConstantBuffer.Get(), NULL, NULL, spotLights.data(), NULL, NULL);
 
 		devContext->PSSetConstantBuffers(2, 1, spotLightConstantBuffer.GetAddressOf());
 	}
-	
 }
 
 void Scene::CreateModels()
@@ -195,8 +214,6 @@ void Scene::CreateModels()
 	testModel.SetProjection(projection);
 	testModel.CreateDevResources(device, devContext);
 	models.push_back(testModel);
-
-
 }
 
 void Scene::Update(WPARAM wparam)
@@ -209,7 +226,8 @@ void Scene::Update(WPARAM wparam)
 
 	//update anything that every model needs to know about (e.g., lights)
 	//set the lights after
-	pointLights[0].DoRadiusEffect();
+	pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
+	pointLights[1].DoRadiusEffect(7.0f, radiusChange[1]);
 
 	devContext->UpdateSubresource(pointLightConstantBuffer.Get(), NULL, NULL, pointLights.data(), NULL, NULL);
 

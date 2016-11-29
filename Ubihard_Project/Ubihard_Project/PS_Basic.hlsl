@@ -54,17 +54,17 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	dirColor = (lightRatio + (float3)ambientLight) * (float3)dirLightColor * black;
 
 	//calculate pointlight colors
-	for (int i = 0; i < NUMOFPOINTLIGHTS; ++i)
+	//for (int i = 0; i < NUMOFPOINTLIGHTS; ++i)
 	{
 		float pointRatio;
 		float4 pointDir;
 		float pointAttenuation;
 
-		pointDir = pointLightPosition[i] - input.worldPosition;
-		pointAttenuation = 1 - saturate(length(pointDir) / lightRadius[i].x);
+		pointDir = pointLightPosition[0] - input.worldPosition;
+		pointAttenuation = 1 - saturate(length(pointDir) / lightRadius[0].x);
 		pointRatio = saturate(dot((float3)normalize(pointDir), normalize(input.normal)));
 
-		pointColor += (float3)pointLightColor[i] * saturate(pointRatio * pointAttenuation) * black;
+		pointColor += (float3)pointLightColor[0] * saturate(pointRatio * pointAttenuation) * black;
 	}
 
 	//calculate spotlight colors
