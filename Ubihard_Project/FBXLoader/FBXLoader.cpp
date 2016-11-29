@@ -326,6 +326,9 @@ namespace FBXLoader
 						// sort so its easier to remove duplicates
 						vert.SortBlendingInfoByWeight();
 
+						vert.blendingIndices = XMFLOAT4(0, 0, 0, 0);
+						vert.blendingWeight = XMFLOAT4(0.25f,0.25f,0.25f,0.25f);
+
 						outVerts->push_back(vert);
 						++vertCounter;
 

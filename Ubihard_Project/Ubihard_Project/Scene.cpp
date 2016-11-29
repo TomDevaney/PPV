@@ -211,13 +211,18 @@ void Scene::CreateModels()
 	//test model for fbx loading 
 	vector<Vertex> bindVertices;
 	vector<XMFLOAT4X4> boneMats;
+	XMFLOAT4X4 identity;
+	XMStoreFloat4x4(&identity, XMMatrixIdentity());
+	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 	Model testModel;
 	testModel.SetVertexShader(vertexShaders[Shadertypes::BIND].Get(), Shadertypes::BIND);
 	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
 	testModel.SetInputLayout(inputLayouts[Shadertypes::BIND].Get());
+	testModel.SetBoneOffsetData(identities);
 	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	bindVertices.clear();
 	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMats, "..\\Assets\\Box_Idle.fbx");
+	testModel.SetIndices(indices);
 	testModel.SetVertices(bindVertices);
 	testModel.SetModel(XMMatrixIdentity());
 	testModel.SetView(camera);
@@ -256,6 +261,7 @@ void Scene::Update(WPARAM wparam)
 		models[i].SetView(tempCamera);
 	}
 
+	//TODO: we need to update bone offsets somehow by calculating: vertexOut = inverseBindMatrix  * currentWorldMatrix * bindVertexPosition
 }
 
 //void Scene::CheckForInput(float dt)

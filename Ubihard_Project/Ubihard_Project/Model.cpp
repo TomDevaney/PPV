@@ -116,3 +116,11 @@ void Model::SetModel(XMMATRIX& model)
 	XMStoreFloat4x4(&tempModel, model);
 	mvpData.model = tempModel;
 }
+
+void Model::SetBoneOffsetData(XMFLOAT4X4* data)
+{ 
+	for (int i = 0; i < MAXBONES; ++i)
+	{
+		boneOffsetData.boneOffsets[i] = data[i];
+	}
+}

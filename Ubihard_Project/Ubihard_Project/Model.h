@@ -44,4 +44,5 @@ public:
 	void SetModel(XMMATRIX& model);
 	void SetView(XMFLOAT4X4 view) { mvpData.view = view; }
 	void SetProjection(XMFLOAT4X4 projection) { mvpData.projection = projection; }
+	void SetBoneOffsetData(XMFLOAT4X4* data);
 };
