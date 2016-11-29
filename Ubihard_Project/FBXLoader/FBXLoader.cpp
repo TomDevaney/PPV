@@ -53,9 +53,10 @@ namespace FBXLoader
 			break;
 
 			default:
-			break;
+				break;
 			}
 		}
+		iVert.uv.y = 1.0f - iVert.uv.y;
 	}
 
 	void LoadNormal(FbxMesh* mesh, int iCtrlPoint, int iVertCounter, Vertex& vert)
@@ -111,23 +112,37 @@ namespace FBXLoader
 				break;
 			}
 		}
+		vert.normal.x = -vert.normal.x;
 	}
 
 	int FindVertex(const Vertex& inTargetVertex, const std::vector<Vertex>& uniqueVertices)
 	{
 		for (unsigned int i = 0; i < uniqueVertices.size(); ++i)
-		{
 			if (inTargetVertex == uniqueVertices[i])
-			{
 				return i;
-			}
-		}
 
 		return -1;
 	}
 
+	void ElimanateDuplicates(std::vector<Vertex>& mVertices, std::vector<unsigned int>& mIndices)
+	{
+		// First get a list of unique vertices
+		std::vector<Vertex> uniqueVertices;
+		for (unsigned int i = 0; i < mVertices.size(); ++i)
+			//iff unique add it to vector
+			if (FindVertex(mVertices[i], uniqueVertices) == -1)
+				uniqueVertices.push_back(mVertices[i]);
 
-	bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, const char * filePath)
+		// Now we update the index buffer
+		for (unsigned int i = 0; i < mVertices.size(); ++i)
+			mIndices[i] = FindVertex(mVertices[i], uniqueVertices);
+	
+		mVertices.clear();
+		mVertices = uniqueVertices;
+		uniqueVertices.clear();
+	}
+
+	bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, const char * filePath)
 	{
 		//if the FbxManager is not created. Create it.
 		if (!fbxManager)
@@ -194,7 +209,7 @@ namespace FBXLoader
 						Vertex vert;
 
 						//position
-						vert.position.x = (float)verts[iCtrlPoint].mData[0];
+						vert.position.x = -(float)verts[iCtrlPoint].mData[0];
 						vert.position.y = (float)verts[iCtrlPoint].mData[1];
 						vert.position.z = (float)verts[iCtrlPoint].mData[2];
 
@@ -203,12 +218,26 @@ namespace FBXLoader
 
 						//normals
 						LoadNormal(mesh, iCtrlPoint, vertCounter, vert);
-						
+
+						// sort so its easier to remove duplicates
+						vert.SortBlendingInfoByWeight();
+
 						outVerts->push_back(vert);
 						++vertCounter;
 
 					}
 				}
+			}
+			outIndices->clear();
+			outIndices->resize(outVerts->size());
+			ElimanateDuplicates(*outVerts, *outIndices);
+			//swap indices for correct texture
+			for (unsigned int i = 0; i < outIndices->size(); i += 3)
+			{
+				outIndices->at(i + 1) ^= outIndices->at(i + 2);
+				outIndices->at(i + 2) ^= outIndices->at(i + 1);
+				outIndices->at(i + 1) ^= outIndices->at(i + 2);
+
 			}
 			return true;
 		}

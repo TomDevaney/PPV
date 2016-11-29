@@ -115,8 +115,9 @@ void Scene::CreateModels()
 	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
 	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	vertices.clear();
-	FBXLoader::Functions::FBXLoadFile(&vertices, "..\\Assets\\Box_Idle.fbx");
+	FBXLoader::Functions::FBXLoadFile(&vertices, &indices, "..\\Assets\\Box_Idle.fbx");
 	testModel.SetVertices(vertices);
+	testModel.SetIndices(indices);
 	testModel.SetModel(XMMatrixIdentity());
 	testModel.SetView(camera);
 	testModel.SetProjection(projection);
