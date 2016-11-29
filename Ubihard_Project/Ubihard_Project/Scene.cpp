@@ -202,12 +202,13 @@ void Scene::CreateModels()
 
 
 	//box model for fbx loading 
+	vector<XMFLOAT4X4> bonePos;
 	Model AnimBox;
 	AnimBox.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get());
 	AnimBox.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
 	AnimBox.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
 	vertices.clear();
-	FBXLoader::Functions::FBXLoadFile(&vertices, &indices, "..\\Assets\\Box_Idle.fbx");
+	FBXLoader::Functions::FBXLoadFile(&vertices, &indices, &bonePos, "..\\Assets\\Box_Idle.fbx");
 	AnimBox.SetVertices(vertices);
 	AnimBox.SetIndices(indices);
 	AnimBox.SetModel(XMMatrixIdentity());

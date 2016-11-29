@@ -16,6 +16,6 @@ namespace FBXLoader
 	{
 	public:
 		// Returns a + b  
-		static FBXLOADER_API bool FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices,  const char * filePath);
+		static FBXLOADER_API bool FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, std::vector<XMFLOAT4X4> *outBonePos, const char * filePath);
 	};
 }
