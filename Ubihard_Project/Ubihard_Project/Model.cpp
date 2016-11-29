@@ -32,25 +32,6 @@ void Model::CreateDevResources(ID3D11Device* device, ID3D11DeviceContext* devCon
 	//create shader resource view with texture path
 	wstring wideTexturePath = wstring(texturePath.begin(), texturePath.end());
 	HRESULT baseTextResult = CreateDDSTextureFromFile(device, wideTexturePath.c_str(), nullptr, textureSRV.GetAddressOf());
-
-	//create sampler state
-	CD3D11_SAMPLER_DESC samplerDesc = {};
-
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-
-	HRESULT wrapSampleResult = device->CreateSamplerState(&samplerDesc, &wrapSamplerState);
 }
 
 void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
@@ -73,9 +54,6 @@ void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
 
 	//set shader resource view
 	devContext->PSSetShaderResources(0, 1, textureSRV.GetAddressOf());
-
-	//set sampler state
-	devContext->PSSetSamplers(0, 1, wrapSamplerState.GetAddressOf());
 
 	//set index buffer
 	if (indices.data())

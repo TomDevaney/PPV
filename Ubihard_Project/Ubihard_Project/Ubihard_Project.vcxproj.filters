@@ -34,6 +34,18 @@
     <Filter Include="Content\DDSLoader">
       <UniqueIdentifier>{3ec57287-b4f1-451e-9b55-deb0382faeab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Content\Animation">
+      <UniqueIdentifier>{4104d5c5-18a9-461f-919b-43171261b83d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Animation\Headers">
+      <UniqueIdentifier>{af52e660-c898-430d-b43b-ce5dcb0f5e06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Animation\Source">
+      <UniqueIdentifier>{3715db91-4bb3-457f-8277-af1dfc5c0e37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Content\Lights">
+      <UniqueIdentifier>{a9daff9c-1674-4d8b-9d85-2af871c03544}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -56,6 +68,15 @@
     </ClCompile>
     <ClCompile Include="Light.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DirectionalLight.cpp">
+      <Filter>Content\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="PointLight.cpp">
+      <Filter>Content\Lights</Filter>
+    </ClCompile>
+    <ClCompile Include="SpotLight.cpp">
+      <Filter>Content\Lights</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -83,6 +104,18 @@
     <ClInclude Include="Light.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Bone.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="DirectionalLight.h">
+      <Filter>Content\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="PointLight.h">
+      <Filter>Content\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="SpotLight.h">
+      <Filter>Content\Lights</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VS_Basic.hlsl">
@@ -91,14 +124,13 @@
     <FxCompile Include="PS_Basic.hlsl">
       <Filter>Content\Shaders\Pixel</Filter>
     </FxCompile>
-    <FxCompile Include="VS_Simple.hlsl">
-      <Filter>Content\Shaders\Vertex</Filter>
-    </FxCompile>
-    <FxCompile Include="PS_Simple.hlsl">
-      <Filter>Content\Shaders\Pixel</Filter>
-    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resources\FloorTexture.dds">
+      <Filter>Assets\Textures</Filter>
+    </Image>
   </ItemGroup>
 </Project>
