@@ -86,10 +86,10 @@ void Scene::CreateModels()
 
 	vector<Vertex> vertices =
 	{
-		{ XMFLOAT3(-0.5f, -0.5f, 0.5f)}, //left bottom
-		{ XMFLOAT3(0.5f, -0.5f,  0.5f)}, //right bottom
-		{ XMFLOAT3(-0.5f,  0.5f, 0.5f)}, //left top
-		{ XMFLOAT3(0.5f,  0.5f,  0.5f)} //right top
+		{ XMFLOAT3(-5.5f, 0, -5.5f)}, //left bottom
+		{ XMFLOAT3(5.5f, 0, -5.5f)}, //right bottom
+		{ XMFLOAT3(-5.5f,  0, 5.5f)}, //left top
+		{ XMFLOAT3(5.5f,  0,  5.5f)} //right top
 	};
 
 	//clockwise
@@ -101,12 +101,12 @@ void Scene::CreateModels()
 
 	groundPlane.SetVertices(vertices);
 	groundPlane.SetIndices(indices);
-	groundPlane.SetModel(XMMatrixTranspose(XMMatrixRotationX(90)));
+	groundPlane.SetModel(XMMatrixIdentity());
 	groundPlane.SetView(camera);
 	groundPlane.SetProjection(projection);
 	groundPlane.CreateDevResources(device, devContext);
 
-	//models.push_back(groundPlane);
+	models.push_back(groundPlane);
 
 
 	//test model for fbx loading 
