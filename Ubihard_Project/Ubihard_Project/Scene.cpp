@@ -159,7 +159,7 @@ void Scene::CreateModels()
 	vector<Vertex> vertices =
 	{
 		{ XMFLOAT3(-5.5f, 0, -5.5f)}, //left bottom
-		{ XMFLOAT3(5.5f, 0,  -5.5f)}, //right bottom
+		{ XMFLOAT3(5.5f, 0, -5.5f)}, //right bottom
 		{ XMFLOAT3(-5.5f,  0, 5.5f)}, //left top
 		{ XMFLOAT3(5.5f,  0,  5.5f)} //right top
 	};

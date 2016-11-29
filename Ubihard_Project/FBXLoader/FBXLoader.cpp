@@ -8,12 +8,130 @@ FbxManager* fbxManager = nullptr;
 
 namespace FBXLoader
 {
+	void LoadUV(FbxMesh* iMesh, int iCtrlPoint, int iTextureUVIndex, int iUVLayer, Vertex& iVert)
+	{
+		//invalid paramaters
+		if (iUVLayer >= 2 || iMesh->GetElementUVCount() <= iUVLayer) return;
+
+		//get the uv layer from mesh
+		FbxGeometryElementUV* vertUV = iMesh->GetElementUV(iUVLayer);
+
+		//switch on mapping mode
+		switch (vertUV->GetMappingMode())
+		{
+		case FbxGeometryElement::eByControlPoint:
+			switch (vertUV->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				iVert.uv.x = (float)(vertUV->GetDirectArray().GetAt(iCtrlPoint).mData[0]);
+				iVert.uv.y = (float)(vertUV->GetDirectArray().GetAt(iCtrlPoint).mData[1]);
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertUV->GetIndexArray().GetAt(iCtrlPoint);
+				iVert.uv.x = (float)(vertUV->GetDirectArray().GetAt(index).mData[0]);
+				iVert.uv.y = (float)(vertUV->GetDirectArray().GetAt(index).mData[1]);
+			}
+			break;
+
+			default:
+				break;
+			}
+
+		case FbxGeometryElement::eByPolygonVertex:
+			switch (vertUV->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				iVert.uv.x = (float)(vertUV->GetDirectArray().GetAt(iTextureUVIndex).mData[0]);
+				iVert.uv.y = (float)(vertUV->GetDirectArray().GetAt(iTextureUVIndex).mData[1]);
+			}
+			break;
+
+			default:
+			break;
+			}
+		}
+	}
+
+	void LoadNormal(FbxMesh* mesh, int iCtrlPoint, int iVertCounter, Vertex& vert)
+	{
+		FbxGeometryElementNormal * vertNormal = mesh->GetElementNormal();
+		switch (vertNormal->GetMappingMode())
+		{
+		case FbxGeometryElement::eByControlPoint:
+			switch (vertNormal->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				vert.normal.x = (float)(vertNormal->GetDirectArray().GetAt(iCtrlPoint).mData[0]);
+				vert.normal.y = (float)(vertNormal->GetDirectArray().GetAt(iCtrlPoint).mData[1]);
+				vert.normal.z = (float)(vertNormal->GetDirectArray().GetAt(iCtrlPoint).mData[2]);
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertNormal->GetIndexArray().GetAt(iCtrlPoint);
+				vert.normal.x = (float)(vertNormal->GetDirectArray().GetAt(index).mData[0]);
+				vert.normal.y = (float)(vertNormal->GetDirectArray().GetAt(index).mData[1]);
+				vert.normal.z = (float)(vertNormal->GetDirectArray().GetAt(index).mData[2]);
+			}
+			break;
+
+			default:
+				break;
+			}
+
+		case FbxGeometryElement::eByPolygonVertex:
+			switch (vertNormal->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				vert.normal.x = (float)(vertNormal->GetDirectArray().GetAt(iVertCounter).mData[0]);
+				vert.normal.y = (float)(vertNormal->GetDirectArray().GetAt(iVertCounter).mData[1]);
+				vert.normal.z = (float)(vertNormal->GetDirectArray().GetAt(iVertCounter).mData[2]);
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertNormal->GetIndexArray().GetAt(iVertCounter);
+				vert.normal.x = (float)(vertNormal->GetDirectArray().GetAt(index).mData[0]);
+				vert.normal.y = (float)(vertNormal->GetDirectArray().GetAt(index).mData[1]);
+				vert.normal.z = (float)(vertNormal->GetDirectArray().GetAt(index).mData[2]);
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+	}
+
+	int FindVertex(const Vertex& inTargetVertex, const std::vector<Vertex>& uniqueVertices)
+	{
+		for (unsigned int i = 0; i < uniqueVertices.size(); ++i)
+		{
+			if (inTargetVertex == uniqueVertices[i])
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+
 	bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, const char * filePath)
 	{
-		//if the FbxManager is not created. Crate it.
+		//if the FbxManager is not created. Create it.
 		if (!fbxManager)
 		{
-			
 			fbxManager = FbxManager::Create();
 
 			FbxIOSettings* settings = FbxIOSettings::Create(fbxManager, IOSROOT);
@@ -25,13 +143,11 @@ namespace FBXLoader
 		FbxScene* fbxScene = FbxScene::Create(fbxManager, "");
 
 		// the -1 is so that the plugin will detect the file format according to file suffix automatically.
-		bool success = fbxImporter->Initialize(filePath, -1, fbxManager->GetIOSettings());
-		if (!success) return false;
+		if (!fbxImporter->Initialize(filePath, -1, fbxManager->GetIOSettings())) return false;
 
-		success = fbxImporter->Import(fbxScene);
-		if (!success) return false;
+		if (!fbxImporter->Import(fbxScene)) return false;
 
-		//Destroy importer i
+		//Destroy importer as we are done using it
 		fbxImporter->Destroy();
 
 		//Create the root node as a handle for the rest of the FBX mesh
@@ -41,7 +157,7 @@ namespace FBXLoader
 		if (rootNode)
 		{
 			//for every child node
-			for (unsigned int i = 0; i < rootNode->GetChildCount(); ++i)
+			for (int i = 0; i < rootNode->GetChildCount(); ++i)
 			{
 				FbxNode* node = rootNode->GetChild(i);
 				//skip child if null
@@ -58,8 +174,9 @@ namespace FBXLoader
 				FbxMesh* mesh = (FbxMesh*)node->GetNodeAttribute();
 
 				FbxVector4* verts = mesh->GetControlPoints();
+				int vertCounter = 0;
 
-				for (unsigned int j = 0; j < mesh->GetPolygonCount(); ++j)
+				for (int j = 0; j < mesh->GetPolygonCount(); ++j)
 				{
 
 					int numVerts = mesh->GetPolygonSize(j);
@@ -67,18 +184,29 @@ namespace FBXLoader
 					//if the polgon is not a triangle wether the mesh is not triangulated or some other error
 					if (numVerts != 3) return false;
 
-					for (unsigned int k = 0; k < numVerts; ++k)
+					for (int k = 0; k < numVerts; ++k)
 					{
-						int iControlPointIndex = mesh->GetPolygonVertex(j, k);
+						int iCtrlPoint = mesh->GetPolygonVertex(j, k);
 
 						//if the requested vertex does not exists or the indices arguments have an invalid range
-						if (iControlPointIndex < 0) return false;
+						if (iCtrlPoint < 0) return false;
 
 						Vertex vert;
-						vert.position.x = (float)verts[iControlPointIndex].mData[0];
-						vert.position.y = (float)verts[iControlPointIndex].mData[1];
-						vert.position.z = (float)verts[iControlPointIndex].mData[2];
+
+						//position
+						vert.position.x = (float)verts[iCtrlPoint].mData[0];
+						vert.position.y = (float)verts[iCtrlPoint].mData[1];
+						vert.position.z = (float)verts[iCtrlPoint].mData[2];
+
+						//uvs
+						LoadUV(mesh, iCtrlPoint, mesh->GetTextureUVIndex(j, k), 0, vert);
+
+						//normals
+						LoadNormal(mesh, iCtrlPoint, vertCounter, vert);
+						
 						outVerts->push_back(vert);
+						++vertCounter;
+
 					}
 				}
 			}

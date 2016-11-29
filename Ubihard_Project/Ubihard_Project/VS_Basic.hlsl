@@ -29,6 +29,8 @@ PS_BasicInput main(VertexShaderInput input)
 	PS_BasicInput output;
 	float4 pos = float4(input.pos, 1.0f);
 
+	//bind math
+
 	// Transform the vertex position into projected space.
 	pos = mul(pos, model);
 	output.worldPosition = pos;
