@@ -105,7 +105,14 @@ void Model::Render(ID3D11Device* device, ID3D11DeviceContext* devContext)
 	}
 	else
 	{
-		devContext->Draw((unsigned int)vertices.size(), 0);
+		if (vertexType == Shadertypes::BIND)
+		{
+			devContext->Draw((unsigned int)vertices.size(), 0);
+		}
+		else
+		{
+			devContext->Draw((unsigned int)basicVertices.size(), 0);
+		}
 	}
 }
 

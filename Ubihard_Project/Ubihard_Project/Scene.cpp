@@ -229,6 +229,29 @@ void Scene::CreateModels()
 	testModel.SetProjection(projection);
 	testModel.CreateDevResources(device, devContext);
 	models.push_back(testModel);
+
+	//add four spheres. set postions at position in boneMats
+	basicVertices.clear();
+	bindVertices.clear();
+	
+	vector<XMFLOAT4X4> sphereBoneMats;
+	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &sphereBoneMats, "..\\Assets\\Sphere.fbx");
+
+	for (int i = 0; i < 4; ++i)
+	{
+		Model sphereModel;
+		sphereModel.SetVertexShader(vertexShaders[Shadertypes::BIND].Get(), Shadertypes::BIND);
+		sphereModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
+		sphereModel.SetInputLayout(inputLayouts[Shadertypes::BIND].Get());
+		sphereModel.SetBoneOffsetData(identities);
+		sphereModel.SetIndices(indices);
+		sphereModel.SetVertices(bindVertices);
+		sphereModel.SetModel(XMMatrixTranspose(XMMatrixTranslation(boneMats[i]._41, boneMats[i]._42, boneMats[i]._43)));
+		sphereModel.SetView(camera);
+		sphereModel.SetProjection(projection);
+		sphereModel.CreateDevResources(device, devContext);
+		models.push_back(sphereModel);
+	}
 }
 
 void Scene::Update(WPARAM wparam)
