@@ -130,7 +130,6 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
-    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PointLight.cpp" />
@@ -144,7 +143,6 @@
     <ClInclude Include="DeviceResources.h" />
     <ClInclude Include="DirectionalLight.h" />
     <ClInclude Include="Includes.h" />
-    <ClInclude Include="Light.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="Scene.h" />

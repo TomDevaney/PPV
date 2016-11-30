@@ -66,9 +66,6 @@
     <ClCompile Include="DDSTextureLoader.cpp">
       <Filter>Content\DDSLoader</Filter>
     </ClCompile>
-    <ClCompile Include="Light.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="DirectionalLight.cpp">
       <Filter>Content\Lights</Filter>
     </ClCompile>
@@ -100,9 +97,6 @@
     </ClInclude>
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>Content\DDSLoader</Filter>
-    </ClInclude>
-    <ClInclude Include="Light.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Bone.h">
       <Filter>Content\Animation\Headers</Filter>
