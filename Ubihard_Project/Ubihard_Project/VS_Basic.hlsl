@@ -28,6 +28,7 @@ PS_BasicInput main(VertexShaderInput input)
 {
 	PS_BasicInput output;
 	float4 pos = float4(input.pos, 1.0f);
+	float4 norm = float4(input.normal, 0.0f);
 
 	// Transform the vertex position into projected space.
 	pos = mul(pos, model);
@@ -40,7 +41,7 @@ PS_BasicInput main(VertexShaderInput input)
 	output.uv = input.uv;
 
 	//pass normal
-	output.normal = input.normal;
+	output.normal = mul(norm, model);
 
 	return output;
 }

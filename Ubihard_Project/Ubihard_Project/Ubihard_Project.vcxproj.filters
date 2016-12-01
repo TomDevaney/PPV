@@ -91,7 +91,7 @@
       <Filter>Content\Animation\Source</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
-      <Filter>Content\Animation\Headers</Filter>
+      <Filter>Content\Animation\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 #pragma once
-#include "ShaderStructures.h"
+#include "../ShaderStructures/ShaderStructures.h"
 #include "DeviceResources.h"
 
 class Model

@@ -8,7 +8,7 @@
 #endif  
 
 #include <vector>
-#include "ShaderStructures.h"
+#include "../ShaderStructures/ShaderStructures.h"
 
 namespace FBXLoader
 {
