@@ -1,2 +1,7 @@
-﻿  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.exe
+﻿  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\PS_Basic.cso
+E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Ubihard_Project\VS_Basic.hlsl(44,2-33): warning X3206: implicit truncation of vector type
+  
+  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\VS_Basic.cso
+  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\VS_Bind.cso
+  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.exe
   Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.pdb (Partial PDB)
