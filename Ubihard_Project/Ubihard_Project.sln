@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Ubihard_Project", "Ubihard_
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBXLoader", "Bin\FBXLoader\FBXLoader.vcxproj", "{D339C0ED-FD2F-402B-9237-F66AF4CA125C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderStructures", "ShaderStructures\ShaderStructures.vcxproj", "{179BBA62-7114-4D1F-B7B6-2BEDFA346DD7}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderStructures", "Bin\ShaderStructures\ShaderStructures.vcxproj", "{179BBA62-7114-4D1F-B7B6-2BEDFA346DD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -75,12 +75,12 @@
     <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>"E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures";$(IncludePath)</IncludePath>
+    <IncludePath>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\ShaderStructures;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\x64\Debug;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>"E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures";$(IncludePath)</IncludePath>
+    <IncludePath>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\ShaderStructures;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
     <LibraryPath>"E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\x64\Release";$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -97,7 +97,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures;E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\FBXLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\ShaderStructures;E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\FBXLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -124,7 +124,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\ShaderStructures;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
@@ -227,7 +227,7 @@
     <ProjectReference Include="..\Bin\FBXLoader\FBXLoader.vcxproj">
       <Project>{d339c0ed-fd2f-402b-9237-f66af4ca125c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\ShaderStructures\ShaderStructures.vcxproj">
+    <ProjectReference Include="..\Bin\ShaderStructures\ShaderStructures.vcxproj">
       <Project>{179bba62-7114-4d1f-b7b6-2bedfa346dd7}</Project>
     </ProjectReference>
   </ItemGroup>

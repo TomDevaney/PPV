@@ -1,7 +1,4 @@
-﻿  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\PS_Basic.cso
-  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\VS_Basic.cso
-  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\VS_Bind.cso
-  Animation.cpp
+﻿  Animation.cpp
   AnimationSet.cpp
   Application.cpp
   BindPose.cpp
@@ -17,7 +14,9 @@
   SpotLight.cpp
   Window.cpp
   Generating code
-  All 1140 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  14 of 1140 functions ( 1.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    5 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\Ubihard_Project.exe
   Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\Ubihard_Project.pdb (Full PDB)
