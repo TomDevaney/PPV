@@ -127,17 +127,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="AnimationSet.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="BindPose.cpp" />
+    <ClCompile Include="Bone.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
     <ClCompile Include="DirectionalLight.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PointLight.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SpotLight.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationSet.h" />
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="BindPose.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -145,6 +155,7 @@
     <ClInclude Include="Includes.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PointLight.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="ShaderStructures.h" />
     <ClInclude Include="SpotLight.h" />
@@ -183,11 +194,6 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FBXLoader\FBXLoader.vcxproj">
-      <Project>{d339c0ed-fd2f-402b-9237-f66af4ca125c}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
@@ -210,6 +216,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FBXLoader\FBXLoader.vcxproj">
+      <Project>{d339c0ed-fd2f-402b-9237-f66af4ca125c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

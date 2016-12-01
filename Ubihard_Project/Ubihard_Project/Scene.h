@@ -37,6 +37,7 @@ private:
 
 	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
 
+	//Device Resources
 	ID3D11Device* device;
 	ID3D11DeviceContext* devContext;
 	vector<Microsoft::WRL::ComPtr<ID3D11PixelShader>> pixelShaders;
@@ -51,10 +52,10 @@ private:
 	void CreateDevResources(DeviceResources const * devResources);
 	void CreateLights();
 	void UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam);
-	//void CheckForInput(float dt);
+	void CreateModels();
+
 public:
 	void Init(DeviceResources const * devResources);
-	void CreateModels();
 	void Update(WPARAM wparam);
 	void Render();
 

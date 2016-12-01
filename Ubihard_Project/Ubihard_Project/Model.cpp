@@ -1,5 +1,36 @@
 #include "Model.h"
 
+//for bind vertices
+void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<Vertex> verts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData)
+{
+	vertexType = shaderType;
+	vertexShader = vShader;
+	pixelShader = pShader;
+	inputLayout = iLayout;
+	vertices = verts;
+	indices = ind;
+	texturePath = tPath;
+	SetModel(model);
+	mvpData.view = view;
+	mvpData.projection = projection;
+	SetBoneOffsetData(boneOffData);
+}
+
+//for basic vertices
+void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<VS_BasicInput> bVerts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection)
+{
+	vertexType = shaderType;
+	vertexShader = vShader;
+	pixelShader = pShader;
+	inputLayout = iLayout;
+	basicVertices = bVerts;
+	indices = ind;
+	texturePath = tPath;
+	SetModel(model);
+	mvpData.view = view;
+	mvpData.projection = projection;
+}
+
 void Model::CreateDevResources(ID3D11Device* device, ID3D11DeviceContext* devContext)
 {
 	//create vertex bufer

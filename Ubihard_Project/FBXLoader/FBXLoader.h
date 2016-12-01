@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "..\Ubihard_Project\ShaderStructures.h"
+
 namespace FBXLoader
 {
 	// This class is exported from the FBXLOADER.dll  

@@ -75,6 +75,24 @@
     <ClCompile Include="SpotLight.cpp">
       <Filter>Content\Lights</Filter>
     </ClCompile>
+    <ClCompile Include="Application.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Bone.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="BindPose.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationSet.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Animation.cpp">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -109,6 +127,21 @@
     </ClInclude>
     <ClInclude Include="SpotLight.h">
       <Filter>Content\Lights</Filter>
+    </ClInclude>
+    <ClInclude Include="Application.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="BindPose.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationSet.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Animation.h">
+      <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
