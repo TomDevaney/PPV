@@ -15,8 +15,8 @@ class Scene
 {
 private:
 	//buffer data
-	XMFLOAT4X4 camera;
-	XMFLOAT4X4 projection;
+	DirectX::XMFLOAT4X4 camera;
+	DirectX::XMFLOAT4X4 projection;
 
 	float camYaw;
 	float camPitch;

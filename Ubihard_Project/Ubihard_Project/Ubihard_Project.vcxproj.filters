@@ -110,9 +110,6 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShaderStructures.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>Content\DDSLoader</Filter>
     </ClInclude>

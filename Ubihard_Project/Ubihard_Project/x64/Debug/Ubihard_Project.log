@@ -1,15 +1,2 @@
-﻿  compilation object save succeeded; see D:\Users\mlebo\Documents\GitHub\RTA\PPV\Ubihard_Project\x64\Debug\PS_Basic.cso
-  compilation object save succeeded; see D:\Users\mlebo\Documents\GitHub\RTA\PPV\Ubihard_Project\x64\Debug\VS_Basic.cso
-  compilation object save succeeded; see D:\Users\mlebo\Documents\GitHub\RTA\PPV\Ubihard_Project\x64\Debug\VS_Bind.cso
-  Window.cpp
-  SpotLight.cpp
-  Scene.cpp
-  PointLight.cpp
-  Model.cpp
-  Main.cpp
-  DirectionalLight.cpp
-  DeviceResources.cpp
-  DDSTextureLoader.cpp
-  Generating Code...
-  Ubihard_Project.vcxproj -> D:\Users\mlebo\Documents\GitHub\RTA\PPV\Ubihard_Project\x64\Debug\Ubihard_Project.exe
-  Ubihard_Project.vcxproj -> D:\Users\mlebo\Documents\GitHub\RTA\PPV\Ubihard_Project\x64\Debug\Ubihard_Project.pdb (Partial PDB)
+﻿  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.exe
+  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.pdb (Partial PDB)

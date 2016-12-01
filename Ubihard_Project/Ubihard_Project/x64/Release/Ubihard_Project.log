@@ -1,2 +1,23 @@
-﻿  Ubihard_Project.vcxproj -> C:\Users\Thyasianman\Documents\Full Sail\Month 16\RTA (PPV)\PPV\Ubihard_Project\x64\Release\Ubihard_Project.exe
-  Ubihard_Project.vcxproj -> C:\Users\Thyasianman\Documents\Full Sail\Month 16\RTA (PPV)\PPV\Ubihard_Project\x64\Release\Ubihard_Project.pdb (Full PDB)
+﻿  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\PS_Basic.cso
+  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\VS_Basic.cso
+  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\VS_Bind.cso
+  Animation.cpp
+  AnimationSet.cpp
+  Application.cpp
+  BindPose.cpp
+  Bone.cpp
+  DDSTextureLoader.cpp
+  DeviceResources.cpp
+  DirectionalLight.cpp
+  Main.cpp
+  Model.cpp
+  PointLight.cpp
+  ResourceManager.cpp
+  Scene.cpp
+  SpotLight.cpp
+  Window.cpp
+  Generating code
+  All 1140 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\Ubihard_Project.exe
+  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Release\Ubihard_Project.pdb (Full PDB)

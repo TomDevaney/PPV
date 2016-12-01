@@ -1,4 +1,5 @@
 #include "Model.h"
+using namespace DirectX;
 
 //for bind vertices
 void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<Vertex> verts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData)

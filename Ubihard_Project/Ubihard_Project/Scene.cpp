@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "../FBXLoader/FBXLoader.h"
+#include "../Bin/FBXLoader/FBXLoader.h"
 
 void Scene::Init(DeviceResources const * devResources)
 {

@@ -75,11 +75,14 @@
     <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Program Files\Autodesk\FBX\FBX SDK\2017.0.1\lib\vs2015\x64\debug;$(LibraryPath)</LibraryPath>
+    <IncludePath>"E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures";$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\x64\Debug;$(LibraryPath)</LibraryPath>
+    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\include;$(IncludePath)</IncludePath>
+    <IncludePath>"E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures";$(IncludePath)</IncludePath>
+    <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
+    <LibraryPath>"E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\x64\Release";$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,10 +96,12 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures;E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\Bin\FBXLoader;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\lib\vs2015\x64\debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ShaderStructures.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -119,12 +124,13 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>E:\Documents\Full Sail\Classes\Month 16\Real Time Animation %28PPV%29\Ubihard_Project\ShaderStructures;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\lib\vs2015\x64\release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libfbxsdk.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ShaderStructures.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -158,7 +164,6 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
-    <ClInclude Include="ShaderStructures.h" />
     <ClInclude Include="SpotLight.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
@@ -219,8 +224,11 @@
     </Media>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FBXLoader\FBXLoader.vcxproj">
+    <ProjectReference Include="..\Bin\FBXLoader\FBXLoader.vcxproj">
       <Project>{d339c0ed-fd2f-402b-9237-f66af4ca125c}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\ShaderStructures\ShaderStructures.vcxproj">
+      <Project>{179bba62-7114-4d1f-b7b6-2bedfa346dd7}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
