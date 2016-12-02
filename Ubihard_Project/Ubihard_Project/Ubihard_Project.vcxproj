@@ -137,7 +137,8 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimationSet.cpp" />
     <ClCompile Include="Application.cpp" />
-    <ClCompile Include="BindPose.cpp" />
+    <ClCompile Include="KeyFrame.cpp" />
+    <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="DeviceResources.cpp" />
@@ -148,13 +149,16 @@
     <ClCompile Include="ResourceManager.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SpotLight.cpp" />
+    <ClCompile Include="TransformNode.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h" />
+    <ClInclude Include="AnimationIncludes.h" />
     <ClInclude Include="AnimationSet.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="BindPose.h" />
+    <ClInclude Include="KeyFrame.h" />
+    <ClInclude Include="Skeleton.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="DeviceResources.h" />
@@ -165,6 +169,7 @@
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SpotLight.h" />
+    <ClInclude Include="TransformNode.h" />
     <ClInclude Include="Window.h" />
   </ItemGroup>
   <ItemGroup>

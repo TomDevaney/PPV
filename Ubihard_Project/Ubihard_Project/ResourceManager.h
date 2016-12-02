@@ -1,7 +1,7 @@
 #pragma once
 #include "Animation.h"
 #include "AnimationSet.h"
-#include "BindPose.h"
+#include "Skeleton.h"
 
 #include <map>
 
@@ -13,8 +13,7 @@ class ResourceManager
 {
 private:
 	std::map<unsigned int, AnimationSet> animations;
-	std::map<unsigned int, BindPose*> rigs;
+	std::map<unsigned int, Skeleton*> rigs;
 
 public:
-	
 };

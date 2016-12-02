@@ -84,13 +84,19 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Content\Animation\Source</Filter>
     </ClCompile>
-    <ClCompile Include="BindPose.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
     <ClCompile Include="AnimationSet.cpp">
       <Filter>Content\Animation\Source</Filter>
     </ClCompile>
     <ClCompile Include="Animation.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Skeleton.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TransformNode.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="KeyFrame.cpp">
       <Filter>Content\Animation\Source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,13 +137,22 @@
     <ClInclude Include="ResourceManager.h">
       <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
-    <ClInclude Include="BindPose.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="AnimationSet.h">
       <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
     <ClInclude Include="Animation.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="TransformNode.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Skeleton.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationIncludes.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="KeyFrame.h">
       <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
   </ItemGroup>

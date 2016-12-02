@@ -4,4 +4,6 @@ class Bone
 {
 private:
 
+public:
+
 };
