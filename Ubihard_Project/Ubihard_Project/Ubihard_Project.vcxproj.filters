@@ -99,6 +99,18 @@
     <ClCompile Include="KeyFrame.cpp">
       <Filter>Content\Animation\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Interpolator.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Blender.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedGameObject.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimatedRenderNode.cpp">
+      <Filter>Content\Animation\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -153,6 +165,18 @@
       <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
     <ClInclude Include="KeyFrame.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Interpolator.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Blender.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatedGameObject.h">
+      <Filter>Content\Animation\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimatedRenderNode.h">
       <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,7 +1,8 @@
-﻿  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\PS_Basic.cso
-E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Ubihard_Project\VS_Basic.hlsl(44,2-33): warning X3206: implicit truncation of vector type
-  
-  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\VS_Basic.cso
-  compilation object save succeeded; see E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\VS_Bind.cso
-  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.exe
-  Ubihard_Project.vcxproj -> E:\Documents\Full Sail\Classes\Month 16\Real Time Animation (PPV)\Ubihard_Project\Bin\x64\Debug\Ubihard_Project.pdb (Partial PDB)
+﻿  TransformNode.cpp
+  Bone.cpp
+  Skeleton.cpp
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\ubihard_project\skeleton.h(14): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
+  KeyFrame.cpp
+  Animation.cpp
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\ubihard_project\animation.h(14): error C2065: 'i': undeclared identifier
+  Generating Code...

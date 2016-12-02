@@ -134,9 +134,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimatedGameObject.cpp" />
+    <ClCompile Include="AnimatedRenderNode.cpp" />
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="AnimationSet.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Blender.cpp" />
+    <ClCompile Include="Interpolator.cpp" />
     <ClCompile Include="KeyFrame.cpp" />
     <ClCompile Include="Skeleton.cpp" />
     <ClCompile Include="Bone.cpp" />
@@ -153,10 +157,14 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimatedGameObject.h" />
+    <ClInclude Include="AnimatedRenderNode.h" />
     <ClInclude Include="Animation.h" />
     <ClInclude Include="AnimationIncludes.h" />
     <ClInclude Include="AnimationSet.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Blender.h" />
+    <ClInclude Include="Interpolator.h" />
     <ClInclude Include="KeyFrame.h" />
     <ClInclude Include="Skeleton.h" />
     <ClInclude Include="Bone.h" />
