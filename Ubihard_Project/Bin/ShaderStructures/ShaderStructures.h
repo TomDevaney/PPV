@@ -101,6 +101,7 @@ struct CtrlPoint
 // global transformation of the joint at a certain frame
 struct Keyframe
 {
+
 	long mFrameNum;
 	XMMATRIX mGlobalTransform;
 	Keyframe* mNext;
@@ -115,6 +116,7 @@ struct Joint
 	int mParentIndex;
 	XMMATRIX mGlobalBindposeInverse;
 	Keyframe* mAnimation;
+	
 
 	Joint() :
 		mAnimation(nullptr)

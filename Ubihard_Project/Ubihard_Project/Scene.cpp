@@ -217,6 +217,9 @@ void Scene::CreateModels()
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
 	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
+	bindVertices.clear();
+	indices.clear();
+	FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "..\\Assets\\Box_Idle.fbx");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Resources/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
 	testModel.CreateDevResources(deviceResources);
 	//models.push_back(testModel);
