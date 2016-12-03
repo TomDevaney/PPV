@@ -2,7 +2,7 @@
 
 bool AnimationSet::AddAnimation(FILE* file)
 {
-	bool result;
+	bool result = false;
 
 	//read in binary file data to get all bones and what not
 
