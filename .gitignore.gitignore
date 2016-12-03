@@ -1,9 +1,0 @@
-Release
-Debug
-x64
-ipch
-*.suo
-*.sdf
-*.db
-*.opensdf
-*.user

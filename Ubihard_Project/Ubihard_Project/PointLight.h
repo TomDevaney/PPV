@@ -1,5 +1,5 @@
 #pragma once
-#include "ShaderStructures.h"
+#include "../ShaderStructures/ShaderStructures.h"
 #define RADIUSCHANGE 1.0f / 60.0f
 
 class PointLight

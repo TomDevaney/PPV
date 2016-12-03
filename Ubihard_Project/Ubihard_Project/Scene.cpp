@@ -1,5 +1,5 @@
 #include "Scene.h"
-#include "..\FBXLoader\FBXLoader.h"
+#include "../Bin/FBXLoader/FBXLoader.h"
 
 void Scene::Init(DeviceResources const * devResources)
 {
@@ -32,7 +32,12 @@ void Scene::Init(DeviceResources const * devResources)
 
 	//create all the device resources
 	CreateDevResources(devResources);
+
+	//create all lights
 	CreateLights();
+
+	//create models in scene
+	CreateModels();
 }
 
 void Scene::CreateDevResources(DeviceResources const * devResources)
@@ -91,9 +96,6 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 
 	inputLayouts.push_back(basicInput);
 	inputLayouts.push_back(bindInput);
-
-	////might need to make input layout more dynamic if shaders use a different vertex
-	//devContext->IASetInputLayout(inputLayout.Get());
 
 	//set topology
 	devContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -174,13 +176,8 @@ void Scene::CreateLights()
 
 void Scene::CreateModels()
 {
-	//for each model, set their file path, texture path, shader, etc.
-	//then make them create their device resources
-
+	//ground plane
 	Model groundPlane;
-	groundPlane.SetVertexShader(vertexShaders[Shadertypes::BASIC].Get(), Shadertypes::BASIC);
-	groundPlane.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
-	groundPlane.SetTexturePath("../Resources/FloorTexture.dds");
 
 	vector<VS_BasicInput> basicVertices =
 	{
@@ -197,58 +194,34 @@ void Scene::CreateModels()
 		2, 3, 1
 	};
 
-	groundPlane.SetVertices(basicVertices);
-	groundPlane.SetIndices(indices);
-	groundPlane.SetInputLayout(inputLayouts[Shadertypes::BASIC].Get());
-	groundPlane.SetModel(XMMatrixIdentity());
-	groundPlane.SetView(camera);
-	groundPlane.SetProjection(projection);
+	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Resources/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
 	groundPlane.CreateDevResources(device, devContext);
-
 	models.push_back(groundPlane);
 
-
 	//test model for fbx loading 
+	Model testModel;
 	vector<Vertex> bindVertices;
-	vector<XMFLOAT4X4> boneMats;
+	vector<XMFLOAT4X4> boneMatrices;
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
-	Model testModel;
-	testModel.SetVertexShader(vertexShaders[Shadertypes::BIND].Get(), Shadertypes::BIND);
-	testModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
-	testModel.SetInputLayout(inputLayouts[Shadertypes::BIND].Get());
-	testModel.SetBoneOffsetData(identities);
-	testModel.SetTexturePath("../Assets/Box_Idle.fbm/TestCube.dds");
-	bindVertices.clear();
-	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMats, "..\\Assets\\Box_Idle.fbx");
-	testModel.SetIndices(indices);
-	testModel.SetVertices(bindVertices);
-	testModel.SetModel(XMMatrixIdentity());
-	testModel.SetView(camera);
-	testModel.SetProjection(projection);
+
+	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
+	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Resources/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
 	testModel.CreateDevResources(device, devContext);
 	models.push_back(testModel);
 
-	//add four spheres. set postions at position in boneMats
 	basicVertices.clear();
 	bindVertices.clear();
 	
-	vector<XMFLOAT4X4> sphereBoneMats;
-	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &sphereBoneMats, "..\\Assets\\Sphere.fbx");
+	//add four spheres. set postions at position in boneMats
+	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, nullptr, "..\\Assets\\Sphere.fbx");
 
 	for (int i = 0; i < 4; ++i)
 	{
 		Model sphereModel;
-		sphereModel.SetVertexShader(vertexShaders[Shadertypes::BIND].Get(), Shadertypes::BIND);
-		sphereModel.SetPixelShader(pixelShaders[Shadertypes::BASIC].Get());
-		sphereModel.SetInputLayout(inputLayouts[Shadertypes::BIND].Get());
-		sphereModel.SetBoneOffsetData(identities);
-		sphereModel.SetIndices(indices);
-		sphereModel.SetVertices(bindVertices);
-		sphereModel.SetModel(XMMatrixTranspose(XMMatrixTranslation(boneMats[i]._41, boneMats[i]._42, boneMats[i]._43)));
-		sphereModel.SetView(camera);
-		sphereModel.SetProjection(projection);
+
+		sphereModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(boneMatrices[i]._41, boneMatrices[i]._42, boneMatrices[i]._43)), camera, projection, identities);
 		sphereModel.CreateDevResources(device, devContext);
 		models.push_back(sphereModel);
 	}
@@ -256,14 +229,11 @@ void Scene::CreateModels()
 
 void Scene::Update(WPARAM wparam)
 {
-	//calculate delta time
-	time_t currentTime = time(nullptr);
-	float dt; //delta time
-
+	//delta time
+	float dt; 
 	dt = 1.0f / 60.0f;
 
-	//update anything that every model needs to know about (e.g., lights)
-	//set the lights after
+	//update lights
 	pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
 	pointLights[1].DoRadiusEffect(7.0f, radiusChange[1]);
 
@@ -286,11 +256,6 @@ void Scene::Update(WPARAM wparam)
 
 	//TODO: we need to update bone offsets somehow by calculating: vertexOut = inverseBindMatrix  * currentWorldMatrix * bindVertexPosition
 }
-
-//void Scene::CheckForInput(float dt)
-//{
-//	IDirectInput
-//}
 
 void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam)
 {

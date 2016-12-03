@@ -4,9 +4,9 @@
 #pragma comment (lib, "d3dcompiler.lib")
 
 //includes
+#include <d3d11.h>
 #include <iostream>
 #include <wrl\client.h>
-#include <d3d11.h>
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 #include <vector>
@@ -14,6 +14,7 @@
 #include <d3dcompiler.h> //needed to compile shaders
 #include <time.h>
 #include "DDSTextureLoader.h"	
+#include "../ShaderStructures/ShaderStructures.h"
 
 //defines
 #define CLIENT_WIDTH 1000
