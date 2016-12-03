@@ -14,6 +14,11 @@ struct VertexShaderInput
 	float3 uv : TEXCOORD;
 };
 
+//struct PreDepthPassInput
+//{
+//	float3 pos : POSITION;
+//};
+
 // Per-pixel color data passed through the pixel shader.
 struct PS_BasicInput
 {
@@ -41,7 +46,39 @@ PS_BasicInput main(VertexShaderInput input)
 	output.uv = input.uv;
 
 	//pass normal
-	output.normal = mul(norm, model);
+	norm = mul(norm, model);
+	output.normal = (float3)norm;
 
 	return output;
+}
+
+//PS_BasicInput PreDepthPass(PreDepthPassInput input)
+//{
+//	PS_BasicInput output;
+//	float4 pos = float4(input.pos, 1.0f);
+//
+//	// Transform the vertex position into projected space.
+//	pos = mul(pos, model);
+//	output.worldPosition = pos;
+//	pos = mul(pos, view);
+//	pos = mul(pos, projection);
+//	output.pos = pos;
+//
+//	return output; //ok to return same pixel structure (I think because it doesn't even make it to shader I'm pretty sure.)
+//}
+
+// I want to use this instead of the one above so I don't have to make a new input layout and vertex structure
+PS_BasicInput PreDepthPass(VertexShaderInput input)
+{
+	PS_BasicInput output;
+	float4 pos = float4(input.pos, 1.0f);
+
+	// Transform the vertex position into projected space.
+	pos = mul(pos, model);
+	output.worldPosition = pos;
+	pos = mul(pos, view);
+	pos = mul(pos, projection);
+	output.pos = pos;
+
+	return output; //ok to return same pixel structure (I think because it doesn't even make it to shader I'm pretty sure.)
 }

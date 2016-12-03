@@ -25,6 +25,7 @@ enum Shadertypes
 {
 	BASIC = 0,
 	BIND,
+	DEPTHPREPASS,
 };
 
 using namespace std;

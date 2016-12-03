@@ -46,6 +46,9 @@
     <Filter Include="Content\Lights">
       <UniqueIdentifier>{a9daff9c-1674-4d8b-9d85-2af871c03544}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Content\Shaders\Computer">
+      <UniqueIdentifier>{8ff53c33-97b9-4d50-851a-10845e84c0e1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -189,6 +192,9 @@
     </FxCompile>
     <FxCompile Include="VS_Bind.hlsl">
       <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="CS_Basic.hlsl">
+      <Filter>Content\Shaders\Computer</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

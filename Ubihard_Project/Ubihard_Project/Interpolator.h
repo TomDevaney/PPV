@@ -17,7 +17,7 @@ public:
 	AnimType Update(float time);
 
 	//setters
-	void SetAnimation(const Animation* anim) { animation = anim; }
+	void SetAnimation(Animation* anim) { animation = anim; }
 	void SetTotalTime(float time) { totalBlendTime = time; }
 
 	//getters

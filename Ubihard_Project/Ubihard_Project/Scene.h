@@ -38,10 +38,12 @@ private:
 	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
 
 	//Device Resources
+	const DeviceResources* deviceResources;
 	ID3D11Device* device;
 	ID3D11DeviceContext* devContext;
 	vector<Microsoft::WRL::ComPtr<ID3D11PixelShader>> pixelShaders;
 	vector<Microsoft::WRL::ComPtr<ID3D11VertexShader>> vertexShaders;
+	vector<Microsoft::WRL::ComPtr<ID3D11ComputeShader>> computerShaders;
 	vector<Microsoft::WRL::ComPtr<ID3D11InputLayout>> inputLayouts; // is it safe to assume that all objects will have same input layout (same vertex)?
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> wrapSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> dirLightConstantBuffer;

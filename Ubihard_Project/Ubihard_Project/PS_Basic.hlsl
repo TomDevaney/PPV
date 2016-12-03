@@ -31,7 +31,17 @@ cbuffer PointLightCB : register(b1)
 //	float4 coneDirection[NUMOFSPOTLIGHTS];
 //}
 
+struct PointLight
+{
+	float4 pointLightPosition;
+	float4 pointLightColor;
+	float4 lightRadius; //treat as float
+};
+
+//StructuredBuffer<PointLight> pointLights : register(u0);
+
 texture2D baseTexture : register(t0);
+
 SamplerState filter : register(s0);
 
 float4 main(PS_BasicInput input) : SV_TARGET

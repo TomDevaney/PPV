@@ -42,31 +42,41 @@ void Scene::Init(DeviceResources const * devResources)
 
 void Scene::CreateDevResources(DeviceResources const * devResources)
 {
+	deviceResources = devResources;
 	device = devResources->GetDevice();
 	devContext = devResources->GetDeviceContext();
 
 	//compile shaders
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicVSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicPSBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> depthPrePassVSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> bindVSBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> basicCSBuffer;
+
 
 	UINT flags = D3DCOMPILE_DEBUG;
 
 	HRESULT vsCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, basicVSBuffer.GetAddressOf(), NULL);
 	HRESULT psCompResult = D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, basicPSBuffer.GetAddressOf(), NULL);
 	HRESULT vsBindCompResult = D3DCompileFromFile(L"VS_Bind.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, bindVSBuffer.GetAddressOf(), NULL);
+	HRESULT vsDepthPrePassCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "PreDepthPass", "vs_4_0", flags, NULL, depthPrePassVSBuffer.GetAddressOf(), NULL);
+	HRESULT csCompResult = D3DCompileFromFile(L"CS_Basic.hlsl", NULL, NULL, "CSCullLights", "cs_4_0", flags, NULL, basicCSBuffer.GetAddressOf(), NULL);
 
 	//create shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> bindVS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> depthPrePassVS;
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> basicCS;
 
 	HRESULT vsCrtResult = device->CreateVertexShader(basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), NULL, basicVS.GetAddressOf());
 	HRESULT psCrtResult = device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
 	HRESULT vsBindCrtResult = device->CreateVertexShader(bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), NULL, bindVS.GetAddressOf());
+	HRESULT vsDepthPrePassCrtResult = device->CreateVertexShader(depthPrePassVSBuffer->GetBufferPointer(), depthPrePassVSBuffer->GetBufferSize(), NULL, depthPrePassVS.GetAddressOf());
 
 	vertexShaders.push_back(basicVS);
 	vertexShaders.push_back(bindVS);
+	vertexShaders.push_back(depthPrePassVS);
 	pixelShaders.push_back(basicPS);
 
 	//set up input layouts
@@ -194,8 +204,8 @@ void Scene::CreateModels()
 		2, 3, 1
 	};
 
-	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Resources/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
-	groundPlane.CreateDevResources(device, devContext);
+	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Resources/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
+	groundPlane.CreateDevResources(deviceResources);
 	models.push_back(groundPlane);
 
 	//test model for fbx loading 
@@ -208,8 +218,8 @@ void Scene::CreateModels()
 
 	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Resources/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
-	testModel.CreateDevResources(device, devContext);
-	models.push_back(testModel);
+	testModel.CreateDevResources(deviceResources);
+	//models.push_back(testModel);
 
 	basicVertices.clear();
 	bindVertices.clear();
@@ -222,8 +232,8 @@ void Scene::CreateModels()
 		Model sphereModel;
 
 		sphereModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(boneMatrices[i]._41, boneMatrices[i]._42, boneMatrices[i]._43)), camera, projection, identities);
-		sphereModel.CreateDevResources(device, devContext);
-		models.push_back(sphereModel);
+		sphereModel.CreateDevResources(deviceResources);
+		//models.push_back(sphereModel);
 	}
 }
 
@@ -350,6 +360,6 @@ void Scene::Render()
 	//render all models
 	for (size_t i = 0; i < models.size(); ++i)
 	{
-		models[i].Render(device, devContext);
+		models[i].Render();
 	}
 }
