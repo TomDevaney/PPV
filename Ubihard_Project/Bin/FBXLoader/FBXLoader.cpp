@@ -12,6 +12,7 @@ namespace FBXLoader
 	FbxScene* mFBXScene = nullptr;
 	FbxManager* mFBXManager = nullptr;
 	Skeleton mSkeleton;
+	TomSkeleton tomsSkeleton;
 	bool mHasAnimation = true;
 	std::vector<Vertex> mVerts;
 	std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
@@ -284,28 +285,78 @@ namespace FBXLoader
 
 #pragma region Helper_New
 
-	void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex, Skeleton * mSkeleton)
+	FbxAMatrix GetGeometryTransformation(FbxNode* inNode);
+	XMMATRIX FBXToXMMatrix(const FbxAMatrix& inMatrix);
+
+	void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex, Skeleton * mSkeleton, TransformNode* curTransform)
 	{
+		TransformNode* nextParent = nullptr;
+		TransformNode* child = new TransformNode();
+
 		if (inNode->GetNodeAttribute() && inNode->GetNodeAttribute()->GetAttributeType() && inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 		{
-			Joint currJoint;
-			currJoint.mParentIndex = inParentIndex;
-			currJoint.mName = inNode->GetName();
-			mSkeleton->mJoints.push_back(currJoint);
+			//Joint currJoint;
+			//currJoint.mParentIndex = inParentIndex;
+			//currJoint.mName = inNode->GetName();
+
+
+			FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(0) *  GetGeometryTransformation(inNode);
+			child->world = FBXToXMMatrix(currentTransformOffset.Inverse() * inNode->EvaluateGlobalTransform(0));
+			child->name = inNode->GetName();
+
+			if (myIndex == 0) //this means that it's the root node, so I want to make the curTransform = to the curNode
+			{
+				curTransform = new TransformNode();
+
+				curTransform->world = child->world;
+				curTransform->name = child->name;
+
+				delete child;
+
+				nextParent = curTransform;
+
+				tomsSkeleton.transforms.push_back(curTransform);
+			}
+			else
+			{
+				child->parent = curTransform;
+				curTransform->AddChild(child);
+				nextParent = child;
+
+				tomsSkeleton.transforms.push_back(child);
+			}
+
+
+			//mSkeleton->mJoints.push_back(currJoint);
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
-			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, mSkeleton->mJoints.size(), myIndex, mSkeleton);
+
+			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, tomsSkeleton.transforms.size(), myIndex, mSkeleton, nextParent);
+
+			//ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, mSkeleton->mJoints.size(), myIndex, mSkeleton, curTransform);
 		}
 	}
 
 	void ProcessSkeletonHierarchy(FbxNode* inRootNode, Skeleton* mSkeleton)
 	{
+		TransformNode* root = nullptr;
+
+		//root->name = inRootNode->GetName();
 
 		for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
 		{
 			FbxNode* currNode = inRootNode->GetChild(childIndex);
-			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1, mSkeleton);
+
+			//TransformNode* child = new TransformNode();
+
+			//FbxAMatrix currentTransformOffset = currNode->EvaluateGlobalTransform(0) *  GetGeometryTransformation(currNode);
+			//child->world = FBXToXMMatrix(currentTransformOffset.Inverse() * currNode->EvaluateGlobalTransform(0));
+			//child->name = currNode->GetName();
+
+			//root->AddChild(child);
+
+			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1, mSkeleton, root);
 		}
 	}
 
@@ -477,6 +528,9 @@ namespace FBXLoader
 
 		FbxAMatrix geometryTransform = GetGeometryTransformation(inNode);
 
+		//all of my keyframes
+		std::vector<TomKeyFrame> tomKeyFrames;
+
 		// for each deformer
 		for (unsigned int deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
@@ -484,58 +538,100 @@ namespace FBXLoader
 			FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
 			if (!currSkin) { continue; }
 
-			//for each cluster
-			unsigned int numOfClusters = currSkin->GetClusterCount();
-			for (unsigned int clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+			//get the animation's info
+			FbxAnimStack* currAnimStack = mFBXScene->GetSrcObject<FbxAnimStack>(0);
+			FbxString animStackName = currAnimStack->GetName();
+			mAnimationName = animStackName.Buffer();
+			FbxTakeInfo* takeInfo = mFBXScene->GetTakeInfo(animStackName);
+			FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+			FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+			mAnimationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+
+
+			//Keyframe** currAnim = &mSkeleton.mJoints[currJointIndex].mAnimation;
+
+			//for each keyframe, loop through all of the bones and get their world matrix at that keyframe
+			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 			{
-				FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
-				std::string currJointName = currCluster->GetLink()->GetName();
-				unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
-				FbxAMatrix transformMatrix;
-				FbxAMatrix transformLinkMatrix;
-				FbxAMatrix globalBindposeInverseMatrix;
+				//for each cluster
+				unsigned int numOfClusters = currSkin->GetClusterCount();
+				TomKeyFrame tomKeyFrame;
 
-				currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
-				currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
-				globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
-
-				// Update the information in mSkeleton 
-				mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
-				//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
-
-
-				// Associate each joint with the control points it affects
-				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
-				for (unsigned int i = 0; i < numOfIndices; ++i)
+				for (unsigned int clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
 				{
-					VertexBlendingInfo currBlendingIndexWeightPair;
-					currBlendingIndexWeightPair.mBlendingIndex = currJointIndex;
-					currBlendingIndexWeightPair.mBlendingWeight = currCluster->GetControlPointWeights()[i];
-					mControlPoints[currCluster->GetControlPointIndices()[i]]->mBlendingInfo.push_back(currBlendingIndexWeightPair);
+					TomBone tempBone;
+					FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+					std::string currJointName = currCluster->GetLink()->GetName();
+					unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
+					FbxAMatrix transformMatrix;
+					FbxAMatrix transformLinkMatrix;
+					FbxAMatrix globalBindposeInverseMatrix;
+
+					currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
+					currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
+					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+
+					// Update the information in mSkeleton 
+					mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
+					//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
+
+
+					// Associate each joint with the control points it affects
+					unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
+					for (unsigned int i = 0; i < numOfIndices; ++i)
+					{
+						VertexBlendingInfo currBlendingIndexWeightPair;
+						currBlendingIndexWeightPair.mBlendingIndex = currJointIndex;
+						currBlendingIndexWeightPair.mBlendingWeight = currCluster->GetControlPointWeights()[i];
+						mControlPoints[currCluster->GetControlPointIndices()[i]]->mBlendingInfo.push_back(currBlendingIndexWeightPair);
+					}
+
+					// Get animation information
+					//FbxAnimStack* currAnimStack = mFBXScene->GetSrcObject<FbxAnimStack>(0);
+					//FbxString animStackName = currAnimStack->GetName();
+					//mAnimationName = animStackName.Buffer();
+					//FbxTakeInfo* takeInfo = mFBXScene->GetTakeInfo(animStackName);
+					//FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
+					//FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+					//mAnimationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
+					//Keyframe** currAnim = &mSkeleton.mJoints[currJointIndex].mAnimation;
+
+
+					//for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+					{
+						//set up tombone's world matrix
+						FbxTime currTime;
+						currTime.SetFrame(i, FbxTime::eFrames24);
+						FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
+						tempBone.world = FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime));
+
+						//set name of bone
+						tempBone.name = currJointName;
+
+					//FbxTime currTime;
+					//currTime.SetFrame(i, FbxTime::eFrames24);
+					//*currAnim = new Keyframe();
+					//(*currAnim)->mFrameNum = i;
+					//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
+					//(*currAnim)->mGlobalTransform = FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime));
+					//currAnim = &((*currAnim)->mNext);
+					}
+
+					//push back tempBone into current keyframe
+					tomKeyFrame.bones.push_back(tempBone);
 				}
 
-				// Get animation information
-				FbxAnimStack* currAnimStack = mFBXScene->GetSrcObject<FbxAnimStack>(0);
-				FbxString animStackName = currAnimStack->GetName();
-				mAnimationName = animStackName.Buffer();
-				FbxTakeInfo* takeInfo = mFBXScene->GetTakeInfo(animStackName);
-				FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-				FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
-				mAnimationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-				Keyframe** currAnim = &mSkeleton.mJoints[currJointIndex].mAnimation;
-
-				for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
-				{
-					FbxTime currTime;
-					currTime.SetFrame(i, FbxTime::eFrames24);
-					*currAnim = new Keyframe();
-					(*currAnim)->mFrameNum = i;
-					FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
-					(*currAnim)->mGlobalTransform = FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime));
-					currAnim = &((*currAnim)->mNext);
-				}
+				//push back current keyframe into vector of all keyframes
+				tomKeyFrames.push_back(tomKeyFrame);
 			}
 		}
+
+		//make transform node using any keyframe
+
+		TransformNode* root = new TransformNode();
+
+		//for (int i = 0; i < 
+		//root->AddChild(tomKeyFrames[0].
 	}
 
 
@@ -1031,6 +1127,9 @@ namespace FBXLoader
 
 		//Create the root node as a handle for the rest of the FBX mesh
 		FbxNode* rootNode = mFBXScene->GetRootNode();
+
+		//clear skeleton
+		tomsSkeleton.transforms.clear();
 
 		//if the root node is not null
 		if (rootNode)

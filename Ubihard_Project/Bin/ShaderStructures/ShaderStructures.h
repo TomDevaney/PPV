@@ -143,9 +143,10 @@ struct Skeleton
 
 struct TomBone
 {
-	DirectX::XMFLOAT4X4 world; 
-	DirectX::XMFLOAT4X4 boneOffset; //How far it strayed from original matrix. Used to get new animation state
-	DirectX::XMFLOAT4X4 local;
+	std::string name;
+	DirectX::XMMATRIX world;
+	DirectX::XMMATRIX boneOffset; //How far it strayed from original matrix. Used to get new animation state
+	DirectX::XMMATRIX local;
 };
 
 struct TomKeyFrame
@@ -155,8 +156,9 @@ struct TomKeyFrame
 
 struct TransformNode
 {
-	DirectX::XMFLOAT4X4 world;
-	DirectX::XMFLOAT4X4 local;
+	std::string name;
+	DirectX::XMMATRIX world;
+	DirectX::XMMATRIX local;
 	TransformNode* parent;
 	TransformNode* child;
 	TransformNode* sibling;
@@ -190,7 +192,7 @@ struct TransformNode
 
 struct TomSkeleton
 {
-	std::vector<TransformNode> transforms;
+	std::vector<TransformNode*> transforms;
 };
 
 struct Vertex
