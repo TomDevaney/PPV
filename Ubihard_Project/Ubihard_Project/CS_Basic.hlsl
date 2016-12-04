@@ -1,5 +1,6 @@
 #define MAX_NUM_LIGHTS_PER_TILE 100
-
+#define NUM_THREADS_X 10
+#define NUM_THREADS_Y 10
 
 //all the lights
 Buffer<float4> pointLightBuffer : register(t0);
@@ -17,8 +18,8 @@ float3 CreatePlaneNormal(float3 p0, float3 p1)
 	return normalize(cross(p0, p1));
 }
 
-[numthreads(NUM_THREADS_X, NUM_THREADS_Y, 1)]
-void CSCullLights(uint3 index : SV_GroupIndex)
+[numthreads(1, 1, 1)] //i need to make sure I use this correctly so I'm setting it to one for now
+void main(uint index : SV_GroupIndex)
 {
 	//so I will use the depthTexture to see if the light should even be lit
 	//for example, if the light is behind the object, I don't want to light it

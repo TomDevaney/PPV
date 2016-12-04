@@ -141,6 +141,58 @@ struct Skeleton
 	std::vector<Joint> mJoints;
 };
 
+struct TomBone
+{
+	DirectX::XMFLOAT4X4 world; 
+	DirectX::XMFLOAT4X4 boneOffset; //How far it strayed from original matrix. Used to get new animation state
+	DirectX::XMFLOAT4X4 local;
+};
+
+struct TomKeyFrame
+{
+	std::vector<TomBone> bones;
+};
+
+struct TransformNode
+{
+	DirectX::XMFLOAT4X4 world;
+	DirectX::XMFLOAT4X4 local;
+	TransformNode* parent;
+	TransformNode* child;
+	TransformNode* sibling;
+	bool bDirty;
+
+	void AddChild(TransformNode* tempChild)
+	{
+		if (!child)
+		{
+			child = tempChild;
+		}
+		else
+		{
+			//if there's already a child, give that child a sibling
+			child->AddSibling(tempChild);
+		}
+	}
+
+	void AddSibling(TransformNode* tempSibling)
+	{
+		if (!sibling)
+		{
+			sibling = tempSibling;
+		}
+		else
+		{
+			sibling->AddSibling(tempSibling);
+		}
+	}
+};
+
+struct TomSkeleton
+{
+	std::vector<TransformNode> transforms;
+};
+
 struct Vertex
 {
 	XMFLOAT3 mPosition;

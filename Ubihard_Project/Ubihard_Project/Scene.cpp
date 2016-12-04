@@ -60,7 +60,7 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	HRESULT psCompResult = D3DCompileFromFile(L"PS_Basic.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, basicPSBuffer.GetAddressOf(), NULL);
 	HRESULT vsBindCompResult = D3DCompileFromFile(L"VS_Bind.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, bindVSBuffer.GetAddressOf(), NULL);
 	HRESULT vsDepthPrePassCompResult = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "PreDepthPass", "vs_4_0", flags, NULL, depthPrePassVSBuffer.GetAddressOf(), NULL);
-	HRESULT csCompResult = D3DCompileFromFile(L"CS_Basic.hlsl", NULL, NULL, "CSCullLights", "cs_4_0", flags, NULL, basicCSBuffer.GetAddressOf(), NULL);
+	HRESULT csCompResult = D3DCompileFromFile(L"CS_Basic.hlsl", NULL, NULL, "main", "cs_4_0", flags, NULL, basicCSBuffer.GetAddressOf(), NULL);
 
 	//create shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
@@ -72,7 +72,8 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	HRESULT vsCrtResult = device->CreateVertexShader(basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), NULL, basicVS.GetAddressOf());
 	HRESULT psCrtResult = device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
 	HRESULT vsBindCrtResult = device->CreateVertexShader(bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), NULL, bindVS.GetAddressOf());
-	HRESULT vsDepthPrePassCrtResult = device->CreateVertexShader(basicCSBuffer->GetBufferPointer(), basicCSBuffer->GetBufferSize(), NULL, basicCS.GetAddressOf());
+	HRESULT vsDepthPrePassCrtResult = device->CreateVertexShader(depthPrePassVSBuffer->GetBufferPointer(), depthPrePassVSBuffer->GetBufferSize(), NULL, depthPrePassVS.GetAddressOf());
+	HRESULT csCrtResult = device->CreateComputeShader(basicCSBuffer->GetBufferPointer(), basicCSBuffer->GetBufferSize(), NULL, basicCS.GetAddressOf());
 
 	vertexShaders.push_back(basicVS);
 	vertexShaders.push_back(bindVS);

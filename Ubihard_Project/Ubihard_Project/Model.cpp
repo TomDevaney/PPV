@@ -229,8 +229,9 @@ void Model::LightCulling()
 	ID3D11RenderTargetView* nullRTV = NULL;
 	ID3D11ShaderResourceView* nullSRV = NULL;
 	ID3D11DepthStencilView* nullDSV = NULL;
-	const unsigned int NUM_TILES_X = 50;
-	const unsigned int NUM_TILES_Y = 50;
+	const float res = 16.0f;
+	const unsigned int NUM_TILES_X = (float)CLIENT_WIDTH / res;
+	const unsigned int NUM_TILES_Y = (float)CLIENT_HEIGHT / res;
 
 	//set render target and dsv to null
 	devContext->OMSetRenderTargets(1, &nullRTV, nullDSV);
@@ -238,7 +239,7 @@ void Model::LightCulling()
 	//set shaders
 	devContext->VSSetShader(NULL, NULL, NULL);
 	devContext->PSSetShader(NULL, NULL, 0);
-	devContext->CSSetShader(
+	//devContext->CSSetShader(
 	//dispatch threads
 	devContext->Dispatch(NUM_TILES_X, NUM_TILES_Y, 1);
 }
