@@ -200,7 +200,7 @@ struct Vertex
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mNormal;
 	XMFLOAT2 mUV;
-	XMFLOAT4 blendingIndices;
+	XMINT4 blendingIndices;
 	XMFLOAT4 blendingWeight;
 
 	bool operator==(const Vertex& rhs) const

@@ -203,7 +203,7 @@ namespace FBXLoader
 				}
 				for (unsigned i = 0; i < 4; ++i)
 				{
-					mVertices[vertIndVect[i]].blendingIndices = XMFLOAT4(0, 0, 0, 0);
+					mVertices[vertIndVect[i]].blendingIndices = XMINT4(0, 0, 0, 0);
 					mVertices[vertIndVect[i]].blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
 					//mVertices[vertIndVect[i]].blendingWeight = XMFLOAT4(weightvect[0], weightvect[1], weightvect[2], weightvect[3]);
 				}
@@ -346,7 +346,7 @@ namespace FBXLoader
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
-			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, tomsSkeleton.transforms.size(), myIndex, mSkeleton, nextParent);
+			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, (int)tomsSkeleton.transforms.size(), myIndex, mSkeleton, nextParent);
 
 			//ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, mSkeleton->mJoints.size(), myIndex, mSkeleton, curTransform);
 		}
@@ -524,6 +524,7 @@ namespace FBXLoader
 				return i;
 			}
 		}
+		return -1;
 	}
 
 	XMMATRIX FBXToXMMatrix(const FbxAMatrix& inMatrix)
@@ -641,7 +642,7 @@ namespace FBXLoader
 					//}
 
 						//push back tempBone into current keyframe
-						tomKeyFrame.SetTime(currTime.GetSecondCount());
+						tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
 						tomKeyFrame.InsertBone(tempBone);
 				}
 
@@ -661,57 +662,50 @@ namespace FBXLoader
 
 	void StoreBlendingInfo(Vertex& temp, const std::vector<VertexBlendingInfo>& vertInfos)
 	{
+		temp.blendingIndices.x = 0;
+		temp.blendingIndices.y = 0;
+		temp.blendingIndices.z = 0;
+		temp.blendingIndices.w = 0;
+		temp.blendingWeight.x = 0.0f;
+		temp.blendingWeight.y = 0.0f;
+		temp.blendingWeight.z = 0.0f;
+		temp.blendingWeight.w = 0.0f;
+
 		switch (vertInfos.size())
 		{
 		default:
-			temp.blendingIndices.x = 0;
 			temp.blendingWeight.x = 0.25f;
-			temp.blendingIndices.y = 0;
 			temp.blendingWeight.y = 0.25f;
-			temp.blendingIndices.z = 0;
 			temp.blendingWeight.z = 0.25f;
-			temp.blendingIndices.w = 0;
 			temp.blendingWeight.w = 0.25f;
 			break;
 		case 1:
 			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingWeight.x = vertInfos[0].mBlendingWeight;
-			temp.blendingIndices.y = 0;
-			temp.blendingWeight.y = 0;
-			temp.blendingIndices.z = 0;
-			temp.blendingWeight.z = 0;
-			temp.blendingIndices.w = 0;
-			temp.blendingWeight.w = 0;
+			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
 			break;
 		case 2:
 			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingWeight.x = vertInfos[0].mBlendingWeight;
 			temp.blendingIndices.y = vertInfos[1].mBlendingIndex;
-			temp.blendingWeight.y = vertInfos[1].mBlendingWeight;
-			temp.blendingIndices.z = 0;
-			temp.blendingWeight.z = 0;
-			temp.blendingIndices.w = 0;
-			temp.blendingWeight.w = 0;
+			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
+			temp.blendingWeight.y = (float)vertInfos[1].mBlendingWeight;
 			break;
 		case 3:
 			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingWeight.x = vertInfos[0].mBlendingWeight;
 			temp.blendingIndices.y = vertInfos[1].mBlendingIndex;
-			temp.blendingWeight.y = vertInfos[1].mBlendingWeight;
 			temp.blendingIndices.z = vertInfos[2].mBlendingIndex;
-			temp.blendingWeight.z = vertInfos[2].mBlendingWeight;
-			temp.blendingIndices.w = 0;
-			temp.blendingWeight.w = 0;
+			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
+			temp.blendingWeight.y = (float)vertInfos[1].mBlendingWeight;
+			temp.blendingWeight.z = (float)vertInfos[2].mBlendingWeight;
 			break;
 		case 4:
 			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingWeight.x = vertInfos[0].mBlendingWeight;
 			temp.blendingIndices.y = vertInfos[1].mBlendingIndex;
-			temp.blendingWeight.y = vertInfos[1].mBlendingWeight;
 			temp.blendingIndices.z = vertInfos[2].mBlendingIndex;
-			temp.blendingWeight.z = vertInfos[2].mBlendingWeight;
 			temp.blendingIndices.w = vertInfos[3].mBlendingIndex;
-			temp.blendingWeight.w = vertInfos[3].mBlendingWeight;
+			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
+			temp.blendingWeight.y = (float)vertInfos[1].mBlendingWeight;
+			temp.blendingWeight.z = (float)vertInfos[2].mBlendingWeight;
+			temp.blendingWeight.w = (float)vertInfos[3].mBlendingWeight;
 			break;
 		}
 	}
@@ -722,9 +716,9 @@ namespace FBXLoader
 		int ctrlPointIndex = 0;
 
 		// currMesh->GetPolygonCount() == Triangle Count
-		for (unsigned int i = 0; i < currMesh->GetPolygonCount(); ++i)
+		for (int i = 0; i < currMesh->GetPolygonCount(); ++i)
 		{
-			for (unsigned int j = 0; j < 3; ++j)
+			for (int j = 0; j < 3; ++j)
 			{
 				ctrlPointIndex = currMesh->GetPolygonVertex(i, j);
 				CtrlPoint* currCtrlPoint = mControlPoints[ctrlPointIndex];
@@ -1095,7 +1089,7 @@ namespace FBXLoader
 
 						// sort so its easier to remove duplicates
 
-						vert.blendingIndices = XMFLOAT4(0, 0, 0, 0);
+						vert.blendingIndices = XMINT4(0, 0, 0, 0);
 						vert.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
 
 						outVerts->push_back(vert);
@@ -1133,7 +1127,7 @@ namespace FBXLoader
 		if (tNode)
 		{
 			friendlyNode.parentIndex = tNode->parent->index;
-			friendlyNode.nameOffset = friendlyNodes[friendlyNode.parentIndex].nameOffset + tNode->name.size();
+			friendlyNode.nameOffset = friendlyNodes[friendlyNode.parentIndex].nameOffset + (unsigned int)tNode->name.size();
 			DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
 			//friendlyNode.world = tNode->world;
 
@@ -1194,8 +1188,8 @@ namespace FBXLoader
 		if (bout.is_open())
 		{
 			//get length of bones
-			numBones = tomsSkeleton.transforms.size();
-			namesSize = tomsSkeleton.names.size();
+			numBones = (unsigned int)tomsSkeleton.transforms.size();
+			namesSize = (unsigned int)tomsSkeleton.names.size();
 
 			//write header
 			bout.write((const char*)&numBones, sizeof(unsigned int));
@@ -1237,8 +1231,8 @@ namespace FBXLoader
 			unsigned int numOfKeyFrames;
 			unsigned int numOfBones;
 
-			numOfKeyFrames = tomKeyFrames.size();
-			numOfBones = tomKeyFrames[0].GetBones().size();
+			numOfKeyFrames = (unsigned int)tomKeyFrames.size();
+			numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
 
 			bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
 			bout.write((const char*)&numOfBones, sizeof(unsigned int));
@@ -1276,7 +1270,6 @@ namespace FBXLoader
 			mFBXManager->SetIOSettings(settings);
 		}
 
-		FbxMesh* mesh;
 		FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
 		mFBXScene = FbxScene::Create(mFBXManager, "");
 

@@ -11,6 +11,6 @@ private:
 	
 public:
 	const std::vector<TransformNode2>& GetBones() { return bones; }
-	unsigned int GetNumBones() { return bones.size(); }
+	unsigned int GetNumBones() { return (unsigned int)bones.size(); }
 	void Init(std::vector<TransformNode2> tempBones, std::string boneNames);
 };
