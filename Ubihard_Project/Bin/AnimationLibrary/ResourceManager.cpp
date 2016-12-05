@@ -13,8 +13,8 @@ void ResourceManager::LoadInSkeleton()
 	unsigned int numOfBones;
 	FriendlyIOSkeleton skeleton;
 
-	skeletonPath = skeletonsPath;
-	skeletonPath += "Box.skel";
+	skeletonPath = resourcesPath;
+	skeletonPath += "Skeletons/Box.skel";
 
 	bin.open(skeletonPath, std::ios::binary);
 
@@ -26,16 +26,67 @@ void ResourceManager::LoadInSkeleton()
 
 		//resize based off of header
 		skeleton.transforms.resize(numOfBones);
-	
-		//read in skeleton
-
-		//bones
-		bin.read((char*)&skeleton.transforms, sizeof(FriendlyIOTransformNode) * numOfBones);
-
-		//names
 		skeleton.names.resize(sizeOfNames);
+	
+		//read in skeleton bones
+		bin.read((char*)skeleton.transforms.data(), sizeof(FriendlyIOTransformNode) * numOfBones);
+
+		//read in names
 		bin.read((char*)skeleton.names.data(), sizeOfNames);
+		
+		bin.close();
 	}
 
-	bin.close();
+}
+
+void ResourceManager::LoadInAnimation()
+{
+	std::ifstream bin;
+	std::string animationPath;
+	Animation animation;
+	unsigned int numOfKeyFrames;
+	unsigned int numOfBones;
+	std::vector<KeyFrame> keyFrames;
+	std::vector<Bone> bones;
+	AnimType animType;
+	float time;
+
+	animationPath = resourcesPath;
+	animationPath += "Animations/Box.anim";
+
+	bin.open(animationPath, std::ios::binary);
+
+	if (bin.is_open())
+	{
+		//read header
+		bin.read((char*)&numOfKeyFrames, sizeof(unsigned int));
+		bin.read((char*)&numOfBones, sizeof(unsigned int));
+
+		//read keyframes
+		keyFrames.resize(numOfKeyFrames);
+		bones.resize(numOfBones);
+
+		for (int i = 0; i < numOfKeyFrames; ++i)
+		{
+			float keyFrameTime;
+
+			bin.read((char*)bones.data(), sizeof(Bone) * numOfBones);
+			bin.read((char*)&keyFrameTime, sizeof(float));
+
+			keyFrames[i].SetTime(keyFrameTime);
+			keyFrames[i].SetBones(bones);
+		}
+
+		//bin.read((char*)keyFrames.data(), sizeof(KeyFrame) * numOfKeyFrames);
+
+		//write out animtype
+		bin.read((char*)&animType, sizeof(AnimType));
+
+		//read in time
+		bin.read((char*)&time, sizeof(float));
+
+		animation.Init(animType, time, keyFrames);
+
+		bin.close();
+	}
 }

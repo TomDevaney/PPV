@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <algorithm>
 #include <fstream>
+#include "Animation.h"
+#include "KeyFrame.h"
 
 struct Skeleton
 {
@@ -25,6 +27,7 @@ namespace FBXLoader
 	FbxLongLong mAnimationLength;
 	std::string mAnimationName;
 	unsigned int transformNodeindex = 0;
+	std::vector<KeyFrame> tomKeyFrames;
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -539,9 +542,6 @@ namespace FBXLoader
 
 		FbxAMatrix geometryTransform = GetGeometryTransformation(inNode);
 
-		//all of my keyframes
-		std::vector<TomKeyFrame> tomKeyFrames;
-
 		// for each deformer
 		for (unsigned int deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
@@ -566,11 +566,11 @@ namespace FBXLoader
 			{
 				//for each cluster
 				unsigned int numOfClusters = currSkin->GetClusterCount();
-				TomKeyFrame tomKeyFrame;
+				KeyFrame tomKeyFrame;
 
 				for (unsigned int clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
 				{
-					TomBone tempBone;
+					Bone tempBone;
 					FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
 					std::string currJointName = currCluster->GetLink()->GetName();
 					unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
@@ -609,15 +609,18 @@ namespace FBXLoader
 
 
 					//for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
-					{
+					//{
 						//set up tombone's world matrix
 						FbxTime currTime;
 						currTime.SetFrame(i, FbxTime::eFrames24);
 						FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
-						tempBone.world = FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime));
+						XMFLOAT4X4 world;
+						XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
+						tempBone.SetWorld(world);
 
 						//set name of bone
-						tempBone.name = currJointName;
+						tempBone.SetName(currJointName);
+						
 
 					//FbxTime currTime;
 					//currTime.SetFrame(i, FbxTime::eFrames24);
@@ -626,10 +629,11 @@ namespace FBXLoader
 					//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
 					//(*currAnim)->mGlobalTransform = FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime));
 					//currAnim = &((*currAnim)->mNext);
-					}
+					//}
 
-					//push back tempBone into current keyframe
-					tomKeyFrame.bones.push_back(tempBone);
+						//push back tempBone into current keyframe
+						tomKeyFrame.SetTime(currTime.GetSecondCount());
+						tomKeyFrame.InsertBone(tempBone);
 				}
 
 				//push back current keyframe into vector of all keyframes
@@ -901,7 +905,7 @@ namespace FBXLoader
 
 		mVerts.clear();
 		mSkeleton.mJoints.clear();
-
+		tomKeyFrames.clear();
 	}
 #pragma endregion 
 	/*----------------------------------------------------------------------------------------------------------------------------------
@@ -1196,19 +1200,60 @@ namespace FBXLoader
 			//write out transform data
 			//for (int i = 0; i < friendlyNodes.size(); ++i)
 			{
-				bout.write((const char*)&friendlyNodes, sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
+				bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
 			}
 
 			//write out names
-			//for (int i = 0; i < tomsSkeleton.names.size(); ++i)
+			bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+		}
+		
+		bout.close();
+
+		//now animation file7
+		path = "../Resources/Animations/";
+		path += "Box.anim";
+
+		bout.open(path, std::ios::binary);
+
+		if (bout.is_open())
+		{
+			//make animation
+			//Animation anim;
+			//anim.Init(AnimType::LOOP, tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime(), tomKeyFrames);
+			AnimType type;
+
+			type = AnimType::LOOP;
+
+			//write out header info
+			unsigned int numOfKeyFrames;
+			unsigned int numOfBones;
+
+			numOfKeyFrames = tomKeyFrames.size();
+			numOfBones = tomKeyFrames[0].GetBones().size();
+
+			bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
+			bout.write((const char*)&numOfBones, sizeof(unsigned int));
+
+			//write out keyframes
+			for (int i = 0; i < tomKeyFrames.size(); ++i)
 			{
-				bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+				float keyFrameTime = tomKeyFrames[i].GetTime();
+
+				bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
+				bout.write((const char*)&keyFrameTime, sizeof(float));
 			}
+
+			//write out animtype
+			bout.write((const char*)&type, sizeof(AnimType));
+
+			//write out time
+			float time;
+			time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
+
+			bout.write((const char*)&time, sizeof(float));
 
 			bout.close();
 		}
-		//now animation file
-
 	}
 
 	FBXLOADER_API bool Functions::FBXExportToBinary(std::vector<Vertex>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * outFilePath)

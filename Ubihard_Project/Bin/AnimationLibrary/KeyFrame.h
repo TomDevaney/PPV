@@ -7,8 +7,17 @@ class KeyFrame
 private:
 	std::vector<Bone> bones;
 	float time;
+
 public:
+	//void Init(std::vector<Bone> bons, float t);
+	void InsertBone(Bone bone) { bones.push_back(bone); }
+
 	//getters
 	const Bone* GetBone(unsigned int index) { return &bones[index]; }
+	const std::vector<Bone>& GetBones() { return bones; }
 	float GetTime() { return time; }
+
+	//setters
+	void SetTime(float t) { time = t; }
+	void SetBones(std::vector<Bone> bs) { bones = bs; }
 };

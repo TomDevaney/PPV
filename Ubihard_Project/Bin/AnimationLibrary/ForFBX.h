@@ -49,10 +49,10 @@ struct TomBone
 	DirectX::XMMATRIX local;
 };
 
-struct TomKeyFrame
-{
-	std::vector<TomBone> bones;
-};
+//struct TomKeyFrame
+//{
+//	std::vector<TomBone> bones;
+//};
 
 struct TransformNode
 {

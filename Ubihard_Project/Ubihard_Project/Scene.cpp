@@ -261,6 +261,7 @@ void Scene::CreateModels()
 void Scene::LoadModelsFromBinary()
 {
 	resourceManager.LoadInSkeleton();
+	resourceManager.LoadInAnimation();
 }
 
 void Scene::Update(WPARAM wparam)

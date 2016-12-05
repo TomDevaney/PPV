@@ -143,6 +143,7 @@
     <ClInclude Include="Blender.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="ForFBX.h" />
+    <ClInclude Include="HashString.h" />
     <ClInclude Include="Interpolator.h" />
     <ClInclude Include="KeyFrame.h" />
     <ClInclude Include="ResourceManager.h" />
