@@ -583,6 +583,8 @@ namespace FBXLoader
 					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 
 					// Update the information in mSkeleton 
+					//tomsSkeleton.transforms[currJointIndex]->mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
+
 					//mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
 					//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
 
@@ -611,19 +613,26 @@ namespace FBXLoader
 					//for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 					//{
 						//set up tombone's world matrix
-						FbxTime currTime;
-						currTime.SetFrame(i, FbxTime::eFrames24);
-						FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
-						XMFLOAT4X4 world;
-						XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
-						tempBone.SetWorld(world);
+
+						//because I added a inverse bind pose, I don't need this
+						//FbxTime currTime;
+						//currTime.SetFrame(i, FbxTime::eFrames24);
+						//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
+						//XMFLOAT4X4 world;
+						//XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
+						//tempBone.SetWorld(world);
+
+						//set inverse bind pose of bone
+						XMFLOAT4X4 tempBindPoseInverse;
+						XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+						tempBone.SetInverseBindPose(tempBindPoseInverse);
 
 						//set name of bone
 						tempBone.SetName(currJointName);
 						
 
-					//FbxTime currTime;
-					//currTime.SetFrame(i, FbxTime::eFrames24);
+					FbxTime currTime;
+					currTime.SetFrame(i, FbxTime::eFrames24);
 					//*currAnim = new Keyframe();
 					//(*currAnim)->mFrameNum = i;
 					//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;

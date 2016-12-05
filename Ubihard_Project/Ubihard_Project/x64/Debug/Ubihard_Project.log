@@ -1,6 +1,9 @@
 ﻿  Scene.cpp
 e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\bin\animationlibrary\animation.h(18): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
 e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\bin\animationlibrary\skeleton.h(14): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
+  Model.cpp
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\ubihard_project\model.cpp(233): warning C4244: 'initializing': conversion from 'float' to 'unsigned int', possible loss of data
+e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\ubihard_project\model.cpp(234): warning C4244: 'initializing': conversion from 'float' to 'unsigned int', possible loss of data
   Main.cpp
 e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\bin\animationlibrary\animation.h(18): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
 e:\documents\full sail\classes\month 16\real time animation (ppv)\ubihard_project\bin\animationlibrary\skeleton.h(14): warning C4267: 'return': conversion from 'size_t' to 'unsigned int', possible loss of data
