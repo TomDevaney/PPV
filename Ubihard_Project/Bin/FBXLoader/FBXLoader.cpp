@@ -1238,7 +1238,6 @@ namespace FBXLoader
 			for (int i = 0; i < tomKeyFrames.size(); ++i)
 			{
 				float keyFrameTime = tomKeyFrames[i].GetTime();
-
 				bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
 				bout.write((const char*)&keyFrameTime, sizeof(float));
 			}

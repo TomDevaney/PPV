@@ -4,6 +4,15 @@
 #include "ForFBX.h"
 #include "ResourceManager.h"
 #include <fstream>
+void ResourceManager::LoadInAnimationSet()
+{
+	//load in the  one skeleton
+	LoadInSkeleton();
+
+	//Load in multiple animations
+	//for...
+	LoadInAnimation();
+}
 
 void ResourceManager::LoadInSkeleton()
 {
@@ -86,6 +95,10 @@ void ResourceManager::LoadInAnimation()
 		bin.read((char*)&time, sizeof(float));
 
 		animation.Init(animType, time, keyFrames);
+
+		//clear stuff
+		//keyFrames.clear();
+		//bones.clear();
 
 		bin.close();
 	}

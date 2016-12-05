@@ -5,7 +5,7 @@
 class Bone
 {
 private:
-	std::string name;
+	char name[100] = { '\0' };
 	DirectX::XMFLOAT4X4 world; //original matrix... I think
 	DirectX::XMFLOAT4X4 boneOffset; //How far it strayed from original matrix. Used to get new animation state
 	DirectX::XMFLOAT4X4 local;
@@ -21,5 +21,5 @@ public:
 	void SetWorld(DirectX::XMFLOAT4X4 matrix) { world = matrix; }
 	void BoneOffset(DirectX::XMFLOAT4X4 matrix) { boneOffset = matrix; }
 	void SetLocal(DirectX::XMFLOAT4X4 matrix) { local = matrix; }
-	void SetName(std::string nam) { name = nam; }
+	void SetName(std::string nam) { for (int i = 0; i < nam.size(); ++i) { name[i] = nam[i]; } }
 };

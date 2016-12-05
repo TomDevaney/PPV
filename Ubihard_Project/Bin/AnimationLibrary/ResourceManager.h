@@ -15,14 +15,15 @@ class ResourceManager
 {
 private:
 	std::string resourcesPath = "../Resources/";
-	std::map<unsigned int, AnimationSet> animations;
-	std::map<unsigned int, Skeleton*> rigs;
+	std::map<unsigned int, AnimationSet> animationSets;
+	//std::map<unsigned int, Skeleton*> rigs;
 	HashString hashString;
 
-public:
 	void LoadInSkeleton();
 	void LoadInAnimation();
+public:
+	void LoadInAnimationSet();
 
 	//getters
-
+	const AnimationSet& GetAnimationSet(std::string animation) { return animationSets[hashString.GetKey(animation)]; }
 };
