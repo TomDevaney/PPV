@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBXLoader", "Bin\FBXLoader\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShaderStructures", "Bin\ShaderStructures\ShaderStructures.vcxproj", "{179BBA62-7114-4D1F-B7B6-2BEDFA346DD7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AnimationLibrary", "Bin\AnimationLibrary\AnimationLibrary.vcxproj", "{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -49,6 +51,16 @@ Global
 		{179BBA62-7114-4D1F-B7B6-2BEDFA346DD7}.Release|x64.Build.0 = Release|x64
 		{179BBA62-7114-4D1F-B7B6-2BEDFA346DD7}.Release|x86.ActiveCfg = Release|Win32
 		{179BBA62-7114-4D1F-B7B6-2BEDFA346DD7}.Release|x86.Build.0 = Release|Win32
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Debug|ARM.ActiveCfg = Debug|Win32
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Debug|x64.ActiveCfg = Debug|x64
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Debug|x64.Build.0 = Debug|x64
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Debug|x86.ActiveCfg = Debug|Win32
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Debug|x86.Build.0 = Debug|Win32
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Release|ARM.ActiveCfg = Release|Win32
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Release|x64.ActiveCfg = Release|x64
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Release|x64.Build.0 = Release|x64
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Release|x86.ActiveCfg = Release|Win32
+		{F0F4371E-7647-4D97-8D19-EB7BF8209CEE}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -38,6 +38,9 @@ void Scene::Init(DeviceResources const * devResources)
 
 	//create models in scene
 	CreateModels();
+
+	//load in models
+	LoadModelsFromBinary();
 }
 
 void Scene::CreateDevResources(DeviceResources const * devResources)
@@ -241,18 +244,23 @@ void Scene::CreateModels()
 	}
 
 	//add magician
-	Model mage;
+	//Model mage;
 
-	bindVertices.clear();
+	//bindVertices.clear();
 
-	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Battle Mage with Rig and textures.fbx");
-	
-	bindVertices.clear();
-	indices.clear();
-	FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Battle Mage with Rig and textures.fbx", "..\\Assets\\Battle Mage with Rig and textures.fbx");
+	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Battle Mage with Rig and textures.fbx");
+	//
+	//bindVertices.clear();
+	//indices.clear();
+	//FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Battle Mage with Rig and textures.fbx", "..\\Assets\\Battle Mage with Rig and textures.fbx");
 
-	mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities);
-	mage.CreateDevResources(deviceResources);
+	//mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities);
+	//mage.CreateDevResources(deviceResources);
+}
+
+void Scene::LoadModelsFromBinary()
+{
+	resourceManager.LoadInSkeleton();
 }
 
 void Scene::Update(WPARAM wparam)

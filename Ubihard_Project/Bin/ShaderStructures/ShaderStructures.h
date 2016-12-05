@@ -99,101 +99,101 @@ struct CtrlPoint
 // This stores the information of each key frame of each joint
 // This is a linked list and each node is a snapshot of the
 // global transformation of the joint at a certain frame
-struct Keyframe
-{
+//struct Keyframe
+//{
+//
+//	long mFrameNum;
+//	XMMATRIX mGlobalTransform;
+//	Keyframe* mNext;
+//
+//	Keyframe() :
+//		mNext(nullptr)
+//	{}
+//};
+//struct Joint
+//{
+//	std::string mName;
+//	int mParentIndex;
+//	XMMATRIX mGlobalBindposeInverse;
+//	Keyframe* mAnimation;
+//	
+//
+//	Joint() :
+//		mAnimation(nullptr)
+//	{
+//		mGlobalBindposeInverse = XMMatrixIdentity();
+//		mParentIndex = -1;
+//	}
+//
+//	~Joint()
+//	{
+//		while (mAnimation)
+//		{
+//			Keyframe* temp = mAnimation->mNext;
+//			delete mAnimation;
+//			mAnimation = temp;
+//		}
+//	}
+//};
 
-	long mFrameNum;
-	XMMATRIX mGlobalTransform;
-	Keyframe* mNext;
-
-	Keyframe() :
-		mNext(nullptr)
-	{}
-};
-struct Joint
-{
-	std::string mName;
-	int mParentIndex;
-	XMMATRIX mGlobalBindposeInverse;
-	Keyframe* mAnimation;
-	
-
-	Joint() :
-		mAnimation(nullptr)
-	{
-		mGlobalBindposeInverse = XMMatrixIdentity();
-		mParentIndex = -1;
-	}
-
-	~Joint()
-	{
-		while (mAnimation)
-		{
-			Keyframe* temp = mAnimation->mNext;
-			delete mAnimation;
-			mAnimation = temp;
-		}
-	}
-};
-
-struct Skeleton
-{
-	std::vector<Joint> mJoints;
-};
-
-struct TomBone
-{
-	std::string name;
-	DirectX::XMMATRIX world;
-	DirectX::XMMATRIX boneOffset; //How far it strayed from original matrix. Used to get new animation state
-	DirectX::XMMATRIX local;
-};
-
-struct TomKeyFrame
-{
-	std::vector<TomBone> bones;
-};
-
-struct TransformNode
-{
-	std::string name;
-	DirectX::XMMATRIX world;
-	DirectX::XMMATRIX local;
-	TransformNode* parent;
-	TransformNode* child;
-	TransformNode* sibling;
-	bool bDirty;
-
-	void AddChild(TransformNode* tempChild)
-	{
-		if (!child)
-		{
-			child = tempChild;
-		}
-		else
-		{
-			//if there's already a child, give that child a sibling
-			child->AddSibling(tempChild);
-		}
-	}
-
-	void AddSibling(TransformNode* tempSibling)
-	{
-		if (!sibling)
-		{
-			sibling = tempSibling;
-		}
-		else
-		{
-			sibling->AddSibling(tempSibling);
-		}
-	}
-};
-
-struct TomSkeleton
-{
-	std::vector<TransformNode*> transforms;
-};
+//struct Skeleton
+//{
+//	std::vector<Joint> mJoints;
+//};
+//
+//struct TomBone
+//{
+//	std::string name;
+//	DirectX::XMMATRIX world;
+//	DirectX::XMMATRIX boneOffset; //How far it strayed from original matrix. Used to get new animation state
+//	DirectX::XMMATRIX local;
+//};
+//
+//struct TomKeyFrame
+//{
+//	std::vector<TomBone> bones;
+//};
+//
+//struct TransformNode
+//{
+//	std::string name;
+//	DirectX::XMMATRIX world;
+//	DirectX::XMMATRIX local;
+//	TransformNode* parent;
+//	TransformNode* child;
+//	TransformNode* sibling;
+//	bool bDirty;
+//
+//	void AddChild(TransformNode* tempChild)
+//	{
+//		if (!child)
+//		{
+//			child = tempChild;
+//		}
+//		else
+//		{
+//			//if there's already a child, give that child a sibling
+//			child->AddSibling(tempChild);
+//		}
+//	}
+//
+//	void AddSibling(TransformNode* tempSibling)
+//	{
+//		if (!sibling)
+//		{
+//			sibling = tempSibling;
+//		}
+//		else
+//		{
+//			sibling->AddSibling(tempSibling);
+//		}
+//	}
+//};
+//
+//struct TomSkeleton
+//{
+//	std::vector<TransformNode*> transforms;
+//};
 
 struct Vertex
 {

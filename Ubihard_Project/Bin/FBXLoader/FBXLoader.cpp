@@ -5,6 +5,12 @@
 #include <fbxsdk.h>
 #include <unordered_map>
 #include <algorithm>
+#include <fstream>
+
+struct Skeleton
+{
+	std::vector<Joint> mJoints;
+};
 
 namespace FBXLoader
 {
@@ -18,6 +24,7 @@ namespace FBXLoader
 	std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
 	FbxLongLong mAnimationLength;
 	std::string mAnimationName;
+	unsigned int transformNodeindex = 0;
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -310,20 +317,25 @@ namespace FBXLoader
 
 				curTransform->world = child->world;
 				curTransform->name = child->name;
-
+				curTransform->index = transformNodeindex;
+				++transformNodeindex;
 				delete child;
 
 				nextParent = curTransform;
 
 				tomsSkeleton.transforms.push_back(curTransform);
+				tomsSkeleton.names += curTransform->name;
 			}
 			else
 			{
 				child->parent = curTransform;
+				child->index = transformNodeindex;
 				curTransform->AddChild(child);
 				nextParent = child;
+				++transformNodeindex;
 
 				tomsSkeleton.transforms.push_back(child);
+				tomsSkeleton.names += child->name;
 			}
 
 
@@ -331,7 +343,6 @@ namespace FBXLoader
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
-
 			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, tomsSkeleton.transforms.size(), myIndex, mSkeleton, nextParent);
 
 			//ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, mSkeleton->mJoints.size(), myIndex, mSkeleton, curTransform);
@@ -572,7 +583,7 @@ namespace FBXLoader
 					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 
 					// Update the information in mSkeleton 
-					mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
+					//mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
 					//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
 
 
@@ -1100,6 +1111,105 @@ namespace FBXLoader
 
 	}
 
+	std::vector<FriendlyIOTransformNode> friendlyNodes;
+
+	void MakeFriendlyNodeRecursive(TransformNode* tNode)
+	{
+		FriendlyIOTransformNode friendlyNode;
+
+		if (tNode)
+		{
+			friendlyNode.parentIndex = tNode->parent->index;
+			friendlyNode.nameOffset = friendlyNodes[friendlyNode.parentIndex].nameOffset + tNode->name.size();
+			DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
+			//friendlyNode.world = tNode->world;
+
+			if (tNode->child)
+			{
+				friendlyNode.childIndex = tNode->child->index;
+			}
+			else
+			{
+				friendlyNode.childIndex = -1;
+			}
+
+			if (tNode->sibling)
+			{
+				friendlyNode.siblingIndex = tNode->sibling->index;
+			}
+			else
+			{
+				friendlyNode.siblingIndex = -1;
+			}
+
+			friendlyNodes.push_back(friendlyNode);
+
+			MakeFriendlyNodeRecursive(tNode->child);
+			MakeFriendlyNodeRecursive(tNode->sibling);
+		}
+	}
+
+	void MakeFriendlyNode(TransformNode* tNode)
+	{
+		FriendlyIOTransformNode friendlyNode;
+
+		friendlyNode.parentIndex = -1;
+		friendlyNode.childIndex = tNode->child->index;
+		friendlyNode.siblingIndex = -1;
+		friendlyNode.nameOffset = 0;
+		//friendlyNode.name = tNode->name;
+		DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
+
+		friendlyNodes.push_back(friendlyNode);
+
+		MakeFriendlyNodeRecursive(tNode->child);
+		//MakeFriendlyNodeRecursive(tNode->sibling);
+	}
+
+	void ExportToBinary(const char * filePath)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numBones = 0, namesSize = 0;
+
+		path = "../Resources/Skeletons/";
+		path += "Box.skel";
+		//path += filePath
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
+		{
+			//get length of bones
+			numBones = tomsSkeleton.transforms.size();
+			namesSize = tomsSkeleton.names.size();
+
+			//write header
+			bout.write((const char*)&numBones, sizeof(unsigned int));
+			bout.write((const char*)&namesSize, sizeof(unsigned int));
+
+			//make transform nodes that are friendly
+			//FriendlyIOTransformNode friendlyNode;
+
+			MakeFriendlyNode(tomsSkeleton.transforms[0]);
+
+			//write out transform data
+			//for (int i = 0; i < friendlyNodes.size(); ++i)
+			{
+				bout.write((const char*)&friendlyNodes, sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
+			}
+
+			//write out names
+			//for (int i = 0; i < tomsSkeleton.names.size(); ++i)
+			{
+				bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+			}
+
+			bout.close();
+		}
+		//now animation file
+
+	}
 
 	FBXLOADER_API bool Functions::FBXExportToBinary(std::vector<Vertex>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * outFilePath)
 	{
@@ -1137,7 +1247,9 @@ namespace FBXLoader
 
 			// Get the clean name of the model
 			ProcessSkeletonHierarchy(mFBXScene->GetRootNode(), &mSkeleton);
-			if (mSkeleton.mJoints.empty()) { mHasAnimation = false; }
+			if (tomsSkeleton.transforms.empty()) { mHasAnimation = false; }
+
+			//if (mSkeleton.mJoints.empty()) { mHasAnimation = false; }
 
 
 			ProcessGeometry(mFBXScene->GetRootNode());
@@ -1154,6 +1266,9 @@ namespace FBXLoader
 				outIndices->at(i + 1) ^= outIndices->at(i + 2);
 			}
 			*outVerts = mVerts;
+
+			ExportToBinary(rootNode->GetName());
+
 			CleanupFBX();
 			return true;
 		}

@@ -1,13 +1,13 @@
 #include "TransformNode.h"
 
-TransformNode::TransformNode()
+TransformNode2::TransformNode2()
 {
 	parent = nullptr;
 	child = nullptr;
 	sibling = nullptr;
 }
 
-void TransformNode::AddChild(TransformNode* tempChild)
+void TransformNode2::AddChild(TransformNode2* tempChild)
 {
 	if (!child)
 	{
@@ -20,7 +20,7 @@ void TransformNode::AddChild(TransformNode* tempChild)
 	}
 }
 
-void TransformNode::AddSibling(TransformNode* tempSibling)
+void TransformNode2::AddSibling(TransformNode2* tempSibling)
 {
 	if (!sibling)
 	{

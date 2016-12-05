@@ -34,15 +34,6 @@
     <Filter Include="Content\DDSLoader">
       <UniqueIdentifier>{3ec57287-b4f1-451e-9b55-deb0382faeab}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Content\Animation">
-      <UniqueIdentifier>{4104d5c5-18a9-461f-919b-43171261b83d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Content\Animation\Headers">
-      <UniqueIdentifier>{af52e660-c898-430d-b43b-ce5dcb0f5e06}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Content\Animation\Source">
-      <UniqueIdentifier>{3715db91-4bb3-457f-8277-af1dfc5c0e37}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Content\Lights">
       <UniqueIdentifier>{a9daff9c-1674-4d8b-9d85-2af871c03544}</UniqueIdentifier>
     </Filter>
@@ -81,39 +72,6 @@
     <ClCompile Include="Application.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Bone.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="ResourceManager.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimationSet.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Animation.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Skeleton.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="TransformNode.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyFrame.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Interpolator.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="Blender.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimatedGameObject.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="AnimatedRenderNode.cpp">
-      <Filter>Content\Animation\Source</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -134,9 +92,6 @@
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>Content\DDSLoader</Filter>
     </ClInclude>
-    <ClInclude Include="Bone.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
     <ClInclude Include="DirectionalLight.h">
       <Filter>Content\Lights</Filter>
     </ClInclude>
@@ -148,39 +103,6 @@
     </ClInclude>
     <ClInclude Include="Application.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourceManager.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationSet.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Animation.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="TransformNode.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Skeleton.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimationIncludes.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyFrame.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Interpolator.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="Blender.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimatedGameObject.h">
-      <Filter>Content\Animation\Headers</Filter>
-    </ClInclude>
-    <ClInclude Include="AnimatedRenderNode.h">
-      <Filter>Content\Animation\Headers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

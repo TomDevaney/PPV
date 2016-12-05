@@ -1,7 +1,7 @@
 #pragma once
 #include <DirectXMath.h>
 
-class TransformNode
+class TransformNode2
 {
 private:
 	DirectX::XMFLOAT4X4 world;
@@ -10,15 +10,15 @@ private:
 	//unsigned int childIndex;
 	//unsigned int siblingIndex;
 	//unsigned int nameOffset;
-	TransformNode* parent;
-	TransformNode* child;
-	TransformNode* sibling;
+	TransformNode2* parent;
+	TransformNode2* child;
+	TransformNode2* sibling;
 	bool bDirty;
 
 	//private helper functions
-	void AddSibling(TransformNode* tempSibling);
+	void AddSibling(TransformNode2* tempSibling);
 
 public:
-	TransformNode();
-	void AddChild(TransformNode* tempChild);
+	TransformNode2();
+	void AddChild(TransformNode2* tempChild);
 };

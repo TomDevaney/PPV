@@ -5,6 +5,7 @@
 #include "PointLight.h"
 #include "SpotLight.h"
 #include "DeviceResources.h"
+#include "ResourceManager.h"
 
 #define NUMOFPOINTLIGHTS 1
 #define NUMOFSPOTLIGHTS 0
@@ -35,6 +36,8 @@ private:
 	vector<PointLight> pointLights;
 	vector<SpotLight> spotLights;
 
+	ResourceManager resourceManager;
+
 	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
 
 	//Device Resources
@@ -55,6 +58,7 @@ private:
 	void CreateLights();
 	void UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam);
 	void CreateModels();
+	void LoadModelsFromBinary();
 
 public:
 	void Init(DeviceResources const * devResources);

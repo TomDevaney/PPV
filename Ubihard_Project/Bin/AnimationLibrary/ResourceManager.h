@@ -4,6 +4,7 @@
 #include "Skeleton.h"
 
 #include <map>
+#include <string>
 
 //class Animation;
 //class BindPose;
@@ -12,8 +13,10 @@
 class ResourceManager
 {
 private:
+	std::string skeletonsPath = "../Resources/Skeletons/";
 	std::map<unsigned int, AnimationSet> animations;
 	std::map<unsigned int, Skeleton*> rigs;
 
 public:
+	void LoadInSkeleton();
 };

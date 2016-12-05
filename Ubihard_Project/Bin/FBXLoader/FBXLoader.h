@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "../ShaderStructures/ShaderStructures.h"
+#include "../AnimationLibrary/ForFBX.h"
 
 namespace FBXLoader
 {
