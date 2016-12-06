@@ -20,7 +20,7 @@ struct VertexShaderInput
 	float3 pos : POSITION;
 	float3 normal : NORMAL;
 	float3 uv : TEXCOORD;
-	float4 blendingIndex : BLENDINDICES;
+	int4 blendingIndex : BLENDINDICES;
 	float4 blendingWeight : BLENDWEIGHT;
 };
 
