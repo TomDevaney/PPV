@@ -211,7 +211,7 @@ void Scene::CreateModels()
 		2, 3, 1
 	};
 
-	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
+	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection, L"");
 	groundPlane.CreateDevResources(deviceResources);
 	models.push_back(groundPlane);
 
@@ -226,8 +226,8 @@ void Scene::CreateModels()
 	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
 	bindVertices.clear();
 	indices.clear();
-	FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "..\\Assets\\Box_Idle.fbx");
-	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
+	//FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "..\\Assets\\Box_Idle.fbx");
+	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	//models.push_back(testModel);
 
@@ -241,7 +241,7 @@ void Scene::CreateModels()
 	{
 		Model sphereModel;
 
-		sphereModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(boneMatrices[i]._41, boneMatrices[i]._42, boneMatrices[i]._43)), camera, projection, identities);
+		sphereModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(boneMatrices[i]._41, boneMatrices[i]._42, boneMatrices[i]._43)), camera, projection, identities, L"");
 		sphereModel.CreateDevResources(deviceResources);
 		//models.push_back(sphereModel);
 	}

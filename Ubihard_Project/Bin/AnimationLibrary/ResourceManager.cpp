@@ -108,7 +108,7 @@ void ResourceManager::LoadInAnimationSet()
 				//add to hash string
 				size_t length = WideCharToMultiByte(CP_ACP, 0, &folderData.cFileName[0], -1, NULL, 0, NULL, NULL);
 				std::string hashValue(length, 0);
-				WideCharToMultiByte(CP_UTF8, 0, &folderData.cFileName[0], 260, &hashValue[0], length, NULL, NULL);
+				WideCharToMultiByte(CP_UTF8, 0, &folderData.cFileName[0], 260, &hashValue[0], (int)length, NULL, NULL);
 
 				hashString->Insert(hashValue);
 			}
@@ -118,6 +118,8 @@ void ResourceManager::LoadInAnimationSet()
 		FindClose(hFolderFind);
 	}
 }
+
+
 
 Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 {

@@ -3,7 +3,6 @@
 #include "AnimationSet.h"
 #include "Skeleton.h"
 #include "HashString.h"
-
 #include <map>
 #include <string>
 

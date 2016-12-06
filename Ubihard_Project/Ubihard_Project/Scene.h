@@ -19,6 +19,8 @@ private:
 	DirectX::XMFLOAT4X4 camera;
 	DirectX::XMFLOAT4X4 projection;
 
+
+
 	float camYaw;
 	float camPitch;
 

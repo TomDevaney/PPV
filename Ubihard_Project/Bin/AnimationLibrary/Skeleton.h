@@ -11,6 +11,6 @@ private:
 	
 public:
 	const std::vector<FriendlyIOTransformNode>& GetBones() { return bones; }
-	unsigned int GetNumBones() { return bones.size(); }
+	unsigned int GetNumBones() { return (unsigned int)bones.size(); }
 	void Init(std::vector<FriendlyIOTransformNode> tempBones, std::string boneNames);
 };

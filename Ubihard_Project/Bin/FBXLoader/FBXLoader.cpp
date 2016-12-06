@@ -24,11 +24,14 @@ namespace FBXLoader
 	TomSkeleton tomsSkeleton;
 	bool mHasAnimation = true;
 	std::vector<Vertex> mVerts;
+	std::vector<VS_BasicInput> mBasicVerts;
+	std::vector<unsigned int> mIndices;
 	std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
 	FbxLongLong mAnimationLength;
 	std::string mAnimationName;
 	unsigned int transformNodeindex = 0;
 	std::vector<KeyFrame> tomKeyFrames;
+	bool isBasic = false;
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -625,13 +628,13 @@ namespace FBXLoader
 						//tempBone.SetWorld(world);
 
 						//set inverse bind pose of bone
-						XMFLOAT4X4 tempBindPoseInverse;
-						XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
-						tempBone.SetInverseBindPose(tempBindPoseInverse);
+					XMFLOAT4X4 tempBindPoseInverse;
+					XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+					tempBone.SetInverseBindPose(tempBindPoseInverse);
 
-						//set name of bone
-						tempBone.SetName(currJointName);
-						
+					//set name of bone
+					tempBone.SetName(currJointName);
+
 
 					FbxTime currTime;
 					currTime.SetFrame(i, FbxTime::eFrames24);
@@ -643,8 +646,8 @@ namespace FBXLoader
 					//}
 
 						//push back tempBone into current keyframe
-						tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
-						tomKeyFrame.InsertBone(tempBone);
+					tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
+					tomKeyFrame.InsertBone(tempBone);
 				}
 
 				//push back current keyframe into vector of all keyframes
@@ -911,6 +914,39 @@ namespace FBXLoader
 		mSkeleton.mJoints.clear();
 		tomKeyFrames.clear();
 	}
+
+	void ExportBasicMesh(const char * filePath)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numVerts = 0, numIndices = 0;
+
+		path = "../Resources/Box/";
+		path += "Box.bmesh";
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
+		{
+			//get length of bones
+			numVerts = (unsigned int)mBasicVerts.size();
+			numIndices = (unsigned int)mIndices.size();
+
+			//write header
+			bout.write((const char*)&numVerts, sizeof(unsigned int));
+			bout.write((const char*)&numIndices, sizeof(unsigned int));
+
+
+			//write out Vert data
+			bout.write((const char*)mBasicVerts.data(), sizeof(VS_BasicInput) * numVerts);
+
+
+			//write out indicies
+			bout.write((const char*)mIndices.data(), sizeof(unsigned int) * numIndices);
+		}
+
+		bout.close();
+	}
 #pragma endregion 
 	/*----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------*/
@@ -986,24 +1022,27 @@ namespace FBXLoader
 						vert.position.z = (float)verts[iCtrlPoint].mData[2];
 
 
-						outVerts->push_back(vert);
+						mBasicVerts.push_back(vert);
 
 					}
 				}
 			}
 
-			outIndices->clear();
-			outIndices->resize(outVerts->size());
-			ElimanateDuplicates(*outVerts, *outIndices);
+			mIndices.clear();
+			mIndices.resize(mBasicVerts.size());
+			ElimanateDuplicates(mBasicVerts, mIndices);
 
 			//swap indices for correct texture
-			for (unsigned int i = 0; i < outIndices->size(); i += 3)
+			for (unsigned int i = 0; i < mIndices.size(); i += 3)
 			{
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-				outIndices->at(i + 2) ^= outIndices->at(i + 1);
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-
+				mIndices[i + 1] ^= mIndices[i + 2];
+				mIndices[i + 2] ^= mIndices[i + 1];
+				mIndices[i + 1] ^= mIndices[i + 2];
 			}
+			*outVerts = mBasicVerts;
+			*outIndices = mIndices;
+
+			
 
 			return true;
 		}
@@ -1173,7 +1212,38 @@ namespace FBXLoader
 		MakeFriendlyNodeRecursive(tNode->child);
 		//MakeFriendlyNodeRecursive(tNode->sibling);
 	}
+	void ExportMesh(const char * filePath)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numVerts = 0, numIndices = 0;
 
+		path = "../Resources/Box/";
+		path += "Box.mesh";
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
+		{
+			//get length of bones
+			numVerts = (unsigned int)mVerts.size();
+			numIndices = (unsigned int)mIndices.size();
+
+			//write header
+			bout.write((const char*)&numVerts, sizeof(unsigned int));
+			bout.write((const char*)&numIndices, sizeof(unsigned int));
+
+
+			//write out Vert data
+			bout.write((const char*)mVerts.data(), sizeof(Vertex) * numVerts);
+		
+
+			//write out indicies
+			bout.write((const char*)mIndices.data(), sizeof(unsigned int) * numIndices);
+		}
+
+		bout.close();
+	}
 	void ExportToBinary(const char * filePath)
 	{
 		std::ofstream bout;
@@ -1210,7 +1280,7 @@ namespace FBXLoader
 			//write out names
 			bout.write((const char*)tomsSkeleton.names.data(), namesSize);
 		}
-		
+
 		bout.close();
 
 		//now animation file7
@@ -1257,6 +1327,10 @@ namespace FBXLoader
 
 			bout.close();
 		}
+
+		ExportMesh(filePath);
+
+
 	}
 
 	FBXLOADER_API bool Functions::FBXExportToBinary(std::vector<Vertex>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * outFilePath)
@@ -1301,18 +1375,19 @@ namespace FBXLoader
 
 			ProcessGeometry(mFBXScene->GetRootNode());
 
-			outIndices->clear();
-			outIndices->resize(mVerts.size());
-			ElimanateDuplicates(mVerts, *outIndices);
+			mIndices.clear();
+			mIndices.resize(mVerts.size());
+			ElimanateDuplicates(mVerts, mIndices);
 
 			//swap indices for correct texture
-			for (unsigned int i = 0; i < outIndices->size(); i += 3)
+			for (unsigned int i = 0; i < mIndices.size(); i += 3)
 			{
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-				outIndices->at(i + 2) ^= outIndices->at(i + 1);
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
+				mIndices[i + 1] ^= mIndices[i + 2];
+				mIndices[i + 2] ^= mIndices[i + 1];
+				mIndices[i + 1] ^= mIndices[i + 2];
 			}
 			*outVerts = mVerts;
+			*outIndices = mIndices;
 
 			ExportToBinary(rootNode->GetName());
 
