@@ -230,8 +230,8 @@ void Model::LightCulling()
 	ID3D11ShaderResourceView* nullSRV = NULL;
 	ID3D11DepthStencilView* nullDSV = NULL;
 	const float res = 16.0f;
-	const unsigned int NUM_TILES_X = (float)CLIENT_WIDTH / res;
-	const unsigned int NUM_TILES_Y = (float)CLIENT_HEIGHT / res;
+	const unsigned int NUM_TILES_X = (unsigned int)((float)CLIENT_WIDTH / res);
+	const unsigned int NUM_TILES_Y = (unsigned int)((float)CLIENT_HEIGHT / res);
 
 	//set render target and dsv to null
 	devContext->OMSetRenderTargets(1, &nullRTV, nullDSV);

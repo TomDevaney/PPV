@@ -138,7 +138,7 @@ Animation ResourceManager::LoadInAnimation(std::wstring path)
 		keyFrames.resize(numOfKeyFrames);
 		bones.resize(numOfBones);
 
-		for (int i = 0; i < numOfKeyFrames; ++i)
+		for (unsigned int i = 0; i < numOfKeyFrames; ++i)
 		{
 			float keyFrameTime;
 
