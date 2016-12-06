@@ -6,11 +6,11 @@
 class Skeleton
 {
 private:
-	std::vector<TransformNode2> bones;
+	std::vector<FriendlyIOTransformNode> bones;
 	std::string names;
 	
 public:
-	const std::vector<TransformNode2>& GetBones() { return bones; }
+	const std::vector<FriendlyIOTransformNode>& GetBones() { return bones; }
 	unsigned int GetNumBones() { return bones.size(); }
-	void Init(std::vector<TransformNode2> tempBones, std::string boneNames);
+	void Init(std::vector<FriendlyIOTransformNode> tempBones, std::string boneNames);
 };

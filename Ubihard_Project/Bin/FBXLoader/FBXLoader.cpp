@@ -8,6 +8,7 @@
 #include <fstream>
 #include "Animation.h"
 #include "KeyFrame.h"
+#include "TransformNode.h"
 
 struct Skeleton
 {
@@ -1185,7 +1186,7 @@ namespace FBXLoader
 		std::string path;
 		unsigned int numBones = 0, namesSize = 0;
 
-		path = "../Resources/Skeletons/";
+		path = "../Resources/Box/";
 		path += "Box.skel";
 		//path += filePath
 
@@ -1219,8 +1220,8 @@ namespace FBXLoader
 		bout.close();
 
 		//now animation file7
-		path = "../Resources/Animations/";
-		path += "Box.anim";
+		path = "../Resources/Box/";
+		path += "Box_Idle.anim";
 
 		bout.open(path, std::ios::binary);
 

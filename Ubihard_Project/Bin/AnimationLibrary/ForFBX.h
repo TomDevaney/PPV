@@ -2,6 +2,7 @@
 #include <DirectXMath.h>
 #include "KeyFrame.h"
 #include "Bone.h"
+#include "TransformNode.h"
 //#include "Skeleton.h"
 
 struct Keyframe
@@ -15,6 +16,7 @@ struct Keyframe
 		mNext(nullptr)
 	{}
 };
+
 struct Joint
 {
 	std::string mName;
@@ -111,31 +113,31 @@ struct TransformNode
 	}
 };
 
-struct FriendlyIOTransformNode
-{
-	//std::string name;
-	unsigned int nameOffset;
-	DirectX::XMFLOAT4X4 world;
-	DirectX::XMFLOAT4X4 local;
-	int parentIndex;
-	int childIndex;
-	int siblingIndex;
-	//TransformNode* parent;
-	//TransformNode* child;
-	//TransformNode* sibling;
-	bool bDirty;
-
-	FriendlyIOTransformNode()
-	{
-		nameOffset = 0;
-		world = DirectX::XMFLOAT4X4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		local = DirectX::XMFLOAT4X4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-		parentIndex = -1;
-		childIndex = -1;
-		siblingIndex = -1;
-		bDirty = false;
-	}
-};
+//struct FriendlyIOTransformNode
+//{
+//	//std::string name;
+//	unsigned int nameOffset;
+//	DirectX::XMFLOAT4X4 world;
+//	DirectX::XMFLOAT4X4 local;
+//	int parentIndex;
+//	int childIndex;
+//	int siblingIndex;
+//	//TransformNode* parent;
+//	//TransformNode* child;
+//	//TransformNode* sibling;
+//	bool bDirty;
+//
+//	FriendlyIOTransformNode()
+//	{
+//		nameOffset = 0;
+//		world = DirectX::XMFLOAT4X4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+//		local = DirectX::XMFLOAT4X4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+//		parentIndex = -1;
+//		childIndex = -1;
+//		siblingIndex = -1;
+//		bDirty = false;
+//	}
+//};
 
 struct TomSkeleton
 {

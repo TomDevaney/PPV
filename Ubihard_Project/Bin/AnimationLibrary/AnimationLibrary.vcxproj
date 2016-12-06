@@ -157,6 +157,7 @@
     <ClCompile Include="AnimationSet.cpp" />
     <ClCompile Include="Blender.cpp" />
     <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="HashString.cpp" />
     <ClCompile Include="Interpolator.cpp" />
     <ClCompile Include="KeyFrame.cpp" />
     <ClCompile Include="ResourceManager.cpp" />

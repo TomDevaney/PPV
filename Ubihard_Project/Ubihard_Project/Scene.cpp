@@ -208,7 +208,7 @@ void Scene::CreateModels()
 		2, 3, 1
 	};
 
-	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Resources/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
+	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
 	groundPlane.CreateDevResources(deviceResources);
 	models.push_back(groundPlane);
 
@@ -224,7 +224,7 @@ void Scene::CreateModels()
 	bindVertices.clear();
 	indices.clear();
 	FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "..\\Assets\\Box_Idle.fbx");
-	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Resources/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
+	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
 	testModel.CreateDevResources(deviceResources);
 	//models.push_back(testModel);
 

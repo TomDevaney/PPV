@@ -13,8 +13,10 @@ private:
 	unsigned int defaultAnimation;
 
 public:
-	bool AddAnimation(FILE* file);
-	bool AddSkeleton(const Skeleton* skele);
+	void AddAnimation(Animation animation) { animations.push_back(animation); }
+
+	//setters
+	void SetSkeleton(const Skeleton* skele) { skeleton = skele; }
 
 	//getters
 	const Animation* GetAnimation(unsigned int index) { return &animations[index]; }

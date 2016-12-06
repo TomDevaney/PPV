@@ -14,16 +14,22 @@
 class ResourceManager
 {
 private:
-	std::string resourcesPath = "../Resources/";
+	std::wstring resourcesPath = L"../Resources";
 	std::map<unsigned int, AnimationSet> animationSets;
 	//std::map<unsigned int, Skeleton*> rigs;
-	HashString hashString;
+	HashString* hashString;
 
-	void LoadInSkeleton();
-	void LoadInAnimation();
+	unsigned int animationSetIndex;
+
+	//private helper functions
+	Skeleton LoadInSkeleton(std::wstring path);
+	Animation LoadInAnimation(std::wstring path);
 public:
+	ResourceManager();
+	~ResourceManager();
+
 	void LoadInAnimationSet();
 
 	//getters
-	const AnimationSet& GetAnimationSet(std::string animation) { return animationSets[hashString.GetKey(animation)]; }
+	const AnimationSet& GetAnimationSet(std::string animation) { return animationSets[hashString->GetKey(animation)]; }
 };

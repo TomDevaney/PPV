@@ -1,31 +1,93 @@
 //#include "Animation.h"
 //#include "AnimationSet.h"
 //#include "BindPose.h"
+#include <fstream>
+#include <Windows.h>
 #include "ForFBX.h"
 #include "ResourceManager.h"
-#include <fstream>
-void ResourceManager::LoadInAnimationSet()
-{
-	//load in the  one skeleton
-	LoadInSkeleton();
 
-	//Load in multiple animations
-	//for...
-	LoadInAnimation();
+ResourceManager::ResourceManager()
+{
+	hashString = HashString::GetSingleton();
+	animationSetIndex = 0;
 }
 
-void ResourceManager::LoadInSkeleton()
+ResourceManager::~ResourceManager()
+{
+	hashString->CleanUp();
+}
+
+void ResourceManager::LoadInAnimationSet()
+{
+	WIN32_FIND_DATA fileData, folderData;
+	Skeleton skeleton;
+	Animation animation;
+	HANDLE hFolderFind, hFileFind;
+
+	//skeletonPath += L"/*.*";
+	hFolderFind = ::FindFirstFile(resourcesPath.c_str(), &folderData);
+	
+	if (hFolderFind != INVALID_HANDLE_VALUE)
+	{
+		do // for every folder in resources folder
+		{
+			//every folder is one animation set
+			AnimationSet animationSet;
+
+
+			if (folderData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			{
+				std::wstring filePath = folderData.cFileName;
+				filePath += L"/*.skel";
+
+				//load in the  one skeleton
+				//skeleton = LoadInSkeleton(filePath);
+				//animationSet.SetSkeleton(&skeleton);
+
+				filePath = folderData.cFileName;
+				filePath += L"/*.anim";
+
+				hFileFind = FindFirstFile(folderData.cFileName, &fileData);
+
+				if (hFileFind != INVALID_HANDLE_VALUE)
+				{
+					do //for every file in folder
+					{
+						//Load in multiple animations
+						//animation = LoadInAnimation(fileData.cFileName);
+
+						//initialize animation set
+						//animationSet.AddAnimation(animation);
+
+					} while (FindNextFile(hFolderFind, &fileData)); 
+
+					FindClose(hFileFind);
+				}
+			}
+
+			animationSets[animationSetIndex] = animationSet;
+
+			//add to hash string
+			//hashString->Insert();
+
+		} while (FindNextFile(hFolderFind, &folderData));
+
+		FindClose(hFolderFind);
+	}
+
+
+
+
+}
+
+Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 {
 	std::ifstream bin;
-	std::string skeletonPath;
+	FriendlyIOSkeleton skeleton;
 	unsigned int sizeOfNames;
 	unsigned int numOfBones;
-	FriendlyIOSkeleton skeleton;
 
-	skeletonPath = resourcesPath;
-	skeletonPath += "Skeletons/Box.skel";
-
-	bin.open(skeletonPath, std::ios::binary);
+	bin.open(path, std::ios::binary);
 
 	if (bin.is_open())
 	{
@@ -46,24 +108,25 @@ void ResourceManager::LoadInSkeleton()
 		bin.close();
 	}
 
+	Skeleton nonFriendlySkeleton;
+
+	nonFriendlySkeleton.Init(skeleton.transforms, skeleton.names);
+
+	return nonFriendlySkeleton;
 }
 
-void ResourceManager::LoadInAnimation()
+Animation ResourceManager::LoadInAnimation(std::wstring path)
 {
 	std::ifstream bin;
-	std::string animationPath;
 	Animation animation;
-	unsigned int numOfKeyFrames;
-	unsigned int numOfBones;
 	std::vector<KeyFrame> keyFrames;
 	std::vector<Bone> bones;
 	AnimType animType;
 	float time;
+	unsigned int numOfKeyFrames;
+	unsigned int numOfBones;
 
-	animationPath = resourcesPath;
-	animationPath += "Animations/Box.anim";
-
-	bin.open(animationPath, std::ios::binary);
+	bin.open(path, std::ios::binary);
 
 	if (bin.is_open())
 	{
@@ -96,10 +159,9 @@ void ResourceManager::LoadInAnimation()
 
 		animation.Init(animType, time, keyFrames);
 
-		//clear stuff
-		//keyFrames.clear();
-		//bones.clear();
-
+		//close fstream
 		bin.close();
 	}
+
+	return animation;
 }
