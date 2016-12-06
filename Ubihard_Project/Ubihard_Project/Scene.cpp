@@ -227,7 +227,7 @@ void Scene::CreateModels()
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
 	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box_Idle.fbx", "Box", "Box_Idle");
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	models.push_back(testModel);
@@ -246,18 +246,14 @@ void Scene::CreateModels()
 	}
 
 	//add magician
-	//Model mage;
+	Model mage;
 
-	//bindVertices.clear();
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
 
-	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Battle Mage with Rig and textures.fbx");
-	//
-	//bindVertices.clear();
-	//indices.clear();
-	//FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Battle Mage with Rig and textures.fbx", "..\\Assets\\Battle Mage with Rig and textures.fbx");
+	mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities, L"Mage");
+	mage.CreateDevResources(deviceResources);
 
-	//mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities);
-	//mage.CreateDevResources(deviceResources);
+	models.push_back(mage);
 }
 
 void Scene::LoadModelsFromBinary()

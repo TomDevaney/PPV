@@ -1308,54 +1308,56 @@ namespace FBXLoader
 
 		bout.close();
 
-		//now animation file
-		path = "../Resources/";
-		path += name;
-		path += "/";
-		path += animationName;
-		path += ".anim";
-
-		bout.open(path, std::ios::binary);
-
-		if (bout.is_open())
+		if (animationName)
 		{
-			//make animation
-			//Animation anim;
-			//anim.Init(AnimType::LOOP, tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime(), tomKeyFrames);
-			AnimType type;
+			//now animation file
+			path = "../Resources/";
+			path += name;
+			path += "/";
+			path += animationName;
+			path += ".anim";
 
-			type = AnimType::LOOP;
+			bout.open(path, std::ios::binary);
 
-			//write out header info
-			unsigned int numOfKeyFrames;
-			unsigned int numOfBones;
-
-			numOfKeyFrames = (unsigned int)tomKeyFrames.size();
-			numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
-
-			bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
-			bout.write((const char*)&numOfBones, sizeof(unsigned int));
-
-			//write out keyframes
-			for (int i = 0; i < tomKeyFrames.size(); ++i)
+			if (bout.is_open())
 			{
-				float keyFrameTime = tomKeyFrames[i].GetTime();
-				bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
-				bout.write((const char*)&keyFrameTime, sizeof(float));
+				//make animation
+				//Animation anim;
+				//anim.Init(AnimType::LOOP, tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime(), tomKeyFrames);
+				AnimType type;
+
+				type = AnimType::LOOP;
+
+				//write out header info
+				unsigned int numOfKeyFrames;
+				unsigned int numOfBones;
+
+				numOfKeyFrames = (unsigned int)tomKeyFrames.size();
+				numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
+
+				bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
+				bout.write((const char*)&numOfBones, sizeof(unsigned int));
+
+				//write out keyframes
+				for (int i = 0; i < tomKeyFrames.size(); ++i)
+				{
+					float keyFrameTime = tomKeyFrames[i].GetTime();
+					bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
+					bout.write((const char*)&keyFrameTime, sizeof(float));
+				}
+
+				//write out animtype
+				bout.write((const char*)&type, sizeof(AnimType));
+
+				//write out time
+				float time;
+				time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
+
+				bout.write((const char*)&time, sizeof(float));
+
+				bout.close();
 			}
-
-			//write out animtype
-			bout.write((const char*)&type, sizeof(AnimType));
-
-			//write out time
-			float time;
-			time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
-
-			bout.write((const char*)&time, sizeof(float));
-
-			bout.close();
 		}
-
 		ExportMesh(name);
 
 
