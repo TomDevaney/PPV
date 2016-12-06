@@ -6,6 +6,8 @@
 #include "SpotLight.h"
 #include "DeviceResources.h"
 #include "ResourceManager.h"
+#include "AnimatedRenderNode.h"
+#include "AnimatedGameObject.h"
 
 #define NUMOFPOINTLIGHTS 1
 #define NUMOFSPOTLIGHTS 0
@@ -37,6 +39,8 @@ private:
 	vector<SpotLight> spotLights;
 
 	ResourceManager* resourceManager;
+	vector<AnimatedRenderNode> renderNodes;
+	vector<AnimatedGameObject> gameObjects;
 
 	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
 

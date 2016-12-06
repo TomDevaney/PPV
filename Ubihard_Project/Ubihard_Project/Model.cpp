@@ -91,7 +91,7 @@ void Model::CreateDevResources(DeviceResources const * deviceResources)
 void Model::Render()
 {
 	//do depthprepass
-	DepthPrePass();
+	//DepthPrePass();
 
 	//use computer shader to find what lights
 

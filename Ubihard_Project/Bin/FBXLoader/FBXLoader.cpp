@@ -10,17 +10,17 @@
 #include "KeyFrame.h"
 #include "TransformNode.h"
 
-struct Skeleton
-{
-	std::vector<Joint> mJoints;
-};
+//struct Skeleton
+//{
+//	std::vector<Joint> mJoints;
+//};
 
 namespace FBXLoader
 {
 	//GLOBALS
 	FbxScene* mFBXScene = nullptr;
 	FbxManager* mFBXManager = nullptr;
-	Skeleton mSkeleton;
+	//Skeleton mSkeleton;
 	TomSkeleton tomsSkeleton;
 	bool mHasAnimation = true;
 	std::vector<Vertex> mVerts;
@@ -299,7 +299,7 @@ namespace FBXLoader
 	FbxAMatrix GetGeometryTransformation(FbxNode* inNode);
 	XMMATRIX FBXToXMMatrix(const FbxAMatrix& inMatrix);
 
-	void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex, Skeleton * mSkeleton, TransformNode* curTransform)
+	void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex, TransformNode* curTransform)
 	{
 		TransformNode* nextParent = nullptr;
 		TransformNode* child = new TransformNode();
@@ -347,13 +347,13 @@ namespace FBXLoader
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
-			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, (int)tomsSkeleton.transforms.size(), myIndex, mSkeleton, nextParent);
+			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, (int)tomsSkeleton.transforms.size(), myIndex, nextParent);
 
 			//ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, mSkeleton->mJoints.size(), myIndex, mSkeleton, curTransform);
 		}
 	}
 
-	void ProcessSkeletonHierarchy(FbxNode* inRootNode, Skeleton* mSkeleton)
+	void ProcessSkeletonHierarchy(FbxNode* inRootNode)
 	{
 		TransformNode* root = nullptr;
 
@@ -371,7 +371,7 @@ namespace FBXLoader
 
 			//root->AddChild(child);
 
-			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1, mSkeleton, root);
+			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1, root);
 		}
 	}
 
@@ -518,9 +518,9 @@ namespace FBXLoader
 
 	unsigned int FindJointIndexUsingName(const std::string& inJointName)
 	{
-		for (unsigned int i = 0; i < mSkeleton.mJoints.size(); ++i)
+		for (unsigned int i = 0; i < tomsSkeleton.transforms.size(); ++i)
 		{
-			if (mSkeleton.mJoints[i].mName == inJointName)
+			if (tomsSkeleton.transforms[i]->name == inJointName)
 			{
 				return i;
 			}
@@ -908,7 +908,9 @@ namespace FBXLoader
 		mFBXScene = nullptr;
 
 		mVerts.clear();
-		mSkeleton.mJoints.clear();
+		//mSkeleton.mJoints.clear();
+		tomsSkeleton.names.clear();
+		tomsSkeleton.transforms.clear();
 		tomKeyFrames.clear();
 	}
 #pragma endregion 
@@ -1293,7 +1295,7 @@ namespace FBXLoader
 		{
 
 			// Get the clean name of the model
-			ProcessSkeletonHierarchy(mFBXScene->GetRootNode(), &mSkeleton);
+			ProcessSkeletonHierarchy(mFBXScene->GetRootNode());
 			if (tomsSkeleton.transforms.empty()) { mHasAnimation = false; }
 
 			//if (mSkeleton.mJoints.empty()) { mHasAnimation = false; }

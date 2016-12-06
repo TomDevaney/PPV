@@ -66,7 +66,7 @@ void ResourceManager::LoadInAnimationSet()
 						filePath += fileData.cFileName;
 
 						skeleton = LoadInSkeleton(filePath);
-						animationSet.SetSkeleton(&skeleton);
+						animationSet.SetSkeleton(skeleton);
 					}
 				}
 			

@@ -10,7 +10,7 @@
 class Blender
 {
 private:
-	const AnimationSet* animationSet;
+	AnimationSet* animationSet;
 	BlendInfo blendInfo;
 	std::vector<DirectX::XMFLOAT4X4> inverseBindPoses;
 	Interpolator* curAnim;
@@ -20,12 +20,14 @@ private:
 
 public:
 	Blender();
+	~Blender();
 
+	void Init();
 	void Update(float time);
 
 	//getters
-
+	std::vector<DirectX::XMFLOAT4X4> GetInverseBindPoses() { return inverseBindPoses; }
 
 	//setters
-	void SetAnimationState(std::string key) { animationSet = &resourceManager->GetAnimationSet(key); }
+	void SetAnimationSet(std::string key) { animationSet = resourceManager->GetAnimationSet(key); }
 };

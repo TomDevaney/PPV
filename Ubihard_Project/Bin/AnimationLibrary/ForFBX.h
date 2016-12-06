@@ -5,51 +5,51 @@
 #include "TransformNode.h"
 //#include "Skeleton.h"
 
-struct Keyframe
-{
+//struct Keyframe
+//{
+//
+//	long mFrameNum;
+//	DirectX::XMMATRIX mGlobalTransform;
+//	Keyframe* mNext;
+//
+//	Keyframe() :
+//		mNext(nullptr)
+//	{}
+//};
+//
+//struct Joint
+//{
+//	std::string mName;
+//	int mParentIndex;
+//	DirectX::XMMATRIX mGlobalBindposeInverse;
+//	Keyframe* mAnimation;
+//	
+//
+//	Joint() :
+//		mAnimation(nullptr)
+//	{
+//		mGlobalBindposeInverse = DirectX::XMMatrixIdentity();
+//		mParentIndex = -1;
+//	}
+//
+//	~Joint()
+//	{
+//		while (mAnimation)
+//		{
+//			Keyframe* temp = mAnimation->mNext;
+//			delete mAnimation;
+//			mAnimation = temp;
+//		}
+//	}
+//};
 
-	long mFrameNum;
-	DirectX::XMMATRIX mGlobalTransform;
-	Keyframe* mNext;
-
-	Keyframe() :
-		mNext(nullptr)
-	{}
-};
-
-struct Joint
-{
-	std::string mName;
-	int mParentIndex;
-	DirectX::XMMATRIX mGlobalBindposeInverse;
-	Keyframe* mAnimation;
-	
-
-	Joint() :
-		mAnimation(nullptr)
-	{
-		mGlobalBindposeInverse = DirectX::XMMatrixIdentity();
-		mParentIndex = -1;
-	}
-
-	~Joint()
-	{
-		while (mAnimation)
-		{
-			Keyframe* temp = mAnimation->mNext;
-			delete mAnimation;
-			mAnimation = temp;
-		}
-	}
-};
-
-struct TomBone
-{
-	std::string name;
-	DirectX::XMMATRIX world;
-	DirectX::XMMATRIX boneOffset; //How far it strayed from original matrix. Used to get new animation state
-	DirectX::XMMATRIX local;
-};
+//struct TomBone
+//{
+//	std::string name;
+//	DirectX::XMMATRIX world;
+//	DirectX::XMMATRIX boneOffset; //How far it strayed from original matrix. Used to get new animation state
+//	DirectX::XMMATRIX local;
+//};
 
 //struct TomKeyFrame
 //{

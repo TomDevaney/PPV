@@ -229,7 +229,7 @@ void Scene::CreateModels()
 	FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "..\\Assets\\Box_Idle.fbx");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
 	testModel.CreateDevResources(deviceResources);
-	//models.push_back(testModel);
+	models.push_back(testModel);
 
 	basicVertices.clear();
 	bindVertices.clear();
@@ -264,6 +264,18 @@ void Scene::CreateModels()
 void Scene::LoadModelsFromBinary()
 {
 	resourceManager->LoadInAnimationSet();
+
+	//make a function for this later
+	//but make the animated render node and animated game objects
+	//probably should only be making animated render node, but I don't understand how to do such a thing
+	AnimatedRenderNode boxRenderNode;
+	AnimatedGameObject boxGameObject;
+	
+	boxGameObject.Init("Box");
+	boxGameObject.SetRenderNode(&boxRenderNode);
+
+	renderNodes.push_back(boxRenderNode);
+	gameObjects.push_back(boxGameObject);
 }
 
 void Scene::Update(WPARAM wparam)
@@ -294,6 +306,13 @@ void Scene::Update(WPARAM wparam)
 	}
 
 	//TODO: we need to update bone offsets somehow by calculating: vertexOut = inverseBindMatrix  * currentWorldMatrix * bindVertexPosition
+	for (int i = 0; i < gameObjects.size(); ++i)
+	{
+		gameObjects[i].Update();
+	}
+
+	//update objects to take in bone offset data
+	models[1].SetBoneOffsetData(renderNodes[0].GetInverseBindPoses().data());
 }
 
 void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam)

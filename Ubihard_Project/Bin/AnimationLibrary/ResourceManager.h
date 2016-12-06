@@ -34,5 +34,5 @@ public:
 
 	//getters
 	static ResourceManager* GetSingleton() { if (!singleton) { singleton = new ResourceManager(); } return singleton; }
-	const AnimationSet& GetAnimationSet(std::string animation) { return animationSets[hashString->GetKey(animation)]; }
+	AnimationSet* GetAnimationSet(std::string animation) { return &animationSets[hashString->GetKey(animation)]; }
 };
