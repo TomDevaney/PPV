@@ -972,7 +972,7 @@ namespace FBXLoader
 	/*----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------*/
 
-	FBXLOADER_API bool Functions::FBXLoadExportFileBasic(std::vector<VS_BasicInput>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * name)
+	FBXLOADER_API bool Functions::FBXLoadExportFileBasic(const char * inFilePath, const char * name)
 	{
 		//if the FbxManager is not created. Create it.
 		if (!mFBXManager)
@@ -1060,8 +1060,6 @@ namespace FBXLoader
 				mIndices[i + 2] ^= mIndices[i + 1];
 				mIndices[i + 1] ^= mIndices[i + 2];
 			}
-			*outVerts = mBasicVerts;
-			*outIndices = mIndices;
 
 			
 
@@ -1364,7 +1362,7 @@ namespace FBXLoader
 
 	}
 
-	FBXLOADER_API bool Functions::FBXLoadExportFileBind(std::vector<Vertex>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * name, const char* animationName)
+	FBXLOADER_API bool Functions::FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName)
 	{
 
 		//if the FbxManager is not created. Create it.
@@ -1417,8 +1415,6 @@ namespace FBXLoader
 				mIndices[i + 2] ^= mIndices[i + 1];
 				mIndices[i + 1] ^= mIndices[i + 2];
 			}
-			*outVerts = mVerts;
-			*outIndices = mIndices;
 
 			ExportToBinary(name , animationName);
 

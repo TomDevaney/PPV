@@ -213,38 +213,34 @@ void Scene::CreateModels()
 		2, 1, 0,
 		2, 3, 1
 	};
+	groundPlane.SetBasicVerts(basicVertices);
+	groundPlane.SetIndices(indices);
 
-	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection, L"");
+	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection, L"");
 	groundPlane.CreateDevResources(deviceResources);
 	models.push_back(groundPlane);
 
 	//test model for fbx loading 
 	Model testModel;
-	vector<Vertex> bindVertices;
-	vector<XMFLOAT4X4> boneMatrices;
 	XMFLOAT4X4 identity;
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
 	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
-	bindVertices.clear();
-	indices.clear();
-	FBXLoader::Functions::FBXLoadExportFileBind(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "Box", "Box_Idle");
-	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box_Idle.fbx", "Box", "Box_Idle");
+	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	models.push_back(testModel);
 
-	basicVertices.clear();
-	bindVertices.clear();
 	
 	//add four spheres. set postions at position in boneMats
-	FBXLoader::Functions::FBXLoadExportFileBasic(&basicVertices, &indices, "..\\Assets\\Sphere.fbx", "Sphere");
+	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
 
 	for (int i = 0; i < 4; ++i)
 	{
 		Model sphereModel;
 
-		sphereModel.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "", XMMatrixIdentity(), camera, projection, L"Sphere");
+		sphereModel.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), "", XMMatrixIdentity(), camera, projection, L"Sphere");
 		sphereModel.CreateDevResources(deviceResources);
 		models.push_back(sphereModel);
 	}
