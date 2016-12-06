@@ -44,6 +44,9 @@ void Scene::Init(DeviceResources const * devResources)
 
 	//load in models
 	LoadModelsFromBinary();
+
+	//temporary
+	curFrame = 0;
 }
 
 void Scene::CreateDevResources(DeviceResources const * devResources)
@@ -211,7 +214,7 @@ void Scene::CreateModels()
 		2, 3, 1
 	};
 
-	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection);
+	groundPlane.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "../Assets/Textures/DDS/FloorTexture.dds", XMMatrixIdentity(), camera, projection, L"");
 	groundPlane.CreateDevResources(deviceResources);
 	models.push_back(groundPlane);
 
@@ -223,11 +226,11 @@ void Scene::CreateModels()
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
-	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
+	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
 	bindVertices.clear();
 	indices.clear();
-	FBXLoader::Functions::FBXExportToBinary(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "..\\Assets\\Box_Idle.fbx");
-	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities);
+	FBXLoader::Functions::FBXLoadExportFileBind(&bindVertices, &indices, "..\\Assets\\Box_Idle.fbx", "Box", "Box_Idle");
+	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	models.push_back(testModel);
 
@@ -235,15 +238,15 @@ void Scene::CreateModels()
 	bindVertices.clear();
 	
 	//add four spheres. set postions at position in boneMats
-	FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, nullptr, "..\\Assets\\Sphere.fbx");
+	FBXLoader::Functions::FBXLoadExportFileBasic(&basicVertices, &indices, "..\\Assets\\Sphere.fbx", "Sphere");
 
 	for (int i = 0; i < 4; ++i)
 	{
 		Model sphereModel;
 
-		sphereModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), bindVertices, indices, "", XMMatrixTranspose(XMMatrixTranslation(boneMatrices[i]._41, boneMatrices[i]._42, boneMatrices[i]._43)), camera, projection, identities);
+		sphereModel.Init(Shadertypes::BASIC, vertexShaders[Shadertypes::BASIC].Get(), vertexShaders[Shadertypes::DEPTHPREPASS].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BASIC].Get(), basicVertices, indices, "", XMMatrixIdentity(), camera, projection, L"Sphere");
 		sphereModel.CreateDevResources(deviceResources);
-		//models.push_back(sphereModel);
+		models.push_back(sphereModel);
 	}
 
 	//add magician
@@ -268,11 +271,11 @@ void Scene::LoadModelsFromBinary()
 	//make a function for this later
 	//but make the animated render node and animated game objects
 	//probably should only be making animated render node, but I don't understand how to do such a thing
-	AnimatedRenderNode boxRenderNode;
-	AnimatedGameObject boxGameObject;
+	AnimatedRenderNode* boxRenderNode = new AnimatedRenderNode();
+	AnimatedGameObject* boxGameObject = new AnimatedGameObject();
 	
-	boxGameObject.Init("Box");
-	boxGameObject.SetRenderNode(&boxRenderNode);
+	boxGameObject->Init("Box");
+	boxGameObject->SetRenderNode(boxRenderNode);
 
 	renderNodes.push_back(boxRenderNode);
 	gameObjects.push_back(boxGameObject);
@@ -281,8 +284,11 @@ void Scene::LoadModelsFromBinary()
 void Scene::Update(WPARAM wparam)
 {
 	//delta time
-	float dt; 
+	float dt;
 	dt = 1.0f / 60.0f;
+
+	//handle input
+	HandleInput();
 
 	//update lights
 	pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
@@ -306,13 +312,42 @@ void Scene::Update(WPARAM wparam)
 	}
 
 	//TODO: we need to update bone offsets somehow by calculating: vertexOut = inverseBindMatrix  * currentWorldMatrix * bindVertexPosition
+
+	//send current frame to model[1] aka box
+	gameObjects[0]->SetCurFrame(curFrame);
+
+	//update inverse bind poses in game objects
 	for (int i = 0; i < gameObjects.size(); ++i)
 	{
-		gameObjects[i].Update();
+		gameObjects[i]->Update();
 	}
 
-	//update objects to take in bone offset data
-	models[1].SetBoneOffsetData(renderNodes[0].GetInverseBindPoses().data());
+
+	//update model to take in bone offset data from render node
+	vector<XMFLOAT4X4> boneOffsets = renderNodes[0]->GetBoneOffsets();
+
+	models[1].SetBoneOffsetData(renderNodes[0]->GetBoneOffsets());
+
+	//update spheres to new bone positions
+	vector<XMFLOAT4X4> bonesWorlds = renderNodes[0]->GetBonesWorlds();
+
+	for (int i = 0; i < 4; ++i)
+	{
+		models[i + 2].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
+	}
+}
+
+void Scene::HandleInput()
+{
+	if (buttons['O'])
+	{
+		++curFrame;
+	}
+
+	if (buttons['P'])
+	{
+		--curFrame;
+	}
 }
 
 void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam)
@@ -408,6 +443,9 @@ void Scene::Render()
 	//render all models
 	for (size_t i = 0; i < models.size(); ++i)
 	{
-		models[i].Render();
+		//if (i != 1)
+		{
+			models[i].Render();
+		}
 	}
 }

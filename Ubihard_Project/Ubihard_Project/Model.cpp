@@ -1,36 +1,122 @@
 #include "Model.h"
+#include <fstream>
 using namespace DirectX;
 
 //for bind vertices
-void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<Vertex> verts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData)
+void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<Vertex> verts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name)
 {
 	vertexType = shaderType;
 	vertexShader = vShader;
 	pixelShader = pShader;
 	inputLayout = iLayout;
-	vertices = verts;
-	indices = ind;
+	mVertices = verts;
+	mIndices = ind;
 	texturePath = tPath;
 	SetModel(model);
 	mvpData.view = view;
 	mvpData.projection = projection;
-	SetBoneOffsetData(boneOffData);
+	//SetBoneOffsetData(boneOffData);
+	LoadMesh(name);
 }
 
 //for basic vertices
-void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<VS_BasicInput> bVerts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection)
+void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<VS_BasicInput> bVerts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name)
 {
 	vertexType = shaderType;
 	vertexShader = vShader;
 	preDepthPassVertexShader = preDepthPassVShader;
 	pixelShader = pShader;
 	inputLayout = iLayout;
-	basicVertices = bVerts;
-	indices = ind;
+	mBasicVertices = bVerts;
+	mIndices = ind;
 	texturePath = tPath;
 	SetModel(model);
 	mvpData.view = view;
 	mvpData.projection = projection;
+
+	if (name.size())
+	{
+		LoadBasicMesh(name);
+	}
+}
+
+void Model::LoadMesh(std::wstring name)
+{
+	std::wstring fullPath;
+
+	fullPath = resourcesPath;
+	fullPath += name + L"/" + name + L".mesh";
+
+
+	std::ifstream bin;
+	std::vector<Vertex> verts;
+	std::vector<unsigned int> indices;
+	unsigned int numVerts;
+	unsigned int numIndices;
+
+	bin.open(fullPath, std::ios::binary);
+
+	if (bin.is_open())
+	{
+		//Read Header
+		bin.read((char*)&numVerts, sizeof(unsigned int));
+		bin.read((char*)&numIndices, sizeof(unsigned int));
+
+		//resize based off of header
+		verts.resize(numVerts);
+		indices.resize(numIndices);
+
+		//read in verts
+		bin.read((char*)verts.data(), sizeof(Vertex) * numVerts);
+
+		//read in names
+		bin.read((char*)indices.data(), sizeof(unsigned int) * numIndices);
+
+		bin.close();
+
+		mVertices = verts;
+		mIndices = indices;
+	}
+
+}
+
+void Model::LoadBasicMesh(std::wstring name)
+{
+	std::wstring fullPath;
+
+	fullPath = resourcesPath;
+	fullPath += name + L"/" + name + L".bmesh";
+
+
+	std::ifstream bin;
+	std::vector<VS_BasicInput> verts;
+	std::vector<unsigned int> indices;
+	unsigned int numVerts;
+	unsigned int numIndices;
+
+	bin.open(fullPath, std::ios::binary);
+
+	if (bin.is_open())
+	{
+		//Read Header
+		bin.read((char*)&numVerts, sizeof(unsigned int));
+		bin.read((char*)&numIndices, sizeof(unsigned int));
+
+		//resize based off of header
+		verts.resize(numVerts);
+		indices.resize(numIndices);
+
+		//read in verts
+		bin.read((char*)verts.data(), sizeof(VS_BasicInput) * numVerts);
+
+		//read in names
+		bin.read((char*)indices.data(), sizeof(unsigned int) * numIndices);
+
+		bin.close();
+
+		mBasicVertices = verts;
+		mIndices = indices;
+	}
 }
 
 void Model::CreateDevResources(DeviceResources const * deviceResources)
@@ -46,28 +132,28 @@ void Model::CreateDevResources(DeviceResources const * deviceResources)
 
 	if (vertexType == Shadertypes::BASIC) //vertices are a vector of Vertex though, not VS_BasicInput, but because it's a pointer to memory, we're ok as long as the stride is good
 	{
-		vertexBufferData.pSysMem = basicVertices.data();
+		vertexBufferData.pSysMem = mBasicVertices.data();
 
-		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VS_BasicInput) * (unsigned int)basicVertices.size(), D3D11_BIND_VERTEX_BUFFER);
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VS_BasicInput) * (unsigned int)mBasicVertices.size(), D3D11_BIND_VERTEX_BUFFER);
 		device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
 	}
 	else if (vertexType == Shadertypes::BIND)
 	{
-		vertexBufferData.pSysMem = vertices.data();
+		vertexBufferData.pSysMem = mVertices.data();
 
-		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(Vertex) * (unsigned int)vertices.size(), D3D11_BIND_VERTEX_BUFFER);
+		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(Vertex) * (unsigned int)mVertices.size(), D3D11_BIND_VERTEX_BUFFER);
 		device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
 	}
 
 	//create index buffer
-	if (indices.data())
+	if (mIndices.data())
 	{
 		D3D11_SUBRESOURCE_DATA indexBufferData;
-		indexBufferData.pSysMem = indices.data();
+		indexBufferData.pSysMem = mIndices.data();
 		indexBufferData.SysMemPitch = 0;
 		indexBufferData.SysMemSlicePitch = 0;
 
-		CD3D11_BUFFER_DESC indexBufferDesc(sizeof(unsigned int) * (unsigned int)indices.size(), D3D11_BIND_INDEX_BUFFER);
+		CD3D11_BUFFER_DESC indexBufferDesc(sizeof(unsigned int) * (unsigned int)mIndices.size(), D3D11_BIND_INDEX_BUFFER);
 
 		device->CreateBuffer(&indexBufferDesc, &indexBufferData, indexBuffer.GetAddressOf());
 	}
@@ -138,22 +224,22 @@ void Model::Render()
 	devContext->PSSetShaderResources(0, 1, textureSRV.GetAddressOf());
 
 	//set index buffer
-	if (indices.data())
+	if (mIndices.data())
 	{
 		devContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		//and finally... draw model
-		devContext->DrawIndexed((unsigned int)indices.size(), 0, 0);
+		devContext->DrawIndexed((unsigned int)mIndices.size(), 0, 0);
 	}
 	else
 	{
 		if (vertexType == Shadertypes::BIND)
 		{
-			devContext->Draw((unsigned int)vertices.size(), 0);
+			devContext->Draw((unsigned int)mVertices.size(), 0);
 		}
 		else
 		{
-			devContext->Draw((unsigned int)basicVertices.size(), 0);
+			devContext->Draw((unsigned int)mBasicVertices.size(), 0);
 		}
 	}
 }
@@ -166,8 +252,8 @@ void Model::SetModel(XMMATRIX& model)
 	mvpData.model = tempModel;
 }
 
-void Model::SetBoneOffsetData(XMFLOAT4X4* data)
-{ 
+void Model::SetBoneOffsetData(vector<XMFLOAT4X4> data)
+{
 	for (int i = 0; i < MAXBONES; ++i)
 	{
 		boneOffsetData.boneOffsets[i] = data[i];
@@ -204,22 +290,22 @@ void Model::DepthPrePass()
 	devContext->PSSetShaderResources(0, 1, textureSRV.GetAddressOf());
 
 	//set index buffer then draw
-	if (indices.data())
+	if (mIndices.data())
 	{
 		devContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 
 		//and finally... draw model
-		devContext->DrawIndexed((unsigned int)indices.size(), 0, 0);
+		devContext->DrawIndexed((unsigned int)mIndices.size(), 0, 0);
 	}
 	else
 	{
 		if (vertexType == Shadertypes::BIND)
 		{
-			devContext->Draw((unsigned int)vertices.size(), 0);
+			devContext->Draw((unsigned int)mVertices.size(), 0);
 		}
 		else
 		{
-			devContext->Draw((unsigned int)basicVertices.size(), 0);
+			devContext->Draw((unsigned int)mBasicVertices.size(), 0);
 		}
 	}
 }

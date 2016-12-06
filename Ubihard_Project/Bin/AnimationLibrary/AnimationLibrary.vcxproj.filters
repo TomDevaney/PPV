@@ -10,6 +10,12 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{f40841d7-56ad-4c5d-a98e-e2875f07fec6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Assets">
+      <UniqueIdentifier>{d1127dd1-a17f-49b3-b2b0-0d0ed975fa3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Assets\Textures">
+      <UniqueIdentifier>{39083401-89a9-4848-8c5c-931f0439ee11}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AnimatedGameObject.h">

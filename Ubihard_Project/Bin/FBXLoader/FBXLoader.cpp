@@ -24,11 +24,14 @@ namespace FBXLoader
 	TomSkeleton tomsSkeleton;
 	bool mHasAnimation = true;
 	std::vector<Vertex> mVerts;
+	std::vector<VS_BasicInput> mBasicVerts;
+	std::vector<unsigned int> mIndices;
 	std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
 	FbxLongLong mAnimationLength;
 	std::string mAnimationName;
 	unsigned int transformNodeindex = 0;
 	std::vector<KeyFrame> tomKeyFrames;
+	bool isBasic = false;
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -310,6 +313,9 @@ namespace FBXLoader
 			//currJoint.mParentIndex = inParentIndex;
 			//currJoint.mName = inNode->GetName();
 
+			//FbxTime currTime;
+
+			//currTime.SetFrame(i, FbxTime::eFrames24);
 
 			FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(0) *  GetGeometryTransformation(inNode);
 			child->world = FBXToXMMatrix(currentTransformOffset.Inverse() * inNode->EvaluateGlobalTransform(0));
@@ -591,15 +597,7 @@ namespace FBXLoader
 					//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
 
 
-					// Associate each joint with the control points it affects
-					unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
-					for (unsigned int i = 0; i < numOfIndices; ++i)
-					{
-						VertexBlendingInfo currBlendingIndexWeightPair;
-						currBlendingIndexWeightPair.mBlendingIndex = currJointIndex;
-						currBlendingIndexWeightPair.mBlendingWeight = currCluster->GetControlPointWeights()[i];
-						mControlPoints[currCluster->GetControlPointIndices()[i]]->mBlendingInfo.push_back(currBlendingIndexWeightPair);
-					}
+
 
 					// Get animation information
 					//FbxAnimStack* currAnimStack = mFBXScene->GetSrcObject<FbxAnimStack>(0);
@@ -617,24 +615,24 @@ namespace FBXLoader
 						//set up tombone's world matrix
 
 						//because I added a inverse bind pose, I don't need this
-						//FbxTime currTime;
-						//currTime.SetFrame(i, FbxTime::eFrames24);
-						//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
-						//XMFLOAT4X4 world;
-						//XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
-						//tempBone.SetWorld(world);
+						FbxTime currTime;
+						currTime.SetFrame(i, FbxTime::eFrames24);
+						FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
+						XMFLOAT4X4 world;
+						XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
+						tempBone.SetWorld(world);
 
 						//set inverse bind pose of bone
-						XMFLOAT4X4 tempBindPoseInverse;
-						XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
-						tempBone.SetInverseBindPose(tempBindPoseInverse);
+					XMFLOAT4X4 tempBindPoseInverse;
+					XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+					tempBone.SetInverseBindPose(tempBindPoseInverse);
 
-						//set name of bone
-						tempBone.SetName(currJointName);
-						
+					//set name of bone
+					tempBone.SetName(currJointName);
 
-					FbxTime currTime;
-					currTime.SetFrame(i, FbxTime::eFrames24);
+
+					//FbxTime currTime;
+					//currTime.SetFrame(i, FbxTime::eFrames24);
 					//*currAnim = new Keyframe();
 					//(*currAnim)->mFrameNum = i;
 					//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
@@ -643,12 +641,31 @@ namespace FBXLoader
 					//}
 
 						//push back tempBone into current keyframe
-						tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
-						tomKeyFrame.InsertBone(tempBone);
+					tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
+					tomKeyFrame.InsertBone(tempBone);
 				}
 
 				//push back current keyframe into vector of all keyframes
 				tomKeyFrames.push_back(tomKeyFrame);
+			}
+
+			// Associate each joint with the control points it affects
+			unsigned int numOfClusters = currSkin->GetClusterCount();
+
+			for (unsigned int clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
+			{
+				FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
+				std::string currJointName = currCluster->GetLink()->GetName();
+				unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
+
+				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
+				for (unsigned int i = 0; i < numOfIndices; ++i)
+				{
+					VertexBlendingInfo currBlendingIndexWeightPair;
+					currBlendingIndexWeightPair.mBlendingIndex = currJointIndex;
+					currBlendingIndexWeightPair.mBlendingWeight = currCluster->GetControlPointWeights()[i];
+					mControlPoints[currCluster->GetControlPointIndices()[i]]->mBlendingInfo.push_back(currBlendingIndexWeightPair);
+				}
 			}
 		}
 
@@ -709,6 +726,8 @@ namespace FBXLoader
 			temp.blendingWeight.w = (float)vertInfos[3].mBlendingWeight;
 			break;
 		}
+
+		int x = 0;
 	}
 	void ProcessMesh(FbxNode* inNode)
 	{
@@ -913,11 +932,47 @@ namespace FBXLoader
 		tomsSkeleton.transforms.clear();
 		tomKeyFrames.clear();
 	}
+
+	void ExportBasicMesh(const char * name)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numVerts = 0, numIndices = 0;
+
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += name;
+		path += ".bmesh";
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
+		{
+			//get length of bones
+			numVerts = (unsigned int)mBasicVerts.size();
+			numIndices = (unsigned int)mIndices.size();
+
+			//write header
+			bout.write((const char*)&numVerts, sizeof(unsigned int));
+			bout.write((const char*)&numIndices, sizeof(unsigned int));
+
+
+			//write out Vert data
+			bout.write((const char*)mBasicVerts.data(), sizeof(VS_BasicInput) * numVerts);
+
+
+			//write out indicies
+			bout.write((const char*)mIndices.data(), sizeof(unsigned int) * numIndices);
+		}
+
+		bout.close();
+	}
 #pragma endregion 
 	/*----------------------------------------------------------------------------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------*/
 
-	FBXLOADER_API bool Functions::FBXLoadFileBasic(std::vector<VS_BasicInput>* outVerts, std::vector<unsigned int>* outIndices, const char * filePath)
+	FBXLOADER_API bool Functions::FBXLoadExportFileBasic(std::vector<VS_BasicInput>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * name)
 	{
 		//if the FbxManager is not created. Create it.
 		if (!mFBXManager)
@@ -933,7 +988,7 @@ namespace FBXLoader
 		FbxScene* fbxScene = FbxScene::Create(mFBXManager, "");
 
 		// the -1 is so that the plugin will detect the file format according to file suffix automatically.
-		if (!fbxImporter->Initialize(filePath, -1, mFBXManager->GetIOSettings())) return false;
+		if (!fbxImporter->Initialize(inFilePath, -1, mFBXManager->GetIOSettings())) return false;
 
 		if (!fbxImporter->Import(fbxScene)) return false;
 
@@ -988,138 +1043,143 @@ namespace FBXLoader
 						vert.position.z = (float)verts[iCtrlPoint].mData[2];
 
 
-						outVerts->push_back(vert);
+						mBasicVerts.push_back(vert);
 
 					}
 				}
 			}
 
-			outIndices->clear();
-			outIndices->resize(outVerts->size());
-			ElimanateDuplicates(*outVerts, *outIndices);
+			mIndices.clear();
+			mIndices.resize(mBasicVerts.size());
+			ElimanateDuplicates(mBasicVerts, mIndices);
 
 			//swap indices for correct texture
-			for (unsigned int i = 0; i < outIndices->size(); i += 3)
+			for (unsigned int i = 0; i < mIndices.size(); i += 3)
 			{
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-				outIndices->at(i + 2) ^= outIndices->at(i + 1);
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-
+				mIndices[i + 1] ^= mIndices[i + 2];
+				mIndices[i + 2] ^= mIndices[i + 1];
+				mIndices[i + 1] ^= mIndices[i + 2];
 			}
+			*outVerts = mBasicVerts;
+			*outIndices = mIndices;
+
+			
+
+			ExportBasicMesh(name);
 
 			return true;
 		}
 		return false;
 	}
 
-	FBXLOADER_API bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, std::vector<DirectX::XMFLOAT4X4> *outBoneMats, const char * filePath)
-	{
+	//FBXLOADER_API bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, std::vector<DirectX::XMFLOAT4X4> *outBoneMats, const char * filePath)
+	//{
 
-		//if the FbxManager is not created. Create it.
-		if (!mFBXManager)
-		{
-			mFBXManager = FbxManager::Create();
+	//	//if the FbxManager is not created. Create it.
+	//	if (!mFBXManager)
+	//	{
+	//		mFBXManager = FbxManager::Create();
 
-			FbxIOSettings* settings = FbxIOSettings::Create(mFBXManager, IOSROOT);
-			mFBXManager->SetIOSettings(settings);
-		}
+	//		FbxIOSettings* settings = FbxIOSettings::Create(mFBXManager, IOSROOT);
+	//		mFBXManager->SetIOSettings(settings);
+	//	}
 
-		FbxMesh* mesh;
-		FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
-		FbxScene* fbxScene = FbxScene::Create(mFBXManager, "");
+	//	FbxMesh* mesh;
+	//	FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
+	//	FbxScene* fbxScene = FbxScene::Create(mFBXManager, "");
 
-		// the -1 is so that the plugin will detect the file format according to file suffix automatically.
-		if (!fbxImporter->Initialize(filePath, -1, mFBXManager->GetIOSettings())) return false;
+	//	// the -1 is so that the plugin will detect the file format according to file suffix automatically.
+	//	if (!fbxImporter->Initialize(filePath, -1, mFBXManager->GetIOSettings())) return false;
 
-		if (!fbxImporter->Import(fbxScene)) return false;
+	//	if (!fbxImporter->Import(fbxScene)) return false;
 
-		//Destroy importer as we are done using it
-		fbxImporter->Destroy();
+	//	//Destroy importer as we are done using it
+	//	fbxImporter->Destroy();
 
-		//Create the root node as a handle for the rest of the FBX mesh
-		FbxNode* rootNode = fbxScene->GetRootNode();
+	//	//Create the root node as a handle for the rest of the FBX mesh
+	//	FbxNode* rootNode = fbxScene->GetRootNode();
 
-		//if the root node is not null
-		if (rootNode)
-		{
-			//for every child node
-			for (int i = 0; i < rootNode->GetChildCount(); ++i)
-			{
-				FbxNode* node = rootNode->GetChild(i);
-				//skip child if null
-				if (!node->GetNodeAttribute())
-					continue;
+	//	//if the root node is not null
+	//	if (rootNode)
+	//	{
+	//		//for every child node
+	//		for (int i = 0; i < rootNode->GetChildCount(); ++i)
+	//		{
+	//			FbxNode* node = rootNode->GetChild(i);
+	//			//skip child if null
+	//			if (!node->GetNodeAttribute())
+	//				continue;
 
-				//get attribute type of the node
-				FbxNodeAttribute::EType type = node->GetNodeAttribute()->GetAttributeType();
+	//			//get attribute type of the node
+	//			FbxNodeAttribute::EType type = node->GetNodeAttribute()->GetAttributeType();
 
-				//if it is not part of a mesh skip it 
-				if (type != FbxNodeAttribute::eMesh)
-					continue;
+	//			//if it is not part of a mesh skip it 
+	//			if (type != FbxNodeAttribute::eMesh)
+	//				continue;
 
-				mesh = (FbxMesh*)node->GetNodeAttribute();
+	//			mesh = (FbxMesh*)node->GetNodeAttribute();
 
-				FbxVector4* verts = mesh->GetControlPoints();
-				int vertCounter = 0;
+	//			FbxVector4* verts = mesh->GetControlPoints();
+	//			int vertCounter = 0;
 
-				for (int j = 0; j < mesh->GetPolygonCount(); ++j)
-				{
+	//			for (int j = 0; j < mesh->GetPolygonCount(); ++j)
+	//			{
 
-					int numVerts = mesh->GetPolygonSize(j);
+	//				int numVerts = mesh->GetPolygonSize(j);
 
-					//if the polgon is not a triangle wether the mesh is not triangulated or some other error
-					if (numVerts != 3) return false;
+	//				//if the polgon is not a triangle wether the mesh is not triangulated or some other error
+	//				if (numVerts != 3) return false;
 
-					for (int k = 0; k < numVerts; ++k)
-					{
-						int iCtrlPoint = mesh->GetPolygonVertex(j, k);
+	//				for (int k = 0; k < numVerts; ++k)
+	//				{
+	//					int iCtrlPoint = mesh->GetPolygonVertex(j, k);
 
-						//if the requested vertex does not exists or the indices arguments have an invalid range
-						if (iCtrlPoint < 0) return false;
+	//					//if the requested vertex does not exists or the indices arguments have an invalid range
+	//					if (iCtrlPoint < 0) return false;
 
-						Vertex vert;
+	//					Vertex vert;
 
-						//position
-						vert.mPosition.x = -(float)verts[iCtrlPoint].mData[0];
-						vert.mPosition.y = (float)verts[iCtrlPoint].mData[1];
-						vert.mPosition.z = (float)verts[iCtrlPoint].mData[2];
+	//					//position
+	//					vert.mPosition.x = -(float)verts[iCtrlPoint].mData[0];
+	//					vert.mPosition.y = (float)verts[iCtrlPoint].mData[1];
+	//					vert.mPosition.z = (float)verts[iCtrlPoint].mData[2];
 
-						//uvs
-						LoadUV(mesh, iCtrlPoint, mesh->GetTextureUVIndex(j, k), 0, vert);
+	//					//uvs
+	//					LoadUV(mesh, iCtrlPoint, mesh->GetTextureUVIndex(j, k), 0, vert);
 
-						//normals
-						LoadNormal(mesh, iCtrlPoint, vertCounter, vert);
+	//					//normals
+	//					LoadNormal(mesh, iCtrlPoint, vertCounter, vert);
 
-						// sort so its easier to remove duplicates
+	//					// sort so its easier to remove duplicates
 
-						vert.blendingIndices = XMINT4(0, 0, 0, 0);
-						vert.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
+	//					vert.blendingIndices = XMINT4(0, 0, 0, 0);
+	//					vert.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
 
-						outVerts->push_back(vert);
-						++vertCounter;
+	//					outVerts->push_back(vert);
+	//					++vertCounter;
 
-					}
-				}
-			}
-			outIndices->clear();
-			outIndices->resize(outVerts->size());
-			ElimanateDuplicates(*outVerts, *outIndices);
+	//				}
+	//			}
+	//		}
+	//		outIndices->clear();
+	//		outIndices->resize(outVerts->size());
+	//		ElimanateDuplicates(*outVerts, *outIndices);
 
-			//swap indices for correct texture
-			for (unsigned int i = 0; i < outIndices->size(); i += 3)
-			{
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-				outIndices->at(i + 2) ^= outIndices->at(i + 1);
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
+	//		//swap indices for correct texture
+	//		for (unsigned int i = 0; i < outIndices->size(); i += 3)
+	//		{
+	//			outIndices->at(i + 1) ^= outIndices->at(i + 2);
+	//			outIndices->at(i + 2) ^= outIndices->at(i + 1);
+	//			outIndices->at(i + 1) ^= outIndices->at(i + 2);
 
-			}
+	//		}
 
-			InitWholeSkeleton(mesh, *outVerts, outBoneMats);
-			return true;
-		}
-		return false;
+	//		InitWholeSkeleton(mesh, *outVerts, outBoneMats);
+	//		return true;
+	//	}
+	//	return false;
 
-	}
+	//}
 
 	std::vector<FriendlyIOTransformNode> friendlyNodes;
 
@@ -1175,16 +1235,52 @@ namespace FBXLoader
 		MakeFriendlyNodeRecursive(tNode->child);
 		//MakeFriendlyNodeRecursive(tNode->sibling);
 	}
+	void ExportMesh(const char * name)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numVerts = 0, numIndices = 0;
 
-	void ExportToBinary(const char * filePath)
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += name;
+		path += ".mesh";
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
+		{
+			//get length of bones
+			numVerts = (unsigned int)mVerts.size();
+			numIndices = (unsigned int)mIndices.size();
+
+			//write header
+			bout.write((const char*)&numVerts, sizeof(unsigned int));
+			bout.write((const char*)&numIndices, sizeof(unsigned int));
+
+
+			//write out Vert data
+			bout.write((const char*)mVerts.data(), sizeof(Vertex) * numVerts);
+		
+
+			//write out indicies
+			bout.write((const char*)mIndices.data(), sizeof(unsigned int) * numIndices);
+		}
+
+		bout.close();
+	}
+	void ExportToBinary(const char * name, const char* animationName)
 	{
 		std::ofstream bout;
 		std::string path;
 		unsigned int numBones = 0, namesSize = 0;
 
-		path = "../Resources/Box/";
-		path += "Box.skel";
-		//path += filePath
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += name;
+		path += ".skel";
 
 		bout.open(path, std::ios::binary); //will truncate existing file
 
@@ -1212,12 +1308,15 @@ namespace FBXLoader
 			//write out names
 			bout.write((const char*)tomsSkeleton.names.data(), namesSize);
 		}
-		
+
 		bout.close();
 
-		//now animation file7
-		path = "../Resources/Box/";
-		path += "Box_Idle.anim";
+		//now animation file
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += animationName;
+		path += ".anim";
 
 		bout.open(path, std::ios::binary);
 
@@ -1259,9 +1358,13 @@ namespace FBXLoader
 
 			bout.close();
 		}
+
+		ExportMesh(name);
+
+
 	}
 
-	FBXLOADER_API bool Functions::FBXExportToBinary(std::vector<Vertex>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * outFilePath)
+	FBXLOADER_API bool Functions::FBXLoadExportFileBind(std::vector<Vertex>* outVerts, std::vector<unsigned int>* outIndices, const char * inFilePath, const char * name, const char* animationName)
 	{
 
 		//if the FbxManager is not created. Create it.
@@ -1303,20 +1406,21 @@ namespace FBXLoader
 
 			ProcessGeometry(mFBXScene->GetRootNode());
 
-			outIndices->clear();
-			outIndices->resize(mVerts.size());
-			ElimanateDuplicates(mVerts, *outIndices);
+			mIndices.clear();
+			mIndices.resize(mVerts.size());
+			ElimanateDuplicates(mVerts, mIndices);
 
 			//swap indices for correct texture
-			for (unsigned int i = 0; i < outIndices->size(); i += 3)
+			for (unsigned int i = 0; i < mIndices.size(); i += 3)
 			{
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
-				outIndices->at(i + 2) ^= outIndices->at(i + 1);
-				outIndices->at(i + 1) ^= outIndices->at(i + 2);
+				mIndices[i + 1] ^= mIndices[i + 2];
+				mIndices[i + 2] ^= mIndices[i + 1];
+				mIndices[i + 1] ^= mIndices[i + 2];
 			}
 			*outVerts = mVerts;
+			*outIndices = mIndices;
 
-			ExportToBinary(rootNode->GetName());
+			ExportToBinary(name , animationName);
 
 			CleanupFBX();
 			return true;

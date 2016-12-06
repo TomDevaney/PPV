@@ -5,24 +5,27 @@
 // this way the animated game object will be able to get this info from me and send it to the aimatedrendernode
 // which will send this data to the game engine
 
+Interpolator::Interpolator()
+{
+	bones = new std::vector<Bone>();
+}
+
 Interpolator::~Interpolator()
 {
 	//delete animation;
+	delete bones;
 }
 
 AnimType Interpolator::Update(float time)
 {
 	 KeyFrame* currentFrame = animation->GetFrame(curFrame);
-	 Bone test;
-	 test.SetName("Test");
-	 bones.resize(1);
-	 bones.push_back(test);
-	 bones.clear();
+
+	 bones->clear();
 
 	 //get bones from current frame
 	for (unsigned int i = 0; i < currentFrame->GetBones().size(); ++i)
 	{
-		bones.push_back(*currentFrame->GetBone(i));
+		bones->push_back(currentFrame->GetBone(i));
 	}
 
 	return AnimType::RUN_ONCE;

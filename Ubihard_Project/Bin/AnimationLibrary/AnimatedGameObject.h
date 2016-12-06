@@ -9,6 +9,7 @@ class AnimatedGameObject
 private:
 	Blender blender;
 	AnimatedRenderNode* renderNode;
+	unsigned int curFrame;
 
 public:
 	void Init(std::string animSet);
@@ -16,4 +17,5 @@ public:
 
 	//setters
 	void SetRenderNode(AnimatedRenderNode* node) { renderNode = node; }
+	void SetCurFrame(unsigned int num) { curFrame = num; }
 };

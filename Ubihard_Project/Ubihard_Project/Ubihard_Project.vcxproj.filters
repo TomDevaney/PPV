@@ -25,12 +25,6 @@
     <Filter Include="Content\Shaders\Pixel">
       <UniqueIdentifier>{1f3195ec-780e-4c60-8c5b-dbc77ca2e1ef}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Assets">
-      <UniqueIdentifier>{5b2640e9-3d8a-49d7-ad6e-a883d122b10a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Assets\Textures">
-      <UniqueIdentifier>{55845588-9f68-4b8e-9633-1446d69528a2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Content\DDSLoader">
       <UniqueIdentifier>{3ec57287-b4f1-451e-9b55-deb0382faeab}</UniqueIdentifier>
     </Filter>

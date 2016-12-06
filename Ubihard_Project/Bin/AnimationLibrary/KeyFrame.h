@@ -13,7 +13,7 @@ public:
 	void InsertBone(Bone bone) { bones.push_back(bone); }
 
 	//getters
-	Bone* GetBone(unsigned int index) { return &bones[index]; }
+	Bone GetBone(unsigned int index) { return bones[index]; }
 	const std::vector<Bone>& GetBones() { return bones; }
 	float GetTime() { return time; }
 

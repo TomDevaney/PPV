@@ -21,6 +21,8 @@ private:
 	DirectX::XMFLOAT4X4 camera;
 	DirectX::XMFLOAT4X4 projection;
 
+
+
 	float camYaw;
 	float camPitch;
 
@@ -39,8 +41,9 @@ private:
 	vector<SpotLight> spotLights;
 
 	ResourceManager* resourceManager;
-	vector<AnimatedRenderNode> renderNodes;
-	vector<AnimatedGameObject> gameObjects;
+	vector<AnimatedRenderNode*> renderNodes;
+	vector<AnimatedGameObject*> gameObjects;
+	unsigned int curFrame;
 
 	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
 
@@ -63,6 +66,7 @@ private:
 	void UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam);
 	void CreateModels();
 	void LoadModelsFromBinary();
+	void HandleInput();
 
 public:
 	void Init(DeviceResources const * devResources);

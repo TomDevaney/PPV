@@ -22,4 +22,5 @@ public:
 	Animation* GetAnimation(unsigned int index) { return &animations[index]; }
 	const BlendInfo* GetBlendInfo(unsigned int animationFrom, unsigned int animationTo) { return &blendInfos[animationFrom][animationTo]; } // TODO: good chance this is wrong
 	const Animation* GetDefaultAnimation() { return &animations[defaultAnimation]; }
+	Skeleton GetSkeleton() { return skeleton; }
 };

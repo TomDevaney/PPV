@@ -15,6 +15,6 @@ public:
 
 	//getters
 	KeyFrame* GetFrame(unsigned int index) { return &keyFrames[index]; }
-	unsigned int GetNumKeyFrames() { return keyFrames.size(); }
+	unsigned int GetNumKeyFrames() { return (unsigned int)keyFrames.size(); }
 	AnimType GetType() { return animType; }
 };

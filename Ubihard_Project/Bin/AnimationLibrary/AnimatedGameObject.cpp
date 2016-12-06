@@ -10,8 +10,9 @@ void AnimatedGameObject::Init(std::string animSet)
 void AnimatedGameObject::Update()
 {
 	//update blender
-	blender.Update(0.0f); //just for now I will set its time to 0.0f
+	blender.Update(0.0f, curFrame); //just for now I will set its time to 0.0f
 
 	//send animatedrendernode inverse bind matrices
 	renderNode->SetInverseBindPoses(blender.GetInverseBindPoses());
+	renderNode->SetBonesWorlds(blender.GetBonesWorlds());
 }

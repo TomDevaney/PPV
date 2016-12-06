@@ -11,11 +11,16 @@ private:
 	float curBlendTime;
 	unsigned int curFrame;
 	float totalBlendTime;
-	std::vector<Bone> bones;
+	std::vector<Bone>* bones;
 
 public:
+	//Constructor
+	Interpolator();
+
+	//Destructor
 	~Interpolator();
 
+	//Misc
 	AnimType Update(float time);
 
 	//setters
@@ -24,8 +29,8 @@ public:
 	void SetCurFrame(unsigned int index) { curFrame = index; }
 
 	//getters
-	Bone* GetCurrentBone(unsigned int index) { return &bones[index]; }
+	Bone GetCurrentBone(unsigned int index) { return (*bones)[index]; }
 	float GetCurTime() { return curBlendTime; } //I'm pretty sure it wants curTime to see if its under. Might actually want totalTime
 	float GetTotalTime() { return totalBlendTime; }
-	std::vector<Bone>* GetBones() { return &bones; }
+	std::vector<Bone> GetBones() { return *bones; }
 };
