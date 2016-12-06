@@ -36,7 +36,7 @@ private:
 	vector<PointLight> pointLights;
 	vector<SpotLight> spotLights;
 
-	ResourceManager resourceManager;
+	ResourceManager* resourceManager;
 
 	float radiusChange[2] = { 1.0f / 60.0f, 1.0f / 60.0f };
 

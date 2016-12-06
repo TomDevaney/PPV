@@ -6,6 +6,8 @@
 #include "ForFBX.h"
 #include "ResourceManager.h"
 
+ResourceManager* ResourceManager::singleton = 0;
+
 ResourceManager::ResourceManager()
 {
 	hashString = HashString::GetSingleton();
@@ -17,16 +19,25 @@ ResourceManager::~ResourceManager()
 	hashString->CleanUp();
 }
 
+void ResourceManager::CleanUp()
+{
+	delete singleton;
+	singleton = nullptr;
+}
+
 void ResourceManager::LoadInAnimationSet()
 {
 	WIN32_FIND_DATA fileData, folderData;
 	Skeleton skeleton;
 	Animation animation;
 	HANDLE hFolderFind, hFileFind;
+	std::wstring resourcesFolderPath;
 
-	//skeletonPath += L"/*.*";
-	hFolderFind = ::FindFirstFile(resourcesPath.c_str(), &folderData);
-	
+	resourcesFolderPath = resourcesPath;
+	resourcesFolderPath += L"*";
+
+	hFolderFind = ::FindFirstFile(resourcesFolderPath.c_str(), &folderData);
+
 	if (hFolderFind != INVALID_HANDLE_VALUE)
 	{
 		do // for every folder in resources folder
@@ -37,47 +48,75 @@ void ResourceManager::LoadInAnimationSet()
 
 			if (folderData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
-				std::wstring filePath = folderData.cFileName;
+				std::wstring filePath = resourcesPath;
+				filePath += folderData.cFileName;
 				filePath += L"/*.skel";
 
 				//load in the  one skeleton
-				//skeleton = LoadInSkeleton(filePath);
-				//animationSet.SetSkeleton(&skeleton);
+				hFileFind = ::FindFirstFile(filePath.c_str(), &fileData);
 
-				filePath = folderData.cFileName;
+				if (hFileFind != INVALID_HANDLE_VALUE)
+				{
+					//if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+					{	
+						//set file path to the skel file
+						filePath = resourcesPath;
+						filePath += folderData.cFileName;
+						filePath += L"/";
+						filePath += fileData.cFileName;
+
+						skeleton = LoadInSkeleton(filePath);
+						animationSet.SetSkeleton(&skeleton);
+					}
+				}
+			
+				filePath = resourcesPath;
+				filePath += folderData.cFileName;
 				filePath += L"/*.anim";
 
-				hFileFind = FindFirstFile(folderData.cFileName, &fileData);
+				hFileFind = ::FindFirstFile(filePath.c_str(), &fileData);
 
 				if (hFileFind != INVALID_HANDLE_VALUE)
 				{
 					do //for every file in folder
 					{
-						//Load in multiple animations
-						//animation = LoadInAnimation(fileData.cFileName);
+						//if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+						{
+							//set file path to the anim file
+							filePath = resourcesPath;
+							filePath += folderData.cFileName;
+							filePath += L"/";
+							filePath += fileData.cFileName;
 
-						//initialize animation set
-						//animationSet.AddAnimation(animation);
+							//Load in multiple animations
+							animation = LoadInAnimation(filePath);
 
-					} while (FindNextFile(hFolderFind, &fileData)); 
+							//initialize animation set
+							animationSet.AddAnimation(animation);
+						}
+					} while (::FindNextFile(hFileFind, &fileData)); 
 
 					FindClose(hFileFind);
 				}
 			}
 
-			animationSets[animationSetIndex] = animationSet;
+			if (hFileFind != INVALID_HANDLE_VALUE) //only add animation set if a file was loaded in
+			{
+				//add set to animation set and increment inedx
+				animationSets[animationSetIndex++] = animationSet;
 
-			//add to hash string
-			//hashString->Insert();
+				//add to hash string
+				size_t length = WideCharToMultiByte(CP_ACP, 0, &folderData.cFileName[0], -1, NULL, 0, NULL, NULL);
+				std::string hashValue(length, 0);
+				WideCharToMultiByte(CP_UTF8, 0, &folderData.cFileName[0], 260, &hashValue[0], length, NULL, NULL);
 
-		} while (FindNextFile(hFolderFind, &folderData));
+				hashString->Insert(hashValue);
+			}
+
+		} while (::FindNextFile(hFolderFind, &folderData));
 
 		FindClose(hFolderFind);
 	}
-
-
-
-
 }
 
 Skeleton ResourceManager::LoadInSkeleton(std::wstring path)

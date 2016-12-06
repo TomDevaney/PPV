@@ -16,7 +16,7 @@ public:
 	//	singleton = nullptr;
 	//}
 
-	static HashString* GetSingleton() { if (!singleton) { singleton = new HashString; } return singleton; }
+	static HashString* GetSingleton() { if (!singleton) { singleton = new HashString(); } return singleton; }
 	unsigned int GetKey(std::string key) { return hashTable[key]; }
 	void Insert(std::string key) { hashTable[key] = index++; }
 	void CleanUp() { delete singleton; singleton = nullptr; }

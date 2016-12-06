@@ -30,6 +30,9 @@ void Scene::Init(DeviceResources const * devResources)
 	XMMATRIX perspective = XMMatrixPerspectiveFovLH(fovAngleY, aspectRatio, 0.01f, 100.0f);
 	XMStoreFloat4x4(&projection, XMMatrixTranspose(perspective));
 
+	//get resources manager singleton
+	resourceManager = ResourceManager::GetSingleton();
+
 	//create all the device resources
 	CreateDevResources(devResources);
 
@@ -260,7 +263,7 @@ void Scene::CreateModels()
 
 void Scene::LoadModelsFromBinary()
 {
-	resourceManager.LoadInAnimationSet();
+	resourceManager->LoadInAnimationSet();
 }
 
 void Scene::Update(WPARAM wparam)
