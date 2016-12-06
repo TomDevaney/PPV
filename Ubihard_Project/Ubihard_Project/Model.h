@@ -38,10 +38,12 @@ private:
 	void LightCulling();
 public:
 	//for model with bones
-	void Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<Vertex> verts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name);
+	void Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name);
 	
 	//for a basic model
-	void Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<VS_BasicInput> bVerts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name);
+	void Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name);
+	void SetBasicVerts(vector<VS_BasicInput> verts) { mBasicVertices = verts; }
+	void SetIndices(vector<unsigned int> ind) { mIndices = ind; }
 	void LoadMesh(std::wstring name);
 	void LoadBasicMesh(std::wstring name);
 	void CreateDevResources(DeviceResources const * deviceResources);

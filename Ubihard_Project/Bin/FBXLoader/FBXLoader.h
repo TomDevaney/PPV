@@ -19,7 +19,7 @@ namespace FBXLoader
 	public:
 		// Returns a + b  
 		//static FBXLOADER_API bool FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, std::vector<XMFLOAT4X4> *outBonePos, const char * filePath);
-		static FBXLOADER_API bool FBXLoadExportFileBind(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, const char * inFilePath, const char * name, const char* animationName);
-		static FBXLOADER_API bool FBXLoadExportFileBasic(std::vector<VS_BasicInput> * outVerts, std::vector<unsigned int> * outIndices, const char * inFilePath, const char * name);
+		static FBXLOADER_API bool FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName);
+		static FBXLOADER_API bool FBXLoadExportFileBasic(const char * inFilePath, const char * name);
 	};
 }

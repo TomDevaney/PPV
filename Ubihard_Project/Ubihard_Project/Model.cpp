@@ -3,14 +3,12 @@
 using namespace DirectX;
 
 //for bind vertices
-void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<Vertex> verts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name)
+void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name)
 {
 	vertexType = shaderType;
 	vertexShader = vShader;
 	pixelShader = pShader;
 	inputLayout = iLayout;
-	mVertices = verts;
-	mIndices = ind;
 	texturePath = tPath;
 	SetModel(model);
 	mvpData.view = view;
@@ -20,15 +18,13 @@ void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11Pixe
 }
 
 //for basic vertices
-void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, vector<VS_BasicInput> bVerts, vector<unsigned int> ind, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name)
+void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name)
 {
 	vertexType = shaderType;
 	vertexShader = vShader;
 	preDepthPassVertexShader = preDepthPassVShader;
 	pixelShader = pShader;
 	inputLayout = iLayout;
-	mBasicVertices = bVerts;
-	mIndices = ind;
 	texturePath = tPath;
 	SetModel(model);
 	mvpData.view = view;
