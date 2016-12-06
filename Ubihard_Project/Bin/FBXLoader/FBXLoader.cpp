@@ -619,12 +619,12 @@ namespace FBXLoader
 						currTime.SetFrame(i, FbxTime::eFrames24);
 						FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
 						XMFLOAT4X4 world;
-						XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
+						XMStoreFloat4x4(&world, XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime))));
 						tempBone.SetWorld(world);
 
 						//set inverse bind pose of bone
 					XMFLOAT4X4 tempBindPoseInverse;
-					XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+					XMStoreFloat4x4(&tempBindPoseInverse, DirectX::XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix)));
 					tempBone.SetInverseBindPose(tempBindPoseInverse);
 
 					//set name of bone
@@ -726,9 +726,8 @@ namespace FBXLoader
 			temp.blendingWeight.w = (float)vertInfos[3].mBlendingWeight;
 			break;
 		}
-
-		int x = 0;
 	}
+
 	void ProcessMesh(FbxNode* inNode)
 	{
 		FbxMesh* currMesh = inNode->GetMesh();
