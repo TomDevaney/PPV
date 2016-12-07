@@ -15,5 +15,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		run = app.Update();
 	}
 
+	app.Shutdown();
+
 	return 0;
 }

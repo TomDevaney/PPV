@@ -96,3 +96,9 @@ void Application::HandleInput(int message)
 	mouseX = GET_X_LPARAM(lparam);
 	mouseY = GET_Y_LPARAM(lparam);
 }
+
+void Application::Shutdown()
+{
+	//clean up any memory application dynamically allocated
+	scene.Shutdown();
+}

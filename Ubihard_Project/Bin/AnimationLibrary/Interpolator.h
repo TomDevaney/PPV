@@ -12,6 +12,7 @@ private:
 	unsigned int curFrame;
 	float totalBlendTime;
 	std::vector<Bone>* bones;
+	bool timeBased;
 
 public:
 	//Constructor
@@ -27,6 +28,7 @@ public:
 	void SetAnimation(Animation* anim) { animation = anim; }
 	void SetTotalTime(float time) { totalBlendTime = time; }
 	void SetCurFrame(unsigned int index) { curFrame = index; }
+	void SetIsTimeBased(bool toggle) { timeBased = toggle; }
 
 	//getters
 	Bone GetCurrentBone(unsigned int index) { return (*bones)[index]; }

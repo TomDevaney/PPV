@@ -1293,47 +1293,52 @@ namespace FBXLoader
 
 		bout.close();
 	}
-	void ExportToBinary(const char * name, const char* animationName)
+	void ExportToBinary(const char * name, const char* animationName, bool justAnimation)
 	{
 		std::ofstream bout;
 		std::string path;
 		unsigned int numBones = 0, namesSize = 0;
 
-		path = "../Resources/";
-		path += name;
-		path += "/";
-		path += name;
-		path += ".skel";
-
-		bout.open(path, std::ios::binary); //will truncate existing file
-
-		if (bout.is_open())
+		//If i want just an animation, then I dont want to load in the skeleton
+		if (!justAnimation)
 		{
-			//get length of bones
-			numBones = (unsigned int)tomsSkeleton.transforms.size();
-			namesSize = (unsigned int)tomsSkeleton.names.size();
+			path = "../Resources/";
+			path += name;
+			path += "/";
+			path += name;
+			path += ".skel";
 
-			//write header
-			bout.write((const char*)&numBones, sizeof(unsigned int));
-			bout.write((const char*)&namesSize, sizeof(unsigned int));
+			bout.open(path, std::ios::binary); //will truncate existing file
 
-			//make transform nodes that are friendly
-			//FriendlyIOTransformNode friendlyNode;
-
-			MakeFriendlyNode(tomsSkeleton.transforms[0]);
-
-			//write out transform data
-			//for (int i = 0; i < friendlyNodes.size(); ++i)
+			if (bout.is_open())
 			{
-				bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
+				//get length of bones
+				numBones = (unsigned int)tomsSkeleton.transforms.size();
+				namesSize = (unsigned int)tomsSkeleton.names.size();
+
+				//write header
+				bout.write((const char*)&numBones, sizeof(unsigned int));
+				bout.write((const char*)&namesSize, sizeof(unsigned int));
+
+				//make transform nodes that are friendly
+				//FriendlyIOTransformNode friendlyNode;
+
+				MakeFriendlyNode(tomsSkeleton.transforms[0]);
+
+				//write out transform data
+				//for (int i = 0; i < friendlyNodes.size(); ++i)
+				{
+					bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
+				}
+
+				//write out names
+				bout.write((const char*)tomsSkeleton.names.data(), namesSize);
 			}
 
-			//write out names
-			bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+			bout.close();
 		}
 
-		bout.close();
-
+		//load in the animation if there's an animation name
 		if (animationName)
 		{
 			//now animation file
@@ -1384,12 +1389,11 @@ namespace FBXLoader
 				bout.close();
 			}
 		}
+
 		ExportMesh(name);
-
-
 	}
 
-	FBXLOADER_API bool Functions::FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName)
+	FBXLOADER_API bool Functions::FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName, bool justAnimation)
 	{
 
 		//if the FbxManager is not created. Create it.
@@ -1443,7 +1447,7 @@ namespace FBXLoader
 				mIndices[i + 1] ^= mIndices[i + 2];
 			}
 
-			ExportToBinary(name , animationName);
+			ExportToBinary(name , animationName, justAnimation);
 
 			CleanupFBX();
 			return true;

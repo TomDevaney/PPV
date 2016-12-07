@@ -72,6 +72,7 @@ public:
 	void Init(DeviceResources const * devResources);
 	void Update(WPARAM wparam);
 	void Render();
+	void Shutdown();
 
 	//setters
 	void SetButtons(bool butts[256]) { memcpy(buttons, butts, sizeof(buttons)); }

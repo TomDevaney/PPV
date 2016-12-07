@@ -12,19 +12,26 @@ Blender::~Blender()
 	//delete nextAnim;
 }
 
-void Blender::Init()
+void Blender::Init(bool timeBased)
 {
 	//make interpolator
 	curAnim = new Interpolator();
-	curAnim->SetAnimation(animationSet->GetAnimation(0));
+	curAnim->SetAnimation(animationSet->GetAnimation(curAnimationIndex));
+	curAnim->SetCurFrame(0);
+	curAnim->SetIsTimeBased(timeBased);
 }
 
-void Blender::Update(float time, unsigned int frameIndex)
+void Blender::Update(float time, unsigned int frameIndex) // i just use frameIndex for bear, so if its 0 and time isn't 0, don't update
 {
 	std::vector<Bone> bones;
 
-	curAnim->SetAnimation(animationSet->GetAnimation(0));
-	curAnim->SetCurFrame(frameIndex % animationSet->GetAnimation(0)->GetNumKeyFrames());
+	curAnim->SetAnimation(animationSet->GetAnimation(curAnimationIndex));
+
+	if (!time)
+	{
+		curAnim->SetCurFrame(frameIndex % animationSet->GetAnimation(0)->GetNumKeyFrames());
+	}
+
 	curAnim->Update(time);
 
 	bones = curAnim->GetBones();

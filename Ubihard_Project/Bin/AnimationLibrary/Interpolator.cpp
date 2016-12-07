@@ -8,6 +8,8 @@
 Interpolator::Interpolator()
 {
 	bones = new std::vector<Bone>();
+	totalBlendTime = 0;
+	timeBased = false;
 }
 
 Interpolator::~Interpolator()
@@ -18,11 +20,40 @@ Interpolator::~Interpolator()
 
 AnimType Interpolator::Update(float time)
 {
-	 KeyFrame* currentFrame = animation->GetFrame(curFrame);
+	KeyFrame* currentFrame = nullptr;
+	
+	//set pointer to current frame
+	currentFrame = animation->GetFrame(curFrame);
 
-	 bones->clear();
+	//update time
+	totalBlendTime += time;
 
-	 //get bones from current frame
+	//do automatic animation based off of time
+	if (timeBased)
+	{
+		if (currentFrame->GetTime() < totalBlendTime)
+		{
+			++curFrame;
+
+			if (curFrame >= animation->GetNumKeyFrames())
+			{
+				curFrame = 0;
+				totalBlendTime = 0;
+			}
+
+			currentFrame = animation->GetFrame(curFrame);
+		}
+		//if (currentFrame->GetTime() > totalBlendTime)
+		//{
+		//	++curFrame %= animation->GetNumKeyFrames();
+		//	currentFrame = animation->GetFrame(curFrame);
+		//}
+	}
+
+	bones->clear();
+
+
+	//get bones from current frame
 	for (unsigned int i = 0; i < currentFrame->GetBones().size(); ++i)
 	{
 		bones->push_back(currentFrame->GetBone(i));

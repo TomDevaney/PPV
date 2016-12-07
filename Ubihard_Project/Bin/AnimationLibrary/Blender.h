@@ -18,12 +18,14 @@ private:
 	Interpolator* nextAnim;
 	HashString* hashString;
 	ResourceManager* resourceManager;
+	unsigned int curAnimationIndex;
+	unsigned int nextAnimationIndex;
 
 public:
 	Blender();
 	~Blender();
 
-	void Init();
+	void Init(bool timeBased);
 	void Update(float time, unsigned int frameIndex);
 
 	//getters
@@ -32,4 +34,6 @@ public:
 
 	//setters
 	void SetAnimationSet(std::string key) { animationSet = resourceManager->GetAnimationSet(key); }
+	void SetCurAnimationIndex(unsigned int curIndex) { curAnimationIndex = curIndex; }
+	void SetNextAnimationIndex(unsigned int nextIndex) { nextAnimationIndex = nextIndex; }
 };

@@ -12,7 +12,7 @@ private:
 	unsigned int curFrame;
 
 public:
-	void Init(std::string animSet);
+	void Init(std::string animSet, unsigned int curAnimationIndex, bool timeBased);
 	void Update(float deltaTime);
 
 	//setters

@@ -226,7 +226,7 @@ void Scene::CreateModels()
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
-	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
+	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx", false);
 	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
@@ -235,13 +235,20 @@ void Scene::CreateModels()
 	//add bear
 	Model monokuma;
 
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle", false);
 
 	monokuma.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/Teddy.dds", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
 	monokuma.CreateDevResources(deviceResources);
 
 	models.push_back(monokuma);
 	
+	//add test box but with attack animation
+	Model testModelAttack;
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack", true);
+	testModelAttack.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixTranspose(XMMatrixTranslation(3, 0, 0)), camera, projection, identities, L"Box");
+	testModelAttack.CreateDevResources(deviceResources);
+	models.push_back(testModelAttack);
+
 	//add four spheres. set postions at position in boneMats
 	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
 
@@ -276,7 +283,7 @@ void Scene::LoadModelsFromBinary()
 	AnimatedRenderNode* boxRenderNode = new AnimatedRenderNode();
 	AnimatedGameObject* boxGameObject = new AnimatedGameObject();
 	
-	boxGameObject->Init("Box");
+	boxGameObject->Init("Box", 1, false);
 	boxGameObject->SetRenderNode(boxRenderNode);
 
 	renderNodes.push_back(boxRenderNode);
@@ -285,11 +292,20 @@ void Scene::LoadModelsFromBinary()
 	AnimatedRenderNode* teddyRenderNode = new AnimatedRenderNode();
 	AnimatedGameObject* teddyGameObject = new AnimatedGameObject();
 
-	teddyGameObject->Init("Teddy");
+	teddyGameObject->Init("Teddy", 0, false);
 	teddyGameObject->SetRenderNode(teddyRenderNode);
 
 	renderNodes.push_back(teddyRenderNode);
 	gameObjects.push_back(teddyGameObject);
+
+	AnimatedRenderNode* boxAttackRenderNode = new AnimatedRenderNode();
+	AnimatedGameObject* boxAttackGameObject = new AnimatedGameObject();
+
+	boxAttackGameObject->Init("Box", 0, true);
+	boxAttackGameObject->SetRenderNode(boxAttackRenderNode);
+
+	renderNodes.push_back(boxAttackRenderNode);
+	gameObjects.push_back(boxAttackGameObject);
 }
 
 void Scene::Update(WPARAM wparam)
@@ -326,15 +342,25 @@ void Scene::Update(WPARAM wparam)
 
 	//send current frame to model[1] aka box
 	gameObjects[0]->SetCurFrame(curFrame);
+	//gameObjects[1]->SetCurFrame(curFrame);
+	gameObjects[1]->SetCurFrame(0); //TODO: This is just a temp fix. The cur frame was going to 1, and that breaks it. So temp fix is me setting it to zero every frame
 
 	//update inverse bind poses in game objects
-	//for (int i = 0; i < gameObjects.size(); ++i)
-	//{
-	//	gameObjects[i]->Update(dt);
-	//}
+	for (int i = 0; i < gameObjects.size(); ++i)
+	{
+		//gameObjects[i]->Update(0);
 
+		//if (i != 1) //to prevent bear from updating
+		{
+			//gameObjects[i]->SetCurFrame(curFrame);
+		}
+	}
+
+	gameObjects[0]->SetCurFrame(curFrame);
 	gameObjects[0]->Update(0); // box will move from key pres
-	gameObjects[1]->Update(dt); //bear will move based on time
+	gameObjects[1]->Update(0); // box will move from key pres
+	//gameObjects[1]->Update(dt); //bear will move based on time
+	gameObjects[2]->Update(dt / 2); //box attack will move time based
 
 
 	//update model to take in bone offset data from render node
@@ -352,13 +378,13 @@ void Scene::Update(WPARAM wparam)
 
 	for (int i = 0; i < 4; ++i)
 	{
-		models[i + 3].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
+		models[i + 4].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
 	}
 }
 
 void Scene::HandleInput()
 {
-	if (buttons['O'])
+	if (buttons['O'] & 0x01)
 	{
 		++curFrame;
 	}
@@ -462,9 +488,26 @@ void Scene::Render()
 	//render all models
 	for (size_t i = 0; i < models.size(); ++i)
 	{
-		//if (i != 1)
+		//if (i != 1) //to not render the idle test box
 		{
 			models[i].Render();
 		}
 	}
+}
+
+void Scene::Shutdown()
+{
+	//clean up render nodes and game objects b/c I dynamically allocated them
+	for (int i = 0; i < renderNodes.size(); ++i)
+	{
+		delete renderNodes[i];
+	}
+
+	for (int i = 0; i < gameObjects.size(); ++i)
+	{
+		delete gameObjects[i];
+	}
+
+	//clean up singleton resource manager
+	resourceManager->CleanUp();
 }
