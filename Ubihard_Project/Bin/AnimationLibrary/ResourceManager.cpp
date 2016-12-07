@@ -45,7 +45,6 @@ void ResourceManager::LoadInAnimationSet()
 			//every folder is one animation set
 			AnimationSet animationSet;
 
-
 			if (folderData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{
 				std::wstring filePath = resourcesPath;
@@ -57,8 +56,6 @@ void ResourceManager::LoadInAnimationSet()
 
 				if (hFileFind != INVALID_HANDLE_VALUE)
 				{
-					//if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-					{	
 						//set file path to the skel file
 						filePath = resourcesPath;
 						filePath += folderData.cFileName;
@@ -67,9 +64,8 @@ void ResourceManager::LoadInAnimationSet()
 
 						skeleton = LoadInSkeleton(filePath);
 						animationSet.SetSkeleton(skeleton);
-					}
 				}
-			
+
 				filePath = resourcesPath;
 				filePath += folderData.cFileName;
 				filePath += L"/*.anim";
@@ -80,21 +76,18 @@ void ResourceManager::LoadInAnimationSet()
 				{
 					do //for every file in folder
 					{
-						//if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-						{
-							//set file path to the anim file
-							filePath = resourcesPath;
-							filePath += folderData.cFileName;
-							filePath += L"/";
-							filePath += fileData.cFileName;
+						//set file path to the anim file
+						filePath = resourcesPath;
+						filePath += folderData.cFileName;
+						filePath += L"/";
+						filePath += fileData.cFileName;
 
-							//Load in multiple animations
-							animation = LoadInAnimation(filePath);
+						//Load in multiple animations
+						animation = LoadInAnimation(filePath);
 
-							//initialize animation set
-							animationSet.AddAnimation(animation);
-						}
-					} while (::FindNextFile(hFileFind, &fileData)); 
+						//initialize animation set
+						animationSet.AddAnimation(animation);
+					} while (::FindNextFile(hFileFind, &fileData));
 
 					FindClose(hFileFind);
 				}
@@ -139,13 +132,13 @@ Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 		//resize based off of header
 		skeleton.transforms.resize(numOfBones);
 		skeleton.names.resize(sizeOfNames);
-	
+
 		//read in skeleton bones
 		bin.read((char*)skeleton.transforms.data(), sizeof(FriendlyIOTransformNode) * numOfBones);
 
 		//read in names
 		bin.read((char*)skeleton.names.data(), sizeOfNames);
-		
+
 		bin.close();
 	}
 
@@ -166,7 +159,7 @@ Animation ResourceManager::LoadInAnimation(std::wstring path)
 	float time;
 	unsigned int numOfKeyFrames;
 	unsigned int numOfBones;
-	
+
 	bin.open(path, std::ios::binary);
 
 	if (bin.is_open())
@@ -189,8 +182,6 @@ Animation ResourceManager::LoadInAnimation(std::wstring path)
 			keyFrames[i].SetTime(keyFrameTime);
 			keyFrames[i].SetBones(bones);
 		}
-
-		//bin.read((char*)keyFrames.data(), sizeof(KeyFrame) * numOfKeyFrames);
 
 		//write out animtype
 		bin.read((char*)&animType, sizeof(AnimType));

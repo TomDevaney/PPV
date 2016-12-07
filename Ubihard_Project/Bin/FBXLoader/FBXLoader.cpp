@@ -1,5 +1,4 @@
 // FBXLoader.cpp : Defines the exported functions for the DLL application.  
-// Compile by using: cl /EHsc /DMATHLIBRARY_EXPORTS /LD MathLibrary.cpp  
 
 #include "FBXLoader.h" 
 #include <fbxsdk.h>
@@ -10,211 +9,38 @@
 #include "KeyFrame.h"
 #include "TransformNode.h"
 
-//struct Skeleton
-//{
-//	std::vector<Joint> mJoints;
-//};
+//DEFINES
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 namespace FBXLoader
 {
-	//GLOBALS
+	/*----------------------------------------------------------------------------------------------------------------------------------
+	-----------------------------------------------------Global Variables---------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------*/
+#pragma region Globals
 	FbxScene* mFBXScene = nullptr;
 	FbxManager* mFBXManager = nullptr;
-	//Skeleton mSkeleton;
-	TomSkeleton tomsSkeleton;
+
 	bool mHasAnimation = true;
+	bool isBasic = false;
+	unsigned int transformNodeindex = 0;
+
 	std::vector<Vertex> mVerts;
 	std::vector<VS_BasicInput> mBasicVerts;
 	std::vector<unsigned int> mIndices;
-	std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
-	FbxLongLong mAnimationLength;
-	std::string mAnimationName;
-	unsigned int transformNodeindex = 0;
 	std::vector<KeyFrame> tomKeyFrames;
-	bool isBasic = false;
-
-#define MIN(a,b) (((a)<(b))?(a):(b))
-#define MAX(a,b) (((a)>(b))?(a):(b))
+	std::vector<FriendlyIOTransformNode> friendlyNodes;
+	std::unordered_map<unsigned int, CtrlPoint*> mControlPoints;
+	TomSkeleton tomsSkeleton;
+#pragma endregion
+	/*----------------------------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------------*/
 
 	/*----------------------------------------------------------------------------------------------------------------------------------
 	-----------------------------------------------------Helper Functions---------------------------------------------------------------
 	----------------------------------------------------------------------------------------------------------------------------------*/
 #pragma region Helper_Functions  
-	void LoadUV(FbxMesh* iMesh, int iCtrlPoint, int iTextureUVIndex, int iUVLayer, Vertex& iVert)
-	{
-		//invalid paramaters
-		if (iUVLayer >= 2 || iMesh->GetElementUVCount() <= iUVLayer) return;
-
-		//get the uv layer from mesh
-		FbxGeometryElementUV* vertUV = iMesh->GetElementUV(iUVLayer);
-
-		//switch on mapping mode
-		switch (vertUV->GetMappingMode())
-		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertUV->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				iVert.mUV.x = (float)(vertUV->GetDirectArray().GetAt(iCtrlPoint).mData[0]);
-				iVert.mUV.y = (float)(vertUV->GetDirectArray().GetAt(iCtrlPoint).mData[1]);
-			}
-			break;
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertUV->GetIndexArray().GetAt(iCtrlPoint);
-				iVert.mUV.x = (float)(vertUV->GetDirectArray().GetAt(index).mData[0]);
-				iVert.mUV.y = (float)(vertUV->GetDirectArray().GetAt(index).mData[1]);
-			}
-			break;
-
-			default:
-				break;
-			}
-
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertUV->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				iVert.mUV.x = (float)(vertUV->GetDirectArray().GetAt(iTextureUVIndex).mData[0]);
-				iVert.mUV.y = (float)(vertUV->GetDirectArray().GetAt(iTextureUVIndex).mData[1]);
-			}
-			break;
-
-			default:
-				break;
-			}
-		}
-		iVert.mUV.y = 1.0f - iVert.mUV.y;
-	}
-
-	void LoadNormal(FbxMesh* mesh, int iCtrlPoint, int iVertCounter, Vertex& vert)
-	{
-		FbxGeometryElementNormal * vertNormal = mesh->GetElementNormal();
-		switch (vertNormal->GetMappingMode())
-		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertNormal->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				vert.mNormal.x = (float)(vertNormal->GetDirectArray().GetAt(iCtrlPoint).mData[0]);
-				vert.mNormal.y = (float)(vertNormal->GetDirectArray().GetAt(iCtrlPoint).mData[1]);
-				vert.mNormal.z = (float)(vertNormal->GetDirectArray().GetAt(iCtrlPoint).mData[2]);
-			}
-			break;
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertNormal->GetIndexArray().GetAt(iCtrlPoint);
-				vert.mNormal.x = (float)(vertNormal->GetDirectArray().GetAt(index).mData[0]);
-				vert.mNormal.y = (float)(vertNormal->GetDirectArray().GetAt(index).mData[1]);
-				vert.mNormal.z = (float)(vertNormal->GetDirectArray().GetAt(index).mData[2]);
-			}
-			break;
-
-			default:
-				break;
-			}
-
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertNormal->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				vert.mNormal.x = (float)(vertNormal->GetDirectArray().GetAt(iVertCounter).mData[0]);
-				vert.mNormal.y = (float)(vertNormal->GetDirectArray().GetAt(iVertCounter).mData[1]);
-				vert.mNormal.z = (float)(vertNormal->GetDirectArray().GetAt(iVertCounter).mData[2]);
-			}
-			break;
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertNormal->GetIndexArray().GetAt(iVertCounter);
-				vert.mNormal.x = (float)(vertNormal->GetDirectArray().GetAt(index).mData[0]);
-				vert.mNormal.y = (float)(vertNormal->GetDirectArray().GetAt(index).mData[1]);
-				vert.mNormal.z = (float)(vertNormal->GetDirectArray().GetAt(index).mData[2]);
-			}
-			break;
-
-			default:
-				break;
-			}
-		}
-		vert.mNormal.x = -vert.mNormal.x;
-	}
-
-	void InitWholeSkeleton(FbxMesh* mesh, std::vector<Vertex>& mVertices, std::vector<DirectX::XMFLOAT4X4> *outBonePos)
-	{
-		//FbxNode* jointRoot = FindRoot(rootNode, FbxNodeAttribute::eSkeleton);
-		unsigned int numOfDeformers = mesh->GetDeformerCount();
-
-		for (unsigned int deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
-		{
-			FbxSkin* currSkin = (FbxSkin*)(mesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-			if (!currSkin)
-			{
-				continue;
-			}
-			unsigned int numBones = currSkin->GetClusterCount();
-			for (unsigned int boneIndex = 0; boneIndex < numBones; ++boneIndex)
-			{
-				FbxCluster* cluster = currSkin->GetCluster(boneIndex);
-
-				//bone ref
-				FbxNode* boneNode = cluster->GetLink();
-
-				// Get the bind pose
-				FbxAMatrix bindPoseMatrix;
-				FbxAMatrix	transformMatrix;
-				cluster->GetTransformMatrix(transformMatrix);
-				cluster->GetTransformLinkMatrix(bindPoseMatrix);
-
-				// decomposed transform components
-				FbxVector4 vS = bindPoseMatrix.GetS();
-				FbxVector4 vR = bindPoseMatrix.GetR();
-				FbxVector4 vT = bindPoseMatrix.GetT();
-				FbxAMatrix fbxGlobalBoneBaseMatrix = cluster->GetLink()->EvaluateGlobalTransform();
-				DirectX::XMFLOAT4X4 mat;
-				for (int r = 0; r < 4; r++)
-					for (int c = 0; c < 4; c++)
-					{
-						mat.m[r][c] = (float)fbxGlobalBoneBaseMatrix.mData[r][c];
-					}
-				outBonePos->push_back(mat);
-
-				int *pVertexIndices = cluster->GetControlPointIndices();
-				double *pVertexWeights = cluster->GetControlPointWeights();
-
-				// Iterate through all the vertices, which are affected by the bone
-				int ncVertexIndices = cluster->GetControlPointIndicesCount();
-				std::vector<int> vertIndVect;
-				std::vector<float> weightvect;
-				vertIndVect.resize(ncVertexIndices);
-				weightvect.resize(ncVertexIndices);
-
-				for (int iBoneVertexIndex = 0; iBoneVertexIndex < ncVertexIndices; iBoneVertexIndex++)
-				{
-					// vertex
-					int niVertex = pVertexIndices[iBoneVertexIndex];
-					// weight
-					float fWeight = (float)pVertexWeights[iBoneVertexIndex];
-					weightvect[iBoneVertexIndex] = fWeight;
-					vertIndVect[iBoneVertexIndex] = niVertex;
-				}
-				for (unsigned i = 0; i < 4; ++i)
-				{
-					mVertices[vertIndVect[i]].blendingIndices = XMINT4(0, 0, 0, 0);
-					mVertices[vertIndVect[i]].blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
-					//mVertices[vertIndVect[i]].blendingWeight = XMFLOAT4(weightvect[0], weightvect[1], weightvect[2], weightvect[3]);
-				}
-			}
-
-		}
-	}
 
 	int FindVertex(const Vertex& inTargetVertex, const std::vector<Vertex>& uniqueVertices)
 	{
@@ -224,6 +50,7 @@ namespace FBXLoader
 
 		return -1;
 	}
+
 	int FindVertex(const VS_BasicInput& inTargetVertex, const std::vector<VS_BasicInput>& uniqueVertices)
 	{
 		for (unsigned int i = 0; i < uniqueVertices.size(); ++i)
@@ -231,34 +58,6 @@ namespace FBXLoader
 				return i;
 
 		return -1;
-	}
-	FbxNode* FindRoot(FbxNode* root, FbxNodeAttribute::EType attrib)
-	{
-		unsigned numChildren = root->GetChildCount();
-		if (!numChildren)
-			return NULL;
-
-		FbxNode* child = NULL;
-		for (unsigned c = 0; c < numChildren; c++)
-		{
-			child = root->GetChild(c);
-			if (!child->GetNodeAttribute())
-				continue;
-			if (child->GetNodeAttribute()->GetAttributeType() != attrib)
-				continue;
-
-			return child;
-		}
-
-		FbxNode* rootJoint = NULL;
-		for (unsigned c = 0; c < numChildren; c++)
-		{
-			child = root->GetChild(c);
-			rootJoint = FindRoot(child, attrib);
-			if (rootJoint)
-				break;
-		}
-		return rootJoint;
 	}
 
 	void ElimanateDuplicates(std::vector<Vertex>& mVertices, std::vector<unsigned int>& mIndices)
@@ -278,6 +77,7 @@ namespace FBXLoader
 		mVertices = uniqueVertices;
 		uniqueVertices.clear();
 	}
+
 	void ElimanateDuplicates(std::vector<VS_BasicInput>& mVertices, std::vector<unsigned int>& mIndices)
 	{
 		// First get a list of unique vertices
@@ -295,11 +95,9 @@ namespace FBXLoader
 		mVertices = uniqueVertices;
 		uniqueVertices.clear();
 	}
-#pragma endregion   
-
-#pragma region Helper_New
 
 	FbxAMatrix GetGeometryTransformation(FbxNode* inNode);
+
 	XMMATRIX FBXToXMMatrix(const FbxAMatrix& inMatrix);
 
 	void ProcessSkeletonHierarchyRecursively(FbxNode* inNode, int inDepth, int myIndex, int inParentIndex, TransformNode* curTransform)
@@ -309,23 +107,8 @@ namespace FBXLoader
 
 		if (inNode->GetNodeAttribute() && inNode->GetNodeAttribute()->GetAttributeType() && inNode->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton)
 		{
-			//Joint currJoint;
-			//currJoint.mParentIndex = inParentIndex;
-			//currJoint.mName = inNode->GetName();
 
-			//FbxTime currTime;
-
-			//currTime.SetFrame(i, FbxTime::eFrames24);
-
-			//FbxTime currTime;
-			//currTime.SetFrame(1, FbxTime::eFrames24);
-			//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) *  GetGeometryTransformation(inNode);
-			//child->world = XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse()));
 			child->name = inNode->GetName();
-
-			//((FbxSkin*)(inNode->GetMesh()->GetDeformer(0, FbxDeformer::eSkin)))->GetCluster(transformNodeindex
-
-			//inNode->Transform
 
 			if (myIndex == 0) //this means that it's the root node, so I want to make the curTransform = to the curNode
 			{
@@ -353,15 +136,10 @@ namespace FBXLoader
 				tomsSkeleton.transforms.push_back(child);
 				tomsSkeleton.names += child->name;
 			}
-
-
-			//mSkeleton->mJoints.push_back(currJoint);
 		}
 		for (int i = 0; i < inNode->GetChildCount(); i++)
 		{
 			ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, (int)tomsSkeleton.transforms.size(), myIndex, nextParent);
-
-			//ProcessSkeletonHierarchyRecursively(inNode->GetChild(i), inDepth + 1, mSkeleton->mJoints.size(), myIndex, mSkeleton, curTransform);
 		}
 	}
 
@@ -369,19 +147,9 @@ namespace FBXLoader
 	{
 		TransformNode* root = nullptr;
 
-		//root->name = inRootNode->GetName();
-
 		for (int childIndex = 0; childIndex < inRootNode->GetChildCount(); ++childIndex)
 		{
 			FbxNode* currNode = inRootNode->GetChild(childIndex);
-
-			//TransformNode* child = new TransformNode();
-
-			//FbxAMatrix currentTransformOffset = currNode->EvaluateGlobalTransform(0) *  GetGeometryTransformation(currNode);
-			//child->world = FBXToXMMatrix(currentTransformOffset.Inverse() * currNode->EvaluateGlobalTransform(0));
-			//child->name = currNode->GetName();
-
-			//root->AddChild(child);
 
 			ProcessSkeletonHierarchyRecursively(currNode, 0, 0, -1, root);
 		}
@@ -472,8 +240,8 @@ namespace FBXLoader
 				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
 				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
 				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+				break;
 			}
-			break;
 
 			case FbxGeometryElement::eIndexToDirect:
 			{
@@ -481,13 +249,12 @@ namespace FBXLoader
 				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
 				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
 				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+				break;
 			}
-			break;
 
 			default:
-				throw std::exception("Invalid Reference");
+				break;
 			}
-			break;
 
 		case FbxGeometryElement::eByPolygonVertex:
 			switch (vertexNormal->GetReferenceMode())
@@ -497,8 +264,8 @@ namespace FBXLoader
 				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
 				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
 				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+				break;
 			}
-			break;
 
 			case FbxGeometryElement::eIndexToDirect:
 			{
@@ -506,18 +273,16 @@ namespace FBXLoader
 				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
 				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
 				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+				break;
 			}
-			break;
 
 			default:
-				throw std::exception("Invalid Reference");
+				break;
 			}
-			break;
 		}
 		outNormal.x = -outNormal.x;
 		return outNormal;
 	}
-
 
 	FbxAMatrix GetGeometryTransformation(FbxNode* inNode)
 	{
@@ -556,26 +321,20 @@ namespace FBXLoader
 
 		FbxAMatrix geometryTransform = GetGeometryTransformation(inNode);
 
-
 		// for each deformer
 		for (unsigned int deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
 			//check if it is a skin
 			FbxSkin* currSkin = (FbxSkin*)(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
-		
+
 			if (!currSkin) { continue; }
 
 			//get the animation's info
 			FbxAnimStack* currAnimStack = mFBXScene->GetSrcObject<FbxAnimStack>(0);
 			FbxString animStackName = currAnimStack->GetName();
-			mAnimationName = animStackName.Buffer();
 			FbxTakeInfo* takeInfo = mFBXScene->GetTakeInfo(animStackName);
 			FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
 			FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
-			mAnimationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-
-
-			//Keyframe** currAnim = &mSkeleton.mJoints[currJointIndex].mAnimation;
 
 			//for each keyframe, loop through all of the bones and get their world matrix at that keyframe
 			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
@@ -601,27 +360,6 @@ namespace FBXLoader
 					// Update the information in mSkeleton 
 					tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
 
-					//mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
-					//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
-
-
-
-
-					// Get animation information
-					//FbxAnimStack* currAnimStack = mFBXScene->GetSrcObject<FbxAnimStack>(0);
-					//FbxString animStackName = currAnimStack->GetName();
-					//mAnimationName = animStackName.Buffer();
-					//FbxTakeInfo* takeInfo = mFBXScene->GetTakeInfo(animStackName);
-					//FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
-					//FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
-					//mAnimationLength = end.GetFrameCount(FbxTime::eFrames24) - start.GetFrameCount(FbxTime::eFrames24) + 1;
-					//Keyframe** currAnim = &mSkeleton.mJoints[currJointIndex].mAnimation;
-
-
-					//for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
-					//{
-					//set up tombone's world matrix
-
 					//because I added a inverse bind pose, I don't need this
 					FbxTime currTime;
 					currTime.SetFrame(i, FbxTime::eFrames24);
@@ -638,17 +376,7 @@ namespace FBXLoader
 					//set name of bone
 					tempBone.SetName(currJointName);
 
-
-					//FbxTime currTime;
-					//currTime.SetFrame(i, FbxTime::eFrames24);
-					//*currAnim = new Keyframe();
-					//(*currAnim)->mFrameNum = i;
-					//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
-					//(*currAnim)->mGlobalTransform = FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime));
-					//currAnim = &((*currAnim)->mNext);
-					//}
-
-						//push back tempBone into current keyframe
+					//push back tempBone into current keyframe
 					tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
 					tomKeyFrame.InsertBone(tempBone);
 				}
@@ -676,52 +404,19 @@ namespace FBXLoader
 				}
 			}
 
-			//for (unsigned int i = 0; i < currSkin->GetClusterCount(); ++i)
-			//{
-			//	FbxCluster* currCluster = currSkin->GetCluster(i);
-			//	std::string currJointName = currCluster->GetLink()->GetName();
-			//	unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
-			//	FbxAMatrix transformMatrix;
-			//	FbxAMatrix transformLinkMatrix;
-			//	FbxAMatrix globalBindposeInverseMatrix;
-
-			//	currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
-			//	currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
-			//	globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
-
-			//	// Update the information in mSkeleton 
-			//	tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
-			//}
 		}
 
-		FbxString test = inNode->GetName();
-		//make transform node using any keyframe
-
-		//TransformNode* root = new TransformNode();
-
-		//for (int i = 0; i < 
-		//root->AddChild(tomKeyFrames[0].
 	}
-
 
 	void StoreBlendingInfo(Vertex& temp, const std::vector<VertexBlendingInfo>& vertInfos)
 	{
-		temp.blendingIndices.x = 0;
-		temp.blendingIndices.y = 0;
-		temp.blendingIndices.z = 0;
-		temp.blendingIndices.w = 0;
-		temp.blendingWeight.x = 0.0f;
-		temp.blendingWeight.y = 0.0f;
-		temp.blendingWeight.z = 0.0f;
-		temp.blendingWeight.w = 0.0f;
+		temp.blendingIndices = XMINT4(0, 0, 0, 0);
+		temp.blendingWeight = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		switch (vertInfos.size())
 		{
 		default:
-			temp.blendingWeight.x = 0.25f;
-			temp.blendingWeight.y = 0.25f;
-			temp.blendingWeight.z = 0.25f;
-			temp.blendingWeight.w = 0.25f;
+			temp.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
 			break;
 		case 1:
 			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
@@ -742,14 +437,8 @@ namespace FBXLoader
 			temp.blendingWeight.z = (float)vertInfos[2].mBlendingWeight;
 			break;
 		case 4:
-			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingIndices.y = vertInfos[1].mBlendingIndex;
-			temp.blendingIndices.z = vertInfos[2].mBlendingIndex;
-			temp.blendingIndices.w = vertInfos[3].mBlendingIndex;
-			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
-			temp.blendingWeight.y = (float)vertInfos[1].mBlendingWeight;
-			temp.blendingWeight.z = (float)vertInfos[2].mBlendingWeight;
-			temp.blendingWeight.w = (float)vertInfos[3].mBlendingWeight;
+			temp.blendingIndices = XMINT4(vertInfos[0].mBlendingIndex, vertInfos[1].mBlendingIndex, vertInfos[2].mBlendingIndex, vertInfos[3].mBlendingIndex);
+			temp.blendingWeight = XMFLOAT4((float)vertInfos[0].mBlendingWeight, (float)vertInfos[1].mBlendingWeight, (float)vertInfos[2].mBlendingWeight, (float)vertInfos[3].mBlendingWeight);
 			break;
 		}
 	}
@@ -779,7 +468,7 @@ namespace FBXLoader
 				for (unsigned int i = 0; i < currCtrlPoint->mBlendingInfo.size(); ++i)
 				{
 					VertexBlendingInfo currBlendingInfo;
- 					currBlendingInfo.mBlendingIndex = currCtrlPoint->mBlendingInfo[i].mBlendingIndex;
+					currBlendingInfo.mBlendingIndex = currCtrlPoint->mBlendingInfo[i].mBlendingIndex;
 					currBlendingInfo.mBlendingWeight = currCtrlPoint->mBlendingInfo[i].mBlendingWeight;
 					vertInfos.push_back(currBlendingInfo);
 				}
@@ -822,14 +511,9 @@ namespace FBXLoader
 
 	}
 
-
-
 	void ReadBinormal(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outBinormal)
 	{
-		if (inMesh->GetElementBinormalCount() < 1)
-		{
-			return;
-		}
+		if (inMesh->GetElementBinormalCount() < 1) { return; }
 
 		FbxGeometryElementBinormal* vertexBinormal = inMesh->GetElementBinormal(0);
 		switch (vertexBinormal->GetMappingMode())
@@ -886,10 +570,7 @@ namespace FBXLoader
 
 	void ReadTangent(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outTangent)
 	{
-		if (inMesh->GetElementTangentCount() < 1)
-		{
-			return;
-		}
+		if (inMesh->GetElementTangentCount() < 1) { return; }
 
 		FbxGeometryElementTangent* vertexTangent = inMesh->GetElementTangent(0);
 		switch (vertexTangent->GetMappingMode())
@@ -952,7 +633,6 @@ namespace FBXLoader
 		mFBXScene = nullptr;
 
 		mVerts.clear();
-		//mSkeleton.mJoints.clear();
 		tomsSkeleton.names.clear();
 		tomsSkeleton.transforms.clear();
 		tomKeyFrames.clear();
@@ -982,9 +662,94 @@ namespace FBXLoader
 			bout.write((const char*)&numVerts, sizeof(unsigned int));
 			bout.write((const char*)&numIndices, sizeof(unsigned int));
 
-
 			//write out Vert data
 			bout.write((const char*)mBasicVerts.data(), sizeof(VS_BasicInput) * numVerts);
+
+			//write out indicies
+			bout.write((const char*)mIndices.data(), sizeof(unsigned int) * numIndices);
+		}
+
+		bout.close();
+	}
+
+	void MakeFriendlyNodeRecursive(TransformNode* tNode)
+	{
+		FriendlyIOTransformNode friendlyNode;
+
+		if (tNode)
+		{
+			friendlyNode.parentIndex = tNode->parent->index;
+			friendlyNode.nameOffset = friendlyNodes[friendlyNode.parentIndex].nameOffset + (unsigned int)tNode->name.size();
+			DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
+			//friendlyNode.world = tNode->world;
+
+			if (tNode->child)
+			{
+				friendlyNode.childIndex = tNode->child->index;
+			}
+			else
+			{
+				friendlyNode.childIndex = -1;
+			}
+
+			if (tNode->sibling)
+			{
+				friendlyNode.siblingIndex = tNode->sibling->index;
+			}
+			else
+			{
+				friendlyNode.siblingIndex = -1;
+			}
+
+			friendlyNodes.push_back(friendlyNode);
+
+			MakeFriendlyNodeRecursive(tNode->child);
+			MakeFriendlyNodeRecursive(tNode->sibling);
+		}
+	}
+
+	void MakeFriendlyNode(TransformNode* tNode)
+	{
+		FriendlyIOTransformNode friendlyNode;
+
+		friendlyNode.parentIndex = -1;
+		friendlyNode.childIndex = tNode->child->index;
+		friendlyNode.siblingIndex = -1;
+		friendlyNode.nameOffset = 0;
+		DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
+
+		friendlyNodes.push_back(friendlyNode);
+
+		MakeFriendlyNodeRecursive(tNode->child);
+	}
+
+	void ExportMesh(const char * name)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numVerts = 0, numIndices = 0;
+
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += name;
+		path += ".mesh";
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
+		{
+			//get length of bones
+			numVerts = (unsigned int)mVerts.size();
+			numIndices = (unsigned int)mIndices.size();
+
+			//write header
+			bout.write((const char*)&numVerts, sizeof(unsigned int));
+			bout.write((const char*)&numIndices, sizeof(unsigned int));
+
+
+			//write out Vert data
+			bout.write((const char*)mVerts.data(), sizeof(Vertex) * numVerts);
 
 
 			//write out indicies
@@ -992,6 +757,98 @@ namespace FBXLoader
 		}
 
 		bout.close();
+	}
+
+	void ExportToBinary(const char * name, const char* animationName, bool justAnimation)
+	{
+		std::ofstream bout;
+		std::string path;
+		unsigned int numBones = 0, namesSize = 0;
+
+		//If i want just an animation, then I dont want to load in the skeleton
+		if (!justAnimation)
+		{
+			path = "../Resources/";
+			path += name;
+			path += "/";
+			path += name;
+			path += ".skel";
+
+			bout.open(path, std::ios::binary); //will truncate existing file
+
+			if (bout.is_open())
+			{
+				//get length of bones
+				numBones = (unsigned int)tomsSkeleton.transforms.size();
+				namesSize = (unsigned int)tomsSkeleton.names.size();
+
+				//write header
+				bout.write((const char*)&numBones, sizeof(unsigned int));
+				bout.write((const char*)&namesSize, sizeof(unsigned int));
+
+				MakeFriendlyNode(tomsSkeleton.transforms[0]);
+
+				//write out transform data
+				bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
+
+				//write out names
+				bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+			}
+
+			bout.close();
+		}
+
+		//load in the animation if there's an animation name
+		if (animationName)
+		{
+			//now animation file
+			path = "../Resources/";
+			path += name;
+			path += "/";
+			path += animationName;
+			path += ".anim";
+
+			bout.open(path, std::ios::binary);
+
+			if (bout.is_open())
+			{
+				//make animation
+				AnimType type;
+
+				type = AnimType::LOOP;
+
+				//write out header info
+				unsigned int numOfKeyFrames;
+				unsigned int numOfBones;
+
+				numOfKeyFrames = (unsigned int)tomKeyFrames.size();
+				numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
+
+				bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
+				bout.write((const char*)&numOfBones, sizeof(unsigned int));
+
+				//write out keyframes
+				for (int i = 0; i < tomKeyFrames.size(); ++i)
+				{
+					float keyFrameTime = tomKeyFrames[i].GetTime();
+					bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
+					bout.write((const char*)&keyFrameTime, sizeof(float));
+				}
+
+				//write out animtype
+				bout.write((const char*)&type, sizeof(AnimType));
+
+				//write out time
+				float time;
+				time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
+
+				bout.write((const char*)&time, sizeof(float));
+
+				bout.close();
+			}
+		}
+
+		ExportMesh(name);
 	}
 #pragma endregion 
 	/*----------------------------------------------------------------------------------------------------------------------------------
@@ -1086,311 +943,13 @@ namespace FBXLoader
 				mIndices[i + 1] ^= mIndices[i + 2];
 			}
 
-			
+
 
 			ExportBasicMesh(name);
 
 			return true;
 		}
 		return false;
-	}
-
-	//FBXLOADER_API bool Functions::FBXLoadFile(std::vector<Vertex> * outVerts, std::vector<unsigned int> * outIndices, std::vector<DirectX::XMFLOAT4X4> *outBoneMats, const char * filePath)
-	//{
-
-	//	//if the FbxManager is not created. Create it.
-	//	if (!mFBXManager)
-	//	{
-	//		mFBXManager = FbxManager::Create();
-
-	//		FbxIOSettings* settings = FbxIOSettings::Create(mFBXManager, IOSROOT);
-	//		mFBXManager->SetIOSettings(settings);
-	//	}
-
-	//	FbxMesh* mesh;
-	//	FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
-	//	FbxScene* fbxScene = FbxScene::Create(mFBXManager, "");
-
-	//	// the -1 is so that the plugin will detect the file format according to file suffix automatically.
-	//	if (!fbxImporter->Initialize(filePath, -1, mFBXManager->GetIOSettings())) return false;
-
-	//	if (!fbxImporter->Import(fbxScene)) return false;
-
-	//	//Destroy importer as we are done using it
-	//	fbxImporter->Destroy();
-
-	//	//Create the root node as a handle for the rest of the FBX mesh
-	//	FbxNode* rootNode = fbxScene->GetRootNode();
-
-	//	//if the root node is not null
-	//	if (rootNode)
-	//	{
-	//		//for every child node
-	//		for (int i = 0; i < rootNode->GetChildCount(); ++i)
-	//		{
-	//			FbxNode* node = rootNode->GetChild(i);
-	//			//skip child if null
-	//			if (!node->GetNodeAttribute())
-	//				continue;
-
-	//			//get attribute type of the node
-	//			FbxNodeAttribute::EType type = node->GetNodeAttribute()->GetAttributeType();
-
-	//			//if it is not part of a mesh skip it 
-	//			if (type != FbxNodeAttribute::eMesh)
-	//				continue;
-
-	//			mesh = (FbxMesh*)node->GetNodeAttribute();
-
-	//			FbxVector4* verts = mesh->GetControlPoints();
-	//			int vertCounter = 0;
-
-	//			for (int j = 0; j < mesh->GetPolygonCount(); ++j)
-	//			{
-
-	//				int numVerts = mesh->GetPolygonSize(j);
-
-	//				//if the polgon is not a triangle wether the mesh is not triangulated or some other error
-	//				if (numVerts != 3) return false;
-
-	//				for (int k = 0; k < numVerts; ++k)
-	//				{
-	//					int iCtrlPoint = mesh->GetPolygonVertex(j, k);
-
-	//					//if the requested vertex does not exists or the indices arguments have an invalid range
-	//					if (iCtrlPoint < 0) return false;
-
-	//					Vertex vert;
-
-	//					//position
-	//					vert.mPosition.x = -(float)verts[iCtrlPoint].mData[0];
-	//					vert.mPosition.y = (float)verts[iCtrlPoint].mData[1];
-	//					vert.mPosition.z = (float)verts[iCtrlPoint].mData[2];
-
-	//					//uvs
-	//					LoadUV(mesh, iCtrlPoint, mesh->GetTextureUVIndex(j, k), 0, vert);
-
-	//					//normals
-	//					LoadNormal(mesh, iCtrlPoint, vertCounter, vert);
-
-	//					// sort so its easier to remove duplicates
-
-	//					vert.blendingIndices = XMINT4(0, 0, 0, 0);
-	//					vert.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
-
-	//					outVerts->push_back(vert);
-	//					++vertCounter;
-
-	//				}
-	//			}
-	//		}
-	//		outIndices->clear();
-	//		outIndices->resize(outVerts->size());
-	//		ElimanateDuplicates(*outVerts, *outIndices);
-
-	//		//swap indices for correct texture
-	//		for (unsigned int i = 0; i < outIndices->size(); i += 3)
-	//		{
-	//			outIndices->at(i + 1) ^= outIndices->at(i + 2);
-	//			outIndices->at(i + 2) ^= outIndices->at(i + 1);
-	//			outIndices->at(i + 1) ^= outIndices->at(i + 2);
-
-	//		}
-
-	//		InitWholeSkeleton(mesh, *outVerts, outBoneMats);
-	//		return true;
-	//	}
-	//	return false;
-
-	//}
-
-	std::vector<FriendlyIOTransformNode> friendlyNodes;
-
-	void MakeFriendlyNodeRecursive(TransformNode* tNode)
-	{
-		FriendlyIOTransformNode friendlyNode;
-
-		if (tNode)
-		{
-			friendlyNode.parentIndex = tNode->parent->index;
-			friendlyNode.nameOffset = friendlyNodes[friendlyNode.parentIndex].nameOffset + (unsigned int)tNode->name.size();
-			DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
-			//friendlyNode.world = tNode->world;
-
-			if (tNode->child)
-			{
-				friendlyNode.childIndex = tNode->child->index;
-			}
-			else
-			{
-				friendlyNode.childIndex = -1;
-			}
-
-			if (tNode->sibling)
-			{
-				friendlyNode.siblingIndex = tNode->sibling->index;
-			}
-			else
-			{
-				friendlyNode.siblingIndex = -1;
-			}
-
-			friendlyNodes.push_back(friendlyNode);
-
-			MakeFriendlyNodeRecursive(tNode->child);
-			MakeFriendlyNodeRecursive(tNode->sibling);
-		}
-	}
-
-	void MakeFriendlyNode(TransformNode* tNode)
-	{
-		FriendlyIOTransformNode friendlyNode;
-
-		friendlyNode.parentIndex = -1;
-		friendlyNode.childIndex = tNode->child->index;
-		friendlyNode.siblingIndex = -1;
-		friendlyNode.nameOffset = 0;
-		//friendlyNode.name = tNode->name;
-		DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
-
-		friendlyNodes.push_back(friendlyNode);
-
-		MakeFriendlyNodeRecursive(tNode->child);
-		//MakeFriendlyNodeRecursive(tNode->sibling);
-	}
-	void ExportMesh(const char * name)
-	{
-		std::ofstream bout;
-		std::string path;
-		unsigned int numVerts = 0, numIndices = 0;
-
-		path = "../Resources/";
-		path += name;
-		path += "/";
-		path += name;
-		path += ".mesh";
-
-		bout.open(path, std::ios::binary); //will truncate existing file
-
-		if (bout.is_open())
-		{
-			//get length of bones
-			numVerts = (unsigned int)mVerts.size();
-			numIndices = (unsigned int)mIndices.size();
-
-			//write header
-			bout.write((const char*)&numVerts, sizeof(unsigned int));
-			bout.write((const char*)&numIndices, sizeof(unsigned int));
-
-
-			//write out Vert data
-			bout.write((const char*)mVerts.data(), sizeof(Vertex) * numVerts);
-		
-
-			//write out indicies
-			bout.write((const char*)mIndices.data(), sizeof(unsigned int) * numIndices);
-		}
-
-		bout.close();
-	}
-	void ExportToBinary(const char * name, const char* animationName, bool justAnimation)
-	{
-		std::ofstream bout;
-		std::string path;
-		unsigned int numBones = 0, namesSize = 0;
-
-		//If i want just an animation, then I dont want to load in the skeleton
-		if (!justAnimation)
-		{
-			path = "../Resources/";
-			path += name;
-			path += "/";
-			path += name;
-			path += ".skel";
-
-			bout.open(path, std::ios::binary); //will truncate existing file
-
-			if (bout.is_open())
-			{
-				//get length of bones
-				numBones = (unsigned int)tomsSkeleton.transforms.size();
-				namesSize = (unsigned int)tomsSkeleton.names.size();
-
-				//write header
-				bout.write((const char*)&numBones, sizeof(unsigned int));
-				bout.write((const char*)&namesSize, sizeof(unsigned int));
-
-				//make transform nodes that are friendly
-				//FriendlyIOTransformNode friendlyNode;
-
-				MakeFriendlyNode(tomsSkeleton.transforms[0]);
-
-				//write out transform data
-				//for (int i = 0; i < friendlyNodes.size(); ++i)
-				{
-					bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
-				}
-
-				//write out names
-				bout.write((const char*)tomsSkeleton.names.data(), namesSize);
-			}
-
-			bout.close();
-		}
-
-		//load in the animation if there's an animation name
-		if (animationName)
-		{
-			//now animation file
-			path = "../Resources/";
-			path += name;
-			path += "/";
-			path += animationName;
-			path += ".anim";
-
-			bout.open(path, std::ios::binary);
-
-			if (bout.is_open())
-			{
-				//make animation
-				//Animation anim;
-				//anim.Init(AnimType::LOOP, tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime(), tomKeyFrames);
-				AnimType type;
-
-				type = AnimType::LOOP;
-
-				//write out header info
-				unsigned int numOfKeyFrames;
-				unsigned int numOfBones;
-
-				numOfKeyFrames = (unsigned int)tomKeyFrames.size();
-				numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
-
-				bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
-				bout.write((const char*)&numOfBones, sizeof(unsigned int));
-
-				//write out keyframes
-				for (int i = 0; i < tomKeyFrames.size(); ++i)
-				{
-					float keyFrameTime = tomKeyFrames[i].GetTime();
-					bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
-					bout.write((const char*)&keyFrameTime, sizeof(float));
-				}
-
-				//write out animtype
-				bout.write((const char*)&type, sizeof(AnimType));
-
-				//write out time
-				float time;
-				time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
-
-				bout.write((const char*)&time, sizeof(float));
-
-				bout.close();
-			}
-		}
-
-		ExportMesh(name);
 	}
 
 	FBXLOADER_API bool Functions::FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName, bool justAnimation)
@@ -1430,9 +989,6 @@ namespace FBXLoader
 			ProcessSkeletonHierarchy(mFBXScene->GetRootNode());
 			if (tomsSkeleton.transforms.empty()) { mHasAnimation = false; }
 
-			//if (mSkeleton.mJoints.empty()) { mHasAnimation = false; }
-
-
 			ProcessGeometry(mFBXScene->GetRootNode());
 
 			mIndices.clear();
@@ -1447,7 +1003,7 @@ namespace FBXLoader
 				mIndices[i + 1] ^= mIndices[i + 2];
 			}
 
-			ExportToBinary(name , animationName, justAnimation);
+			ExportToBinary(name, animationName, justAnimation);
 
 			CleanupFBX();
 			return true;
