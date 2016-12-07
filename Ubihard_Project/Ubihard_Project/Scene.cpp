@@ -360,7 +360,7 @@ void Scene::Update(WPARAM wparam)
 	gameObjects[0]->Update(0); // box will move from key pres
 	gameObjects[1]->Update(0); // box will move from key pres
 	//gameObjects[1]->Update(dt); //bear will move based on time
-	gameObjects[2]->Update(dt / 2); //box attack will move time based
+	gameObjects[2]->Update(dt / 1.5f); //box attack will move time based
 
 
 	//update model to take in bone offset data from render node
