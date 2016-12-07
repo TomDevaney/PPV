@@ -32,17 +32,32 @@ void Blender::Update(float time, unsigned int frameIndex)
 	boneOffsets.clear();
 	bonesWorlds.clear();
 
-	for (int i = 0; i < bones.size(); ++i)
+	for (unsigned int i = 0; i <animationSet->GetSkeleton().GetNumBones(); ++i)
 	{
 		DirectX::XMFLOAT4X4 boneOffset;
+		DirectX::XMMATRIX boneWorld;
+		DirectX::XMFLOAT4X4 boneWorldFloat;
+		DirectX::XMMATRIX transformInverseBindPose;
+		DirectX::XMMATRIX inverseBindPose;
 
-		DirectX::XMMATRIX inverseBindPose = DirectX::XMLoadFloat4x4(&bones[i].GetInverseBindPose());
-		DirectX::XMMATRIX boneWorld = DirectX::XMLoadFloat4x4(&bones[i].GetWorld());
-		//DirectX::XMMATRIX transformWorld = DirectX::XMLoadFloat4x4(&animationSet->GetSkeleton().GetBones()[i].world);
 
-		XMStoreFloat4x4(&boneOffset, DirectX::XMMatrixMultiply(inverseBindPose, boneWorld));
+		if (i < bones.size())
+		{
+			boneWorld = DirectX::XMLoadFloat4x4(&bones[i].GetWorld());
+			inverseBindPose = DirectX::XMLoadFloat4x4(&bones[i].GetInverseBindPose());
+		}
+		else
+		{
+			boneWorld = DirectX::XMMatrixIdentity();
+			inverseBindPose = DirectX::XMMatrixIdentity();
+		}
+
+		//transformInverseBindPose = DirectX::XMLoadFloat4x4(&animationSet->GetSkeleton().GetBones()[i].world);
+
+		DirectX::XMStoreFloat4x4(&boneOffset, DirectX::XMMatrixMultiply(inverseBindPose, boneWorld));
+		DirectX::XMStoreFloat4x4(&boneWorldFloat, DirectX::XMMatrixTranspose(boneWorld));
 
 		boneOffsets.push_back(boneOffset); //this is actually a container for boneoffsets for 
-		bonesWorlds.push_back(bones[i].GetWorld());
+		bonesWorlds.push_back(boneWorldFloat);
 	}
 }

@@ -75,14 +75,14 @@
     <IncludePath>C:\Program Files\Autodesk\FBX\FBX SDK\2016.1.1\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>Bin\AnimationLibrary;Bin\ShaderResources;$(IncludePath)</IncludePath>
-    <LibraryPath>$(WindowsSdkDir)\lib\x64;$(SolutionDir)Bin\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Program Files %28x86%29\Visual Leak Detector\include;Bin\AnimationLibrary;Bin\ShaderResources;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Program Files %28x86%29\Visual Leak Detector\lib\Win64;$(WindowsSdkDir)\lib\x64;$(SolutionDir)Bin\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>Bin\AnimationLibrary;Bin\ShaderResources;$(IncludePath)</IncludePath>
+    <IncludePath>E:\Program Files %28x86%29\Visual Leak Detector\include;Bin\AnimationLibrary;Bin\ShaderResources;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)Bin\$(Platform)\$(Configuration)\</OutDir>
-    <LibraryPath>$(WindowsSdkDir)\lib\x64;$(SolutionDir)Bin\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
+    <LibraryPath>E:\Program Files %28x86%29\Visual Leak Detector\lib\Win64;$(WindowsSdkDir)\lib\x64;$(SolutionDir)Bin\$(Platform)\$(Configuration)\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

@@ -108,7 +108,7 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
@@ -227,11 +227,20 @@ void Scene::CreateModels()
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
 	//FBXLoader::Functions::FBXLoadFile(&bindVertices, &indices, &boneMatrices, "..\\Assets\\Box_Idle.fbx");
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	models.push_back(testModel);
 
+	//add bear
+	Model monokuma;
+
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+
+	monokuma.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/Teddy.dds", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
+	monokuma.CreateDevResources(deviceResources);
+
+	models.push_back(monokuma);
 	
 	//add four spheres. set postions at position in boneMats
 	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
@@ -245,15 +254,16 @@ void Scene::CreateModels()
 		models.push_back(sphereModel);
 	}
 
+
 	//add magician
-	Model mage;
+	//Model mage;
 
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
+	////FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
 
-	mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities, L"Mage");
-	mage.CreateDevResources(deviceResources);
+	//mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities, L"Mage");
+	//mage.CreateDevResources(deviceResources);
 
-	models.push_back(mage);
+	//models.push_back(mage);
 }
 
 void Scene::LoadModelsFromBinary()
@@ -271,6 +281,15 @@ void Scene::LoadModelsFromBinary()
 
 	renderNodes.push_back(boxRenderNode);
 	gameObjects.push_back(boxGameObject);
+
+	AnimatedRenderNode* teddyRenderNode = new AnimatedRenderNode();
+	AnimatedGameObject* teddyGameObject = new AnimatedGameObject();
+
+	teddyGameObject->Init("Teddy");
+	teddyGameObject->SetRenderNode(teddyRenderNode);
+
+	renderNodes.push_back(teddyRenderNode);
+	gameObjects.push_back(teddyGameObject);
 }
 
 void Scene::Update(WPARAM wparam)
@@ -309,23 +328,31 @@ void Scene::Update(WPARAM wparam)
 	gameObjects[0]->SetCurFrame(curFrame);
 
 	//update inverse bind poses in game objects
-	for (int i = 0; i < gameObjects.size(); ++i)
-	{
-		gameObjects[i]->Update();
-	}
+	//for (int i = 0; i < gameObjects.size(); ++i)
+	//{
+	//	gameObjects[i]->Update(dt);
+	//}
+
+	gameObjects[0]->Update(0); // box will move from key pres
+	gameObjects[1]->Update(dt); //bear will move based on time
 
 
 	//update model to take in bone offset data from render node
-	vector<XMFLOAT4X4> boneOffsets = renderNodes[0]->GetBoneOffsets();
+	for (int i = 1; i < renderNodes.size() + 1; ++i) // plus one because plane is first
+	{
+		vector<XMFLOAT4X4> boneOffsets = renderNodes[i - 1]->GetBoneOffsets();
 
-	models[1].SetBoneOffsetData(renderNodes[0]->GetBoneOffsets());
+		models[i].SetBoneOffsetData(renderNodes[i - 1]->GetBoneOffsets());
+	}
+
+	//models[6].SetBoneOffsetData
 
 	//update spheres to new bone positions
 	vector<XMFLOAT4X4> bonesWorlds = renderNodes[0]->GetBonesWorlds();
 
 	for (int i = 0; i < 4; ++i)
 	{
-		models[i + 2].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
+		models[i + 3].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
 	}
 }
 

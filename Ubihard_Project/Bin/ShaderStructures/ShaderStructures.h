@@ -1,5 +1,5 @@
 #pragma once
-#define MAXBONES 4
+#define MAXBONES 100
 #include <DirectXMath.h>
 #include <vector>
 using namespace DirectX;

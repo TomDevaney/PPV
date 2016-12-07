@@ -250,7 +250,7 @@ void Model::SetModel(XMMATRIX& model)
 
 void Model::SetBoneOffsetData(vector<XMFLOAT4X4> data)
 {
-	for (int i = 0; i < MAXBONES; ++i)
+	for (int i = 0; i < data.size(); ++i)
 	{
 		boneOffsetData.boneOffsets[i] = data[i];
 	}

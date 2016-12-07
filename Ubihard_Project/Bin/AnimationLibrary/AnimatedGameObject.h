@@ -13,7 +13,7 @@ private:
 
 public:
 	void Init(std::string animSet);
-	void Update();
+	void Update(float deltaTime);
 
 	//setters
 	void SetRenderNode(AnimatedRenderNode* node) { renderNode = node; }

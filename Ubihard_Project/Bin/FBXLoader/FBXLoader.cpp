@@ -317,9 +317,15 @@ namespace FBXLoader
 
 			//currTime.SetFrame(i, FbxTime::eFrames24);
 
-			FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(0) *  GetGeometryTransformation(inNode);
-			child->world = FBXToXMMatrix(currentTransformOffset.Inverse() * inNode->EvaluateGlobalTransform(0));
+			//FbxTime currTime;
+			//currTime.SetFrame(1, FbxTime::eFrames24);
+			//FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) *  GetGeometryTransformation(inNode);
+			//child->world = XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse()));
 			child->name = inNode->GetName();
+
+			//((FbxSkin*)(inNode->GetMesh()->GetDeformer(0, FbxDeformer::eSkin)))->GetCluster(transformNodeindex
+
+			//inNode->Transform
 
 			if (myIndex == 0) //this means that it's the root node, so I want to make the curTransform = to the curNode
 			{
@@ -550,11 +556,13 @@ namespace FBXLoader
 
 		FbxAMatrix geometryTransform = GetGeometryTransformation(inNode);
 
+
 		// for each deformer
 		for (unsigned int deformerIndex = 0; deformerIndex < numOfDeformers; ++deformerIndex)
 		{
 			//check if it is a skin
-			FbxSkin* currSkin = reinterpret_cast<FbxSkin*>(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+			FbxSkin* currSkin = (FbxSkin*)(currMesh->GetDeformer(deformerIndex, FbxDeformer::eSkin));
+		
 			if (!currSkin) { continue; }
 
 			//get the animation's info
@@ -591,7 +599,7 @@ namespace FBXLoader
 					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 
 					// Update the information in mSkeleton 
-					//tomsSkeleton.transforms[currJointIndex]->mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
+					tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
 
 					//mSkeleton.mJoints[currJointIndex].mGlobalBindposeInverse = FBXToXMMatrix(globalBindposeInverseMatrix);
 					//TODO: mSkeleton.mJoints[currJointIndex].mNode = currCluster->GetLink();
@@ -612,17 +620,17 @@ namespace FBXLoader
 
 					//for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
 					//{
-						//set up tombone's world matrix
+					//set up tombone's world matrix
 
-						//because I added a inverse bind pose, I don't need this
-						FbxTime currTime;
-						currTime.SetFrame(i, FbxTime::eFrames24);
-						FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
-						XMFLOAT4X4 world;
-						XMStoreFloat4x4(&world, XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime))));
-						tempBone.SetWorld(world);
+					//because I added a inverse bind pose, I don't need this
+					FbxTime currTime;
+					currTime.SetFrame(i, FbxTime::eFrames24);
+					FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
+					XMFLOAT4X4 world;
+					XMStoreFloat4x4(&world, XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime))));
+					tempBone.SetWorld(world);
 
-						//set inverse bind pose of bone
+					//set inverse bind pose of bone
 					XMFLOAT4X4 tempBindPoseInverse;
 					XMStoreFloat4x4(&tempBindPoseInverse, DirectX::XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix)));
 					tempBone.SetInverseBindPose(tempBindPoseInverse);
@@ -667,11 +675,29 @@ namespace FBXLoader
 					mControlPoints[currCluster->GetControlPointIndices()[i]]->mBlendingInfo.push_back(currBlendingIndexWeightPair);
 				}
 			}
+
+			//for (unsigned int i = 0; i < currSkin->GetClusterCount(); ++i)
+			//{
+			//	FbxCluster* currCluster = currSkin->GetCluster(i);
+			//	std::string currJointName = currCluster->GetLink()->GetName();
+			//	unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
+			//	FbxAMatrix transformMatrix;
+			//	FbxAMatrix transformLinkMatrix;
+			//	FbxAMatrix globalBindposeInverseMatrix;
+
+			//	currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
+			//	currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
+			//	globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+
+			//	// Update the information in mSkeleton 
+			//	tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
+			//}
 		}
 
+		FbxString test = inNode->GetName();
 		//make transform node using any keyframe
 
-		TransformNode* root = new TransformNode();
+		//TransformNode* root = new TransformNode();
 
 		//for (int i = 0; i < 
 		//root->AddChild(tomKeyFrames[0].
@@ -753,7 +779,7 @@ namespace FBXLoader
 				for (unsigned int i = 0; i < currCtrlPoint->mBlendingInfo.size(); ++i)
 				{
 					VertexBlendingInfo currBlendingInfo;
-					currBlendingInfo.mBlendingIndex = currCtrlPoint->mBlendingInfo[i].mBlendingIndex;
+ 					currBlendingInfo.mBlendingIndex = currCtrlPoint->mBlendingInfo[i].mBlendingIndex;
 					currBlendingInfo.mBlendingWeight = currCtrlPoint->mBlendingInfo[i].mBlendingWeight;
 					vertInfos.push_back(currBlendingInfo);
 				}

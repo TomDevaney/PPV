@@ -13,7 +13,8 @@
 #include <string>
 #include <d3dcompiler.h> //needed to compile shaders
 #include <time.h>
-#include "DDSTextureLoader.h"	
+#include <vld.h> 
+#include "DDSTextureLoader.h"	 
 #include "../ShaderStructures/ShaderStructures.h"
 
 //defines

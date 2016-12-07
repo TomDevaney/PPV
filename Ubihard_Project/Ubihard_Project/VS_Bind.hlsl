@@ -1,4 +1,4 @@
-#define MAXBONES 4
+#define MAXBONES 100
 
 // A constant buffer that stores the three basic column-major matrices for composing geometry.
 cbuffer ModelViewProjectionConstantBuffer : register(b0)
