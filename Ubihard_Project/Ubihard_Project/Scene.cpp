@@ -233,7 +233,7 @@ void Scene::CreateModels()
 
 	//add bear
 	Model monokuma;
-
+	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle", false);
 	monokuma.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/Teddy.dds", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
 	monokuma.CreateDevResources(deviceResources);

@@ -163,9 +163,9 @@ namespace FBXLoader
 		{
 			CtrlPoint* currCtrlPoint = new CtrlPoint();
 			XMFLOAT3 currPosition;
-			currPosition.x = -(float)(currMesh->GetControlPointAt(i).mData[0]);
+			currPosition.x = (float)(currMesh->GetControlPointAt(i).mData[0]);
 			currPosition.y = (float)(currMesh->GetControlPointAt(i).mData[1]);
-			currPosition.z = (float)(currMesh->GetControlPointAt(i).mData[2]);
+			currPosition.z = -(float)(currMesh->GetControlPointAt(i).mData[2]);
 			currCtrlPoint->mPosition = currPosition;
 			mControlPoints[i] = currCtrlPoint;
 		}
@@ -217,7 +217,6 @@ namespace FBXLoader
 				break;
 			}
 		}
-		outUV.y = 1.0f - outUV.y;
 		return outUV;
 	}
 
@@ -280,7 +279,7 @@ namespace FBXLoader
 				break;
 			}
 		}
-		outNormal.x = -outNormal.x;
+		outNormal.z = -outNormal.z;
 		return outNormal;
 	}
 
@@ -758,94 +757,101 @@ namespace FBXLoader
 
 		bout.close();
 	}
-
-	void ExportToBinary(const char * name, const char* animationName, bool justAnimation)
+	void ExportSkeleton(const char * name)
 	{
 		std::ofstream bout;
 		std::string path;
 		unsigned int numBones = 0, namesSize = 0;
 
-		//If i want just an animation, then I dont want to load in the skeleton
-		if (!justAnimation)
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += name;
+		path += ".skel";
+
+		bout.open(path, std::ios::binary); //will truncate existing file
+
+		if (bout.is_open())
 		{
-			path = "../Resources/";
-			path += name;
-			path += "/";
-			path += name;
-			path += ".skel";
+			//get length of bones
+			numBones = (unsigned int)tomsSkeleton.transforms.size();
+			namesSize = (unsigned int)tomsSkeleton.names.size();
 
-			bout.open(path, std::ios::binary); //will truncate existing file
+			//write header
+			bout.write((const char*)&numBones, sizeof(unsigned int));
+			bout.write((const char*)&namesSize, sizeof(unsigned int));
 
-			if (bout.is_open())
+			MakeFriendlyNode(tomsSkeleton.transforms[0]);
+
+			//write out transform data
+			bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
+
+			//write out names
+			bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+		}
+
+		bout.close();
+	}
+
+	void ExportAnimation(const char * name, const char * animationName)
+	{
+		std::ofstream bout;
+		std::string path;
+
+		//now animation file
+		path = "../Resources/";
+		path += name;
+		path += "/";
+		path += animationName;
+		path += ".anim";
+
+		bout.open(path, std::ios::binary);
+
+		if (bout.is_open())
+		{
+			//make animation
+			AnimType type;
+
+			type = AnimType::LOOP;
+
+			//write out header info
+			unsigned int numOfKeyFrames;
+			unsigned int numOfBones;
+
+			numOfKeyFrames = (unsigned int)tomKeyFrames.size();
+			numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
+
+			bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
+			bout.write((const char*)&numOfBones, sizeof(unsigned int));
+
+			//write out keyframes
+			for (int i = 0; i < tomKeyFrames.size(); ++i)
 			{
-				//get length of bones
-				numBones = (unsigned int)tomsSkeleton.transforms.size();
-				namesSize = (unsigned int)tomsSkeleton.names.size();
-
-				//write header
-				bout.write((const char*)&numBones, sizeof(unsigned int));
-				bout.write((const char*)&namesSize, sizeof(unsigned int));
-
-				MakeFriendlyNode(tomsSkeleton.transforms[0]);
-
-				//write out transform data
-				bout.write((const char*)friendlyNodes.data(), sizeof(FriendlyIOTransformNode) * friendlyNodes.size());
-
-				//write out names
-				bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+				float keyFrameTime = tomKeyFrames[i].GetTime();
+				bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
+				bout.write((const char*)&keyFrameTime, sizeof(float));
 			}
+
+			//write out animtype
+			bout.write((const char*)&type, sizeof(AnimType));
+
+			//write out time
+			float time;
+			time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
+
+			bout.write((const char*)&time, sizeof(float));
 
 			bout.close();
 		}
+	}
+	void ExportToBinary(const char * name, const char* animationName)
+	{
+		ExportSkeleton(name);
 
 		//load in the animation if there's an animation name
 		if (animationName)
 		{
-			//now animation file
-			path = "../Resources/";
-			path += name;
-			path += "/";
-			path += animationName;
-			path += ".anim";
-
-			bout.open(path, std::ios::binary);
-
-			if (bout.is_open())
-			{
-				//make animation
-				AnimType type;
-
-				type = AnimType::LOOP;
-
-				//write out header info
-				unsigned int numOfKeyFrames;
-				unsigned int numOfBones;
-
-				numOfKeyFrames = (unsigned int)tomKeyFrames.size();
-				numOfBones = (unsigned int)tomKeyFrames[0].GetBones().size();
-
-				bout.write((const char*)&numOfKeyFrames, sizeof(unsigned int));
-				bout.write((const char*)&numOfBones, sizeof(unsigned int));
-
-				//write out keyframes
-				for (int i = 0; i < tomKeyFrames.size(); ++i)
-				{
-					float keyFrameTime = tomKeyFrames[i].GetTime();
-					bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
-					bout.write((const char*)&keyFrameTime, sizeof(float));
-				}
-
-				//write out animtype
-				bout.write((const char*)&type, sizeof(AnimType));
-
-				//write out time
-				float time;
-				time = tomKeyFrames[tomKeyFrames.size() - 1].GetTime() - tomKeyFrames[0].GetTime();
-
-				bout.write((const char*)&time, sizeof(float));
-
-				bout.close();
-			}
+			ExportAnimation(name, animationName);
 		}
 
 		ExportMesh(name);
@@ -920,9 +926,9 @@ namespace FBXLoader
 						VS_BasicInput vert;
 
 						//position
-						vert.position.x = -(float)verts[iCtrlPoint].mData[0];
+						vert.position.x = (float)verts[iCtrlPoint].mData[0];
 						vert.position.y = (float)verts[iCtrlPoint].mData[1];
-						vert.position.z = (float)verts[iCtrlPoint].mData[2];
+						vert.position.z = -(float)verts[iCtrlPoint].mData[2];
 
 
 						mBasicVerts.push_back(vert);
@@ -952,7 +958,157 @@ namespace FBXLoader
 		return false;
 	}
 
-	FBXLOADER_API bool Functions::FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName, bool justAnimation)
+	FBXLOADER_API bool Functions::FBXLoadExportAnimation(const char * inFilePath, const char * name, const char * animationName)
+	{
+		//if the FbxManager is not created. Create it.
+		if (!mFBXManager)
+		{
+			mFBXManager = FbxManager::Create();
+
+			FbxIOSettings* settings = FbxIOSettings::Create(mFBXManager, IOSROOT);
+			mFBXManager->SetIOSettings(settings);
+		}
+
+		FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
+		mFBXScene = FbxScene::Create(mFBXManager, "");
+
+		// the -1 is so that the plugin will detect the file format according to file suffix automatically.
+		if (!fbxImporter->Initialize(inFilePath, -1, mFBXManager->GetIOSettings())) return false;
+
+		if (!fbxImporter->Import(mFBXScene)) return false;
+
+		//Destroy importer as we are done using it
+		fbxImporter->Destroy();
+
+		//Create the root node as a handle for the rest of the FBX mesh
+		FbxNode* rootNode = mFBXScene->GetRootNode();
+
+		//clear skeleton
+		tomsSkeleton.transforms.clear();
+
+		//if the root node is not null
+		if (rootNode)
+		{
+
+			// Get the clean name of the model
+			ProcessSkeletonHierarchy(mFBXScene->GetRootNode());
+			if (tomsSkeleton.transforms.empty()) { mHasAnimation = false; }
+
+			ProcessGeometry(mFBXScene->GetRootNode());
+
+			ExportAnimation(name, animationName);
+
+			CleanupFBX();
+			return true;
+		}
+		return false;
+	}
+
+	FBXLOADER_API bool Functions::FBXLoadExportSkeleton(const char * inFilePath, const char * name)
+	{
+		//if the FbxManager is not created. Create it.
+		if (!mFBXManager)
+		{
+			mFBXManager = FbxManager::Create();
+
+			FbxIOSettings* settings = FbxIOSettings::Create(mFBXManager, IOSROOT);
+			mFBXManager->SetIOSettings(settings);
+		}
+
+		FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
+		mFBXScene = FbxScene::Create(mFBXManager, "");
+
+		// the -1 is so that the plugin will detect the file format according to file suffix automatically.
+		if (!fbxImporter->Initialize(inFilePath, -1, mFBXManager->GetIOSettings())) return false;
+
+		if (!fbxImporter->Import(mFBXScene)) return false;
+
+		//Destroy importer as we are done using it
+		fbxImporter->Destroy();
+
+		//Create the root node as a handle for the rest of the FBX mesh
+		FbxNode* rootNode = mFBXScene->GetRootNode();
+
+		//clear skeleton
+		tomsSkeleton.transforms.clear();
+
+		//if the root node is not null
+		if (rootNode)
+		{
+
+			// Get the clean name of the model
+			ProcessSkeletonHierarchy(mFBXScene->GetRootNode());
+			if (tomsSkeleton.transforms.empty()) { mHasAnimation = false; }
+
+			ProcessGeometry(mFBXScene->GetRootNode());
+
+			ExportSkeleton(name);
+
+			CleanupFBX();
+			return true;
+		}
+		return false;
+	}
+
+	FBXLOADER_API bool Functions::FBXLoadExportMesh(const char * inFilePath, const char * name)
+	{
+		//if the FbxManager is not created. Create it.
+		if (!mFBXManager)
+		{
+			mFBXManager = FbxManager::Create();
+
+			FbxIOSettings* settings = FbxIOSettings::Create(mFBXManager, IOSROOT);
+			mFBXManager->SetIOSettings(settings);
+		}
+
+		FbxImporter* fbxImporter = FbxImporter::Create(mFBXManager, "");
+		mFBXScene = FbxScene::Create(mFBXManager, "");
+
+		// the -1 is so that the plugin will detect the file format according to file suffix automatically.
+		if (!fbxImporter->Initialize(inFilePath, -1, mFBXManager->GetIOSettings())) return false;
+
+		if (!fbxImporter->Import(mFBXScene)) return false;
+
+		//Destroy importer as we are done using it
+		fbxImporter->Destroy();
+
+		//Create the root node as a handle for the rest of the FBX mesh
+		FbxNode* rootNode = mFBXScene->GetRootNode();
+
+		//clear skeleton
+		tomsSkeleton.transforms.clear();
+
+		//if the root node is not null
+		if (rootNode)
+		{
+
+			// Get the clean name of the model
+			ProcessSkeletonHierarchy(mFBXScene->GetRootNode());
+			if (tomsSkeleton.transforms.empty()) { mHasAnimation = false; }
+
+			ProcessGeometry(mFBXScene->GetRootNode());
+
+			mIndices.clear();
+			mIndices.resize(mVerts.size());
+			ElimanateDuplicates(mVerts, mIndices);
+
+			//swap indices for correct texture
+			for (unsigned int i = 0; i < mIndices.size(); i += 3)
+			{
+				mIndices[i + 1] ^= mIndices[i + 2];
+				mIndices[i + 2] ^= mIndices[i + 1];
+				mIndices[i + 1] ^= mIndices[i + 2];
+			}
+
+			ExportMesh(name);
+
+			CleanupFBX();
+			return true;
+		}
+		return false;
+	}
+
+	FBXLOADER_API bool Functions::FBXLoadExportFileBind(const char * inFilePath, const char * name, const char* animationName)
 	{
 
 		//if the FbxManager is not created. Create it.
@@ -1003,7 +1159,7 @@ namespace FBXLoader
 				mIndices[i + 1] ^= mIndices[i + 2];
 			}
 
-			ExportToBinary(name, animationName, justAnimation);
+			ExportToBinary(name, animationName);
 
 			CleanupFBX();
 			return true;
