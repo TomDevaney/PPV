@@ -201,12 +201,20 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
-	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
-	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
+#if 1
+	// load in box animations and rig
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
+	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
+
+	//load in teddy animation and rig
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+
+	//load in sphere
+	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
+
+	//load in mage with rig and animation
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", "Mage_Bind");
+#endif
 }
 
 void Scene::CreateModels()
