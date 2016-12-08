@@ -217,6 +217,9 @@ namespace FBXLoader
 				break;
 			}
 		}
+
+		outUV.y = 1.0f - outUV.y;
+
 		return outUV;
 	}
 
@@ -306,11 +309,13 @@ namespace FBXLoader
 
 	XMMATRIX FBXToXMMatrix(const FbxAMatrix& inMatrix)
 	{
+		FbxQuaternion rotation = inMatrix.GetQ();
+
 		return XMMatrixSet(
-			(float)(inMatrix.Get(0, 0)), (float)(inMatrix.Get(0, 1)), (float)(inMatrix.Get(0, 2)), (float)(inMatrix.Get(0, 3)),
-			(float)(inMatrix.Get(1, 0)), (float)(inMatrix.Get(1, 1)), (float)(inMatrix.Get(1, 2)), (float)(inMatrix.Get(1, 3)),
-			(float)(inMatrix.Get(2, 0)), (float)(inMatrix.Get(2, 1)), (float)(inMatrix.Get(2, 2)), (float)(inMatrix.Get(2, 3)),
-			(float)(inMatrix.Get(3, 0)), (float)(inMatrix.Get(3, 1)), (float)(inMatrix.Get(3, 2)), (float)(inMatrix.Get(3, 3)));
+			(float)(inMatrix.Get(0, 0)), (float)(inMatrix.Get(0, 1)), -(float)(inMatrix.Get(0, 2)), (float)(inMatrix.Get(0, 3)),
+			(float)(inMatrix.Get(1, 0)), (float)(inMatrix.Get(1, 1)), -(float)(inMatrix.Get(1, 2)), (float)(inMatrix.Get(1, 3)),
+			-(float)(inMatrix.Get(2, 0)), -(float)(inMatrix.Get(2, 1)), (float)(inMatrix.Get(2, 2)), -(float)(inMatrix.Get(2, 3)),
+			(float)(inMatrix.Get(3, 0)), (float)(inMatrix.Get(3, 1)), -(float)(inMatrix.Get(3, 2)), (float)(inMatrix.Get(3, 3)));
 	}
 
 	void ProcessJointsAndAnimations(FbxNode* inNode)
@@ -357,19 +362,22 @@ namespace FBXLoader
 					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 
 					// Update the information in mSkeleton 
-					tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
+					tomsSkeleton.transforms[currJointIndex]->world = FBXToXMMatrix(globalBindposeInverseMatrix);
+					//tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
 
 					//because I added a inverse bind pose, I don't need this
 					FbxTime currTime;
 					currTime.SetFrame(i, FbxTime::eFrames24);
 					FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
 					XMFLOAT4X4 world;
-					XMStoreFloat4x4(&world, XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime))));
+					XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
+					//XMStoreFloat4x4(&world, XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime))));
 					tempBone.SetWorld(world);
 
 					//set inverse bind pose of bone
 					XMFLOAT4X4 tempBindPoseInverse;
-					XMStoreFloat4x4(&tempBindPoseInverse, DirectX::XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix)));
+					XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+					//XMStoreFloat4x4(&tempBindPoseInverse, DirectX::XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix)));
 					tempBone.SetInverseBindPose(tempBindPoseInverse);
 
 					//set name of bone

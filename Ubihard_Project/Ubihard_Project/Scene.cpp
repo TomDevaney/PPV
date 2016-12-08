@@ -39,6 +39,9 @@ void Scene::Init(DeviceResources const * devResources)
 	//create all lights
 	CreateLights();
 
+	//export all fbx data to binary
+	DoFBXExporting();
+
 	//create models in scene
 	CreateModels();
 
@@ -194,6 +197,16 @@ void Scene::CreateLights()
 	}
 }
 
+void Scene::DoFBXExporting()
+{
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
+	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
+	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
+	////FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
+}
+
 void Scene::CreateModels()
 {
 	//ground plane
@@ -226,15 +239,12 @@ void Scene::CreateModels()
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	testModel.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	models.push_back(testModel);
 
 	//add bear
 	Model monokuma;
-	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle", false);
 	monokuma.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/Teddy.dds", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
 	monokuma.CreateDevResources(deviceResources);
 
@@ -242,14 +252,11 @@ void Scene::CreateModels()
 	
 	//add test box but with attack animation
 	Model testModelAttack;
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack", true);
 	testModelAttack.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "../Assets/Textures/DDS/TestCube.dds", XMMatrixTranspose(XMMatrixTranslation(3, 0, 0)), camera, projection, identities, L"Box");
 	testModelAttack.CreateDevResources(deviceResources);
 	models.push_back(testModelAttack);
 
 	//add four spheres. set postions at position in boneMats
-	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
-
 	for (int i = 0; i < 4; ++i)
 	{
 		Model sphereModel;
@@ -262,8 +269,6 @@ void Scene::CreateModels()
 
 	//add magician
 	//Model mage;
-
-	////FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
 
 	//mage.Init(Shadertypes::BIND, vertexShaders[Shadertypes::BIND].Get(), pixelShaders[Shadertypes::BASIC].Get(), inputLayouts[Shadertypes::BIND].Get(), "", XMMatrixTranspose(XMMatrixTranslation(-3, 0, 3)), camera, projection, identities, L"Mage");
 	//mage.CreateDevResources(deviceResources);
@@ -340,8 +345,8 @@ void Scene::Update(WPARAM wparam)
 
 	//send current frame to model[1] aka box
 	gameObjects[0]->SetCurFrame(curFrame);
-	//gameObjects[1]->SetCurFrame(curFrame);
-	gameObjects[1]->SetCurFrame(0); //TODO: This is just a temp fix. The cur frame was going to 1, and that breaks it. So temp fix is me setting it to zero every frame
+	gameObjects[1]->SetCurFrame(curFrame);
+	//gameObjects[1]->SetCurFrame(0); //TODO: This is just a temp fix. The cur frame was going to 1, and that breaks it. So temp fix is me setting it to zero every frame
 
 	//update inverse bind poses in game objects
 	for (int i = 0; i < gameObjects.size(); ++i)

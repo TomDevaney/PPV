@@ -67,6 +67,7 @@ private:
 	void CreateModels();
 	void LoadModelsFromBinary();
 	void HandleInput();
+	void DoFBXExporting();
 
 public:
 	void Init(DeviceResources const * devResources);
