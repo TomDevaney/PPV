@@ -199,12 +199,12 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
 	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
 	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
-	////FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", nullptr);
 }
 
 void Scene::CreateModels()
