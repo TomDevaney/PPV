@@ -11,7 +11,7 @@ private:
 	std::string names;
 	
 public:
-	void Init(std::vector<FriendlyIOTransformNode> tempBones, std::string boneNames);
+	void Init(std::vector<FriendlyIOTransformNode> tempBones, std::string boneNames, std::vector<DirectX::XMFLOAT4X4> invBindPoses);
 
 	//getters
 	const std::vector<FriendlyIOTransformNode>& GetBones() { return bones; }

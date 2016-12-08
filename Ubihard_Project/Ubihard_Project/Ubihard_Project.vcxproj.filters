@@ -119,9 +119,7 @@
   <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />
     <Media Include="..\Resources\FloorTexture.dds" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\Assets\Textures\DDS\Mage_NM.dds" />
-    <Image Include="..\Assets\Textures\DDS\Mage.dds" />
+    <Media Include="..\Assets\Textures\DDS\Mage.dds" />
+    <Media Include="..\Assets\Textures\DDS\Mage_NM.dds" />
   </ItemGroup>
 </Project>

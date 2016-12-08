@@ -118,7 +118,7 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BINORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_UINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "BLENDINDICES", 0, DXGI_FORMAT_R32G32B32A32_SINT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		{ "BLENDWEIGHT", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
@@ -209,7 +209,7 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-#if 0
+#if 1
 	// load in box animations and rig
 	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
@@ -257,20 +257,20 @@ void Scene::CreateModels()
 	XMStoreFloat4x4(&identity, XMMatrixIdentity());
 	XMFLOAT4X4 identities[4] = { identity, identity, identity, identity };
 
-	testModel.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psBASIC].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/TestCube.dds", "", XMMatrixIdentity(), camera, projection, identities, L"Box");
+	testModel.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/TestCube.dds", "", XMMatrixIdentity(), camera, projection, identities, L"Box");
 	testModel.CreateDevResources(deviceResources);
 	models.push_back(testModel);
 
 	//add bear
 	Model monokuma;
-	monokuma.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psBASIC].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Teddy.dds", "", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
+	monokuma.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Teddy.dds", "", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
 	monokuma.CreateDevResources(deviceResources);
 
 	models.push_back(monokuma);
 
 	//add test box but with attack animation
 	Model testModelAttack;
-	testModelAttack.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psBASIC].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/TestCube.dds", "", XMMatrixTranspose(XMMatrixTranslation(3, 0, 0)), camera, projection, identities, L"Box");
+	testModelAttack.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/TestCube.dds", "", XMMatrixTranspose(XMMatrixTranslation(3, 0, 0)), camera, projection, identities, L"Box");
 	testModelAttack.CreateDevResources(deviceResources);
 	models.push_back(testModelAttack);
 
@@ -414,7 +414,7 @@ void Scene::Update(WPARAM wparam)
 	//update spheres to new bone positions
 	vector<XMFLOAT4X4> bonesWorlds = renderNodes[0]->GetBonesWorlds();
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < bonesWorlds.size(); ++i)
 	{
 		models[i + 4].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
 	}
