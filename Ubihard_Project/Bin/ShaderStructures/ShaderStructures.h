@@ -46,11 +46,11 @@ struct VS_BasicInput
 	bool operator==(const VS_BasicInput& rhs) const
 	{
 
-		bool r1 = (position.x == rhs.position.x && position.y == rhs.position.y && position.z == rhs.position.z);
-		bool r2 = (normal.x == rhs.normal.x && normal.y == rhs.normal.y && normal.z == rhs.normal.z);
-		bool r3 = (uv.x == rhs.uv.x && uv.y == rhs.uv.y);
+		if (!(uv.x == rhs.uv.x && uv.y == rhs.uv.y)) { return false; }
+		if (!(position.x == rhs.position.x && position.y == rhs.position.y && position.z == rhs.position.z)) { return false; }
+		if (!(normal.x == rhs.normal.x && normal.y == rhs.normal.y && normal.z == rhs.normal.z)) { return false; }
 
-		return r1 && r2 && r3;
+		return true;
 	}
 };
 
@@ -110,14 +110,14 @@ struct Vertex
 
 	bool operator==(const Vertex& rhs) const
 	{
+		if (!(mUV.x == rhs.mUV.x && mUV.y == rhs.mUV.y)) { return false; }
+		if (!(mPosition.x == rhs.mPosition.x && mPosition.y == rhs.mPosition.y && mPosition.z == rhs.mPosition.z)) { return false; }
+		if (!(mNormal.x == rhs.mNormal.x && mNormal.y == rhs.mNormal.y && mNormal.z == rhs.mNormal.z)) { return false; }
+		if (!(mBlendingIndices.x == rhs.mBlendingIndices.x && mBlendingIndices.y == rhs.mBlendingIndices.y && mBlendingIndices.z == rhs.mBlendingIndices.z)) { return false; }
+		if (!(mBlendingWeight.x == rhs.mBlendingWeight.x && mBlendingWeight.y == rhs.mBlendingWeight.y && mBlendingWeight.z == rhs.mBlendingWeight.z)) { return false; }
+		if (!(mBinormal.x == rhs.mBinormal.x && mBinormal.y == rhs.mBinormal.y && mBinormal.z == rhs.mBinormal.z)) { return false; }
+		if (!(mTangent.x == rhs.mTangent.x && mTangent.y == rhs.mTangent.y && mTangent.z == rhs.mTangent.z)) { return false; }
 
-		bool r1 = (mPosition.x == rhs.mPosition.x && mPosition.y == rhs.mPosition.y && mPosition.z == rhs.mPosition.z);
-		bool r2 = (mNormal.x == rhs.mNormal.x && mNormal.y == rhs.mNormal.y && mNormal.z == rhs.mNormal.z);
-		bool r3 = (mUV.x == rhs.mUV.x && mUV.y == rhs.mUV.y);
-		bool r4 = (mBlendingIndices.x == rhs.mBlendingIndices.x && mBlendingIndices.y == rhs.mBlendingIndices.y && mBlendingIndices.z == rhs.mBlendingIndices.z);
-		bool r5 = (mBlendingWeight.x == rhs.mBlendingWeight.x && mBlendingWeight.y == rhs.mBlendingWeight.y && mBlendingWeight.z == rhs.mBlendingWeight.z);
-		bool r6 = (mBinormal.x == rhs.mBinormal.x && mBinormal.y == rhs.mBinormal.y && mBinormal.z == rhs.mBinormal.z);
-		bool r7 = (mTangent.x == rhs.mTangent.x && mTangent.y == rhs.mTangent.y && mTangent.z == rhs.mTangent.z);
-		return (r1 && r2 && r3 && r4 && r5 && r6 && r7);
+		return (true);
 	}
 };
