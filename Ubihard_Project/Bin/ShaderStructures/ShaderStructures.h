@@ -103,8 +103,10 @@ struct Vertex
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mNormal;
 	XMFLOAT2 mUV;
-	XMINT4 blendingIndices;
-	XMFLOAT4 blendingWeight;
+	XMFLOAT3 mBinormal;
+	XMFLOAT3 mTangent;
+	XMINT4 mBlendingIndices;
+	XMFLOAT4 mBlendingWeight;
 
 	bool operator==(const Vertex& rhs) const
 	{
@@ -112,9 +114,10 @@ struct Vertex
 		bool r1 = (mPosition.x == rhs.mPosition.x && mPosition.y == rhs.mPosition.y && mPosition.z == rhs.mPosition.z);
 		bool r2 = (mNormal.x == rhs.mNormal.x && mNormal.y == rhs.mNormal.y && mNormal.z == rhs.mNormal.z);
 		bool r3 = (mUV.x == rhs.mUV.x && mUV.y == rhs.mUV.y);
-		bool r4 = (blendingIndices.x == rhs.blendingIndices.x && blendingIndices.y == rhs.blendingIndices.y && blendingIndices.z == rhs.blendingIndices.z);
-		bool r5 = (blendingWeight.x == rhs.blendingWeight.x && blendingWeight.y == rhs.blendingWeight.y && blendingWeight.z == rhs.blendingWeight.z);
-
-		return r1 && r2 && r3 && r4 && r5;
+		bool r4 = (mBlendingIndices.x == rhs.mBlendingIndices.x && mBlendingIndices.y == rhs.mBlendingIndices.y && mBlendingIndices.z == rhs.mBlendingIndices.z);
+		bool r5 = (mBlendingWeight.x == rhs.mBlendingWeight.x && mBlendingWeight.y == rhs.mBlendingWeight.y && mBlendingWeight.z == rhs.mBlendingWeight.z);
+		bool r6 = (mBinormal.x == rhs.mBinormal.x && mBinormal.y == rhs.mBinormal.y && mBinormal.z == rhs.mBinormal.z);
+		bool r7 = (mTangent.x == rhs.mTangent.x && mTangent.y == rhs.mTangent.y && mTangent.z == rhs.mTangent.z);
+		return (r1 && r2 && r3 && r4 && r5 && r6 && r7);
 	}
 };

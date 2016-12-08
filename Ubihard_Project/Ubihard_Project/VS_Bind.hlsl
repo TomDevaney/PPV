@@ -20,6 +20,8 @@ struct VertexShaderInput
 	float3 pos : POSITION;
 	float3 normal : NORMAL;
 	float3 uv : TEXCOORD;
+	float3 binormal : BINORMAL;
+	float3 tangent : TANGENT;
 	int4 blendingIndex : BLENDINDICES;
 	float4 blendingWeight : BLENDWEIGHT;
 };
@@ -30,6 +32,8 @@ struct PS_BasicInput
 	float4 pos : SV_POSITION;
 	float3 normal : NORMAL;
 	float3 uv : TEXCOORD;
+	float3 binormal : BINORMAL;
+	float3 tangent : TANGENT;
 	float4 worldPosition : POSITION0;
 };
 
@@ -56,7 +60,15 @@ PS_BasicInput main(VertexShaderInput input)
 	output.uv = input.uv;
 
 	//pass normal
-	output.normal = input.normal;
+	output.normal = mul(input.normal, model);
+
+	// Calculate the tangent vector against the world matrix only and then normalize the final value.
+	output.tangent = mul(input.tangent, model);
+	output.tangent = normalize(output.tangent);
+
+	// Calculate the binormal vector against the world matrix only and then normalize the final value.
+	output.binormal = mul(input.binormal, model);
+	output.binormal = normalize(output.binormal);
 
 	return output;
 }

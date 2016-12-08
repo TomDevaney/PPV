@@ -171,6 +171,125 @@ namespace FBXLoader
 		}
 	}
 
+	XMFLOAT3 ReadBinormal(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter)
+	{
+		XMFLOAT3 outBinormal;
+
+		if (inMesh->GetElementBinormalCount() < 1) { return outBinormal; }
+
+		FbxGeometryElementBinormal* vertexBinormal = inMesh->GetElementBinormal(0);
+		switch (vertexBinormal->GetMappingMode())
+		{
+		case FbxGeometryElement::eByControlPoint:
+			switch (vertexBinormal->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+				break;
+			}
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertexBinormal->GetIndexArray().GetAt(inCtrlPointIndex);
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]);
+				break;
+			}
+
+			default:
+				break;
+			}
+
+		case FbxGeometryElement::eByPolygonVertex:
+			switch (vertexBinormal->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+				break;
+			}
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertexBinormal->GetIndexArray().GetAt(inVertexCounter);
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]);
+				break;
+			}
+
+			default:
+				break;
+			}
+		}
+		return outBinormal;
+	}
+
+	XMFLOAT3 ReadTangent(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter)
+	{
+		XMFLOAT3 outTangent;
+		if (inMesh->GetElementTangentCount() < 1) { return outTangent; }
+
+		FbxGeometryElementTangent* vertexTangent = inMesh->GetElementTangent(0);
+		switch (vertexTangent->GetMappingMode())
+		{
+		case FbxGeometryElement::eByControlPoint:
+			switch (vertexTangent->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
+				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
+				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+				break;
+			}
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertexTangent->GetIndexArray().GetAt(inCtrlPointIndex);
+				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
+				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
+				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
+				break;
+			}
+
+			default:
+				break;
+			}
+
+		case FbxGeometryElement::eByPolygonVertex:
+			switch (vertexTangent->GetReferenceMode())
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[0]);
+				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[1]);
+				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+				break;
+			}
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int index = vertexTangent->GetIndexArray().GetAt(inVertexCounter);
+				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
+				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
+				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
+				break;
+			}
+
+			default:
+				break;
+			}
+		}
+		return outTangent;
+	}
+
 	XMFLOAT2 ReadUV(FbxMesh* inMesh, int inCtrlPointIndex, int inTextureUVIndex, int inUVLayer)
 	{
 		XMFLOAT2 outUV;
@@ -217,6 +336,7 @@ namespace FBXLoader
 				break;
 			}
 		}
+		outUV.y = 1.0f - outUV.y;
 		return outUV;
 	}
 
@@ -307,10 +427,10 @@ namespace FBXLoader
 	XMMATRIX FBXToXMMatrix(const FbxAMatrix& inMatrix)
 	{
 		return XMMatrixSet(
-			(float)(inMatrix.Get(0, 0)), (float)(inMatrix.Get(0, 1)), (float)(inMatrix.Get(0, 2)), (float)(inMatrix.Get(0, 3)),
-			(float)(inMatrix.Get(1, 0)), (float)(inMatrix.Get(1, 1)), (float)(inMatrix.Get(1, 2)), (float)(inMatrix.Get(1, 3)),
-			(float)(inMatrix.Get(2, 0)), (float)(inMatrix.Get(2, 1)), (float)(inMatrix.Get(2, 2)), (float)(inMatrix.Get(2, 3)),
-			(float)(inMatrix.Get(3, 0)), (float)(inMatrix.Get(3, 1)), (float)(inMatrix.Get(3, 2)), (float)(inMatrix.Get(3, 3)));
+			(float)(inMatrix.Get(0, 0)), (float)(inMatrix.Get(0, 1)), -(float)(inMatrix.Get(0, 2)), (float)(inMatrix.Get(0, 3)),
+			(float)(inMatrix.Get(1, 0)), (float)(inMatrix.Get(1, 1)), -(float)(inMatrix.Get(1, 2)), (float)(inMatrix.Get(1, 3)),
+			-(float)(inMatrix.Get(2, 0)), -(float)(inMatrix.Get(2, 1)), (float)(inMatrix.Get(2, 2)), -(float)(inMatrix.Get(2, 3)),
+			(float)(inMatrix.Get(3, 0)), (float)(inMatrix.Get(3, 1)), -(float)(inMatrix.Get(3, 2)), (float)(inMatrix.Get(3, 3)));
 	}
 
 	void ProcessJointsAndAnimations(FbxNode* inNode)
@@ -409,35 +529,35 @@ namespace FBXLoader
 
 	void StoreBlendingInfo(Vertex& temp, const std::vector<VertexBlendingInfo>& vertInfos)
 	{
-		temp.blendingIndices = XMINT4(0, 0, 0, 0);
-		temp.blendingWeight = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
+		temp.mBlendingIndices = XMINT4(0, 0, 0, 0);
+		temp.mBlendingWeight = XMFLOAT4(0.0f, 0.0f, 0.0f, 0.0f);
 
 		switch (vertInfos.size())
 		{
 		default:
-			temp.blendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
+			temp.mBlendingWeight = XMFLOAT4(0.25f, 0.25f, 0.25f, 0.25f);
 			break;
 		case 1:
-			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
+			temp.mBlendingIndices.x = vertInfos[0].mBlendingIndex;
+			temp.mBlendingWeight.x = (float)vertInfos[0].mBlendingWeight;
 			break;
 		case 2:
-			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingIndices.y = vertInfos[1].mBlendingIndex;
-			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
-			temp.blendingWeight.y = (float)vertInfos[1].mBlendingWeight;
+			temp.mBlendingIndices.x = vertInfos[0].mBlendingIndex;
+			temp.mBlendingIndices.y = vertInfos[1].mBlendingIndex;
+			temp.mBlendingWeight.x = (float)vertInfos[0].mBlendingWeight;
+			temp.mBlendingWeight.y = (float)vertInfos[1].mBlendingWeight;
 			break;
 		case 3:
-			temp.blendingIndices.x = vertInfos[0].mBlendingIndex;
-			temp.blendingIndices.y = vertInfos[1].mBlendingIndex;
-			temp.blendingIndices.z = vertInfos[2].mBlendingIndex;
-			temp.blendingWeight.x = (float)vertInfos[0].mBlendingWeight;
-			temp.blendingWeight.y = (float)vertInfos[1].mBlendingWeight;
-			temp.blendingWeight.z = (float)vertInfos[2].mBlendingWeight;
+			temp.mBlendingIndices.x = vertInfos[0].mBlendingIndex;
+			temp.mBlendingIndices.y = vertInfos[1].mBlendingIndex;
+			temp.mBlendingIndices.z = vertInfos[2].mBlendingIndex;
+			temp.mBlendingWeight.x = (float)vertInfos[0].mBlendingWeight;
+			temp.mBlendingWeight.y = (float)vertInfos[1].mBlendingWeight;
+			temp.mBlendingWeight.z = (float)vertInfos[2].mBlendingWeight;
 			break;
 		case 4:
-			temp.blendingIndices = XMINT4(vertInfos[0].mBlendingIndex, vertInfos[1].mBlendingIndex, vertInfos[2].mBlendingIndex, vertInfos[3].mBlendingIndex);
-			temp.blendingWeight = XMFLOAT4((float)vertInfos[0].mBlendingWeight, (float)vertInfos[1].mBlendingWeight, (float)vertInfos[2].mBlendingWeight, (float)vertInfos[3].mBlendingWeight);
+			temp.mBlendingIndices = XMINT4(vertInfos[0].mBlendingIndex, vertInfos[1].mBlendingIndex, vertInfos[2].mBlendingIndex, vertInfos[3].mBlendingIndex);
+			temp.mBlendingWeight = XMFLOAT4((float)vertInfos[0].mBlendingWeight, (float)vertInfos[1].mBlendingWeight, (float)vertInfos[2].mBlendingWeight, (float)vertInfos[3].mBlendingWeight);
 			break;
 		}
 	}
@@ -461,6 +581,8 @@ namespace FBXLoader
 				temp.mPosition = currCtrlPoint->mPosition;
 				temp.mNormal = ReadNormal(currMesh, ctrlPointIndex, vertexCounter);
 				temp.mUV = ReadUV(currMesh, ctrlPointIndex, currMesh->GetTextureUVIndex(i, j), 0);
+				temp.mBinormal = ReadBinormal(currMesh, ctrlPointIndex, vertexCounter);
+				temp.mTangent = ReadTangent(currMesh, ctrlPointIndex, vertexCounter);
 
 				// Copy the blending info from each control point
 				std::vector<VertexBlendingInfo> vertInfos;
@@ -508,120 +630,6 @@ namespace FBXLoader
 
 
 
-	}
-
-	void ReadBinormal(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outBinormal)
-	{
-		if (inMesh->GetElementBinormalCount() < 1) { return; }
-
-		FbxGeometryElementBinormal* vertexBinormal = inMesh->GetElementBinormal(0);
-		switch (vertexBinormal->GetMappingMode())
-		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertexBinormal->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
-				break;
-			}
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexBinormal->GetIndexArray().GetAt(inCtrlPointIndex);
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
-
-			default:
-				break;
-			}
-
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertexBinormal->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
-				break;
-			}
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexBinormal->GetIndexArray().GetAt(inVertexCounter);
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
-
-			default:
-				break;
-			}
-		}
-	}
-
-	void ReadTangent(FbxMesh* inMesh, int inCtrlPointIndex, int inVertexCounter, XMFLOAT3& outTangent)
-	{
-		if (inMesh->GetElementTangentCount() < 1) { return; }
-
-		FbxGeometryElementTangent* vertexTangent = inMesh->GetElementTangent(0);
-		switch (vertexTangent->GetMappingMode())
-		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertexTangent->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
-				break;
-			}
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexTangent->GetIndexArray().GetAt(inCtrlPointIndex);
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
-
-			default:
-				break;
-			}
-
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertexTangent->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[2]);
-				break;
-			}
-
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexTangent->GetIndexArray().GetAt(inVertexCounter);
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
-
-			default:
-				break;
-			}
-		}
 	}
 
 	void CleanupFBX()
