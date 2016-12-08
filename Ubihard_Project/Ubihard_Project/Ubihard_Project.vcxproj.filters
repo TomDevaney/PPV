@@ -112,9 +112,16 @@
     <FxCompile Include="CS_Basic.hlsl">
       <Filter>Content\Shaders\Computer</Filter>
     </FxCompile>
+    <FxCompile Include="PS_NormalMapped.hlsl">
+      <Filter>Content\Shaders\Pixel</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />
     <Media Include="..\Resources\FloorTexture.dds" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Assets\Textures\DDS\Mage_NM.dds" />
+    <Image Include="..\Assets\Textures\DDS\Mage.dds" />
   </ItemGroup>
 </Project>

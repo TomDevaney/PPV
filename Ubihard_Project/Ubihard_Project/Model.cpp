@@ -3,13 +3,14 @@
 using namespace DirectX;
 
 //for bind vertices
-void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name)
+void Model::Init(VertexShaderTypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, string nPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name)
 {
 	vertexType = shaderType;
 	vertexShader = vShader;
 	pixelShader = pShader;
 	inputLayout = iLayout;
 	texturePath = tPath;
+	normalPath = nPath;
 	SetModel(model);
 	mvpData.view = view;
 	mvpData.projection = projection;
@@ -18,7 +19,7 @@ void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11Pixe
 }
 
 //for basic vertices
-void Model::Init(Shadertypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name)
+void Model::Init(VertexShaderTypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name)
 {
 	vertexType = shaderType;
 	vertexShader = vShader;
@@ -126,14 +127,14 @@ void Model::CreateDevResources(DeviceResources const * deviceResources)
 	vertexBufferData.SysMemPitch = 0;
 	vertexBufferData.SysMemSlicePitch = 0;
 
-	if (vertexType == Shadertypes::BASIC) //vertices are a vector of Vertex though, not VS_BasicInput, but because it's a pointer to memory, we're ok as long as the stride is good
+	if (vertexType == VertexShaderTypes::vsBASIC) //vertices are a vector of Vertex though, not VS_BasicInput, but because it's a pointer to memory, we're ok as long as the stride is good
 	{
 		vertexBufferData.pSysMem = mBasicVertices.data();
 
 		CD3D11_BUFFER_DESC vertexBufferDesc(sizeof(VS_BasicInput) * (unsigned int)mBasicVertices.size(), D3D11_BIND_VERTEX_BUFFER);
 		device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
 	}
-	else if (vertexType == Shadertypes::BIND)
+	else if (vertexType == VertexShaderTypes::vsBIND)
 	{
 		vertexBufferData.pSysMem = mVertices.data();
 
@@ -159,7 +160,7 @@ void Model::CreateDevResources(DeviceResources const * deviceResources)
 	HRESULT hrtemp = device->CreateBuffer(&mvpBufferDesc, NULL, mvpConstantBuffer.GetAddressOf());
 
 	//bone offsets
-	if (vertexType == Shadertypes::BIND)
+	if (vertexType == VertexShaderTypes::vsBIND)
 	{
 		CD3D11_BUFFER_DESC boneOffsetDesc(sizeof(BoneOffsetConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
 		device->CreateBuffer(&boneOffsetDesc, NULL, boneOffsetConstantBuffer.GetAddressOf());
@@ -168,6 +169,13 @@ void Model::CreateDevResources(DeviceResources const * deviceResources)
 	//create shader resource view with texture path
 	wstring wideTexturePath = wstring(texturePath.begin(), texturePath.end());
 	HRESULT baseTextResult = CreateDDSTextureFromFile(device, wideTexturePath.c_str(), nullptr, textureSRV.GetAddressOf());
+
+	if (normalPath.size())
+	{
+		wstring wideNormalPath = wstring(normalPath.begin(), normalPath.end());
+		HRESULT baseNormalResult = CreateDDSTextureFromFile(device, wideNormalPath.c_str(), nullptr, normalSRV.GetAddressOf());
+	}
+
 }
 
 void Model::Render()
@@ -187,7 +195,7 @@ void Model::Render()
 	//update constant buffers
 	devContext->UpdateSubresource(mvpConstantBuffer.Get(), NULL, NULL, &mvpData, NULL, NULL);
 
-	if (vertexType == Shadertypes::BIND)
+	if (vertexType == VertexShaderTypes::vsBIND)
 	{
 		devContext->UpdateSubresource(boneOffsetConstantBuffer.Get(), NULL, NULL, &boneOffsetData, NULL, NULL);
 	}
@@ -195,13 +203,13 @@ void Model::Render()
 	//set constant buffers
 	devContext->VSSetConstantBuffers(0, 1, mvpConstantBuffer.GetAddressOf());
 
-	if (vertexType == Shadertypes::BIND)
+	if (vertexType == VertexShaderTypes::vsBIND)
 	{
 		devContext->VSSetConstantBuffers(1, 1, boneOffsetConstantBuffer.GetAddressOf());
 	}
 
 	//set vertex buffer
-	if (vertexType == Shadertypes::BIND)
+	if (vertexType == VertexShaderTypes::vsBIND)
 	{
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
@@ -229,7 +237,7 @@ void Model::Render()
 	}
 	else
 	{
-		if (vertexType == Shadertypes::BIND)
+		if (vertexType == VertexShaderTypes::vsBIND)
 		{
 			devContext->Draw((unsigned int)mVertices.size(), 0);
 		}
@@ -295,7 +303,7 @@ void Model::DepthPrePass()
 	}
 	else
 	{
-		if (vertexType == Shadertypes::BIND)
+		if (vertexType == VertexShaderTypes::vsBIND)
 		{
 			devContext->Draw((unsigned int)mVertices.size(), 0);
 		}
