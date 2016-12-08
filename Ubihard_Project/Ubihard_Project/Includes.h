@@ -22,11 +22,16 @@
 #define CLIENT_HEIGHT 800
 
 //enums
-enum Shadertypes
+enum VertexShaderTypes
 {
-	BASIC = 0,
-	BIND,
-	DEPTHPREPASS,
+	vsBASIC = 0,
+	vsBIND,
+	vsDEPTHPREPASS,
+};
+enum PixelShaderTypes
+{
+	psBASIC = 0,
+	psNORMALMAPPED,
 };
 
 using namespace std;
