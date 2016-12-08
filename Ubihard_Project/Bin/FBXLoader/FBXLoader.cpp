@@ -472,17 +472,16 @@ namespace FBXLoader
 					FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
 					std::string currJointName = currCluster->GetLink()->GetName();
 					unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
-					FbxAMatrix transformMatrix;
-					FbxAMatrix transformLinkMatrix;
-					FbxAMatrix globalBindposeInverseMatrix;
+					//FbxAMatrix transformMatrix;
+					//FbxAMatrix transformLinkMatrix;
+					//FbxAMatrix globalBindposeInverseMatrix;
 
-					currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
-					currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
-					globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+					//currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
+					//currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
+					//globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
 
 					// Update the information in mSkeleton 
-					tomsSkeleton.transforms[currJointIndex]->world = FBXToXMMatrix(globalBindposeInverseMatrix);
-					//tomsSkeleton.transforms[currJointIndex]->world = XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix));
+					//tomsSkeleton.transforms[currJointIndex]->world = FBXToXMMatrix(globalBindposeInverseMatrix);
 
 					//because I added a inverse bind pose, I don't need this
 					FbxTime currTime;
@@ -490,14 +489,12 @@ namespace FBXLoader
 					FbxAMatrix currentTransformOffset = inNode->EvaluateGlobalTransform(currTime) * geometryTransform;
 					XMFLOAT4X4 world;
 					XMStoreFloat4x4(&world, FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime)));
-					//XMStoreFloat4x4(&world, XMMatrixTranspose(FBXToXMMatrix(currentTransformOffset.Inverse() * currCluster->GetLink()->EvaluateGlobalTransform(currTime))));
 					tempBone.SetWorld(world);
 
 					//set inverse bind pose of bone
-					XMFLOAT4X4 tempBindPoseInverse;
-					XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
-					//XMStoreFloat4x4(&tempBindPoseInverse, DirectX::XMMatrixTranspose(FBXToXMMatrix(globalBindposeInverseMatrix)));
-					tempBone.SetInverseBindPose(tempBindPoseInverse);
+					//XMFLOAT4X4 tempBindPoseInverse;
+					//XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+					//tempBone.SetInverseBindPose(tempBindPoseInverse);
 
 					//set name of bone
 					tempBone.SetName(currJointName);
@@ -511,15 +508,30 @@ namespace FBXLoader
 				tomKeyFrames.push_back(tomKeyFrame);
 			}
 
-			// Associate each joint with the control points it affects
+			// Associate each joint with the control points it affects and set the skeleton's inverse bind poses
 			unsigned int numOfClusters = currSkin->GetClusterCount();
+			tomsSkeleton.inverseBindPoses.resize(numOfClusters);
 
 			for (unsigned int clusterIndex = 0; clusterIndex < numOfClusters; ++clusterIndex)
 			{
 				FbxCluster* currCluster = currSkin->GetCluster(clusterIndex);
 				std::string currJointName = currCluster->GetLink()->GetName();
 				unsigned int currJointIndex = FindJointIndexUsingName(currJointName);
+				FbxAMatrix transformMatrix;
+				FbxAMatrix transformLinkMatrix;
+				FbxAMatrix globalBindposeInverseMatrix;
 
+				//get global bind pose inverse
+				currCluster->GetTransformMatrix(transformMatrix);	// The transformation of the mesh at binding time
+				currCluster->GetTransformLinkMatrix(transformLinkMatrix);	// The transformation of the cluster(joint) at binding time from joint space to world space
+				globalBindposeInverseMatrix = transformLinkMatrix.Inverse() * transformMatrix * geometryTransform;
+
+				// set the skeleton's inverse bind pose
+				XMFLOAT4X4 tempBindPoseInverse;
+				XMStoreFloat4x4(&tempBindPoseInverse, FBXToXMMatrix(globalBindposeInverseMatrix));
+				tomsSkeleton.inverseBindPoses[clusterIndex] = tempBindPoseInverse;
+
+				//set up blendweight and blend indices
 				unsigned int numOfIndices = currCluster->GetControlPointIndicesCount();
 				for (unsigned int i = 0; i < numOfIndices; ++i)
 				{
@@ -650,6 +662,8 @@ namespace FBXLoader
 		tomsSkeleton.names.clear();
 		tomsSkeleton.transforms.clear();
 		tomKeyFrames.clear();
+		transformNodeindex = 0;
+		friendlyNodes.clear();
 	}
 
 	void ExportBasicMesh(const char * name)
@@ -695,7 +709,6 @@ namespace FBXLoader
 			friendlyNode.parentIndex = tNode->parent->index;
 			friendlyNode.nameOffset = friendlyNodes[friendlyNode.parentIndex].nameOffset + (unsigned int)tNode->name.size();
 			DirectX::XMStoreFloat4x4(&friendlyNode.world, tNode->world);
-			//friendlyNode.world = tNode->world;
 
 			if (tNode->child)
 			{
@@ -772,6 +785,7 @@ namespace FBXLoader
 
 		bout.close();
 	}
+
 	void ExportSkeleton(const char * name)
 	{
 		std::ofstream bout;
@@ -803,6 +817,9 @@ namespace FBXLoader
 
 			//write out names
 			bout.write((const char*)tomsSkeleton.names.data(), namesSize);
+
+			//write out inverse bind poses
+			bout.write((const char*)tomsSkeleton.inverseBindPoses.data(), sizeof(DirectX::XMFLOAT4X4) * numBones);
 		}
 
 		bout.close();

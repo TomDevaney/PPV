@@ -142,11 +142,13 @@ struct TransformNode
 struct TomSkeleton
 {
 	std::vector<TransformNode*> transforms;
+	std::vector<DirectX::XMFLOAT4X4> inverseBindPoses;
 	std::string names = "";
 };
 
 struct FriendlyIOSkeleton
 {
 	std::vector<FriendlyIOTransformNode> transforms;
+	std::vector<DirectX::XMFLOAT4X4> inverseBindPoses;
 	std::string names;
 };

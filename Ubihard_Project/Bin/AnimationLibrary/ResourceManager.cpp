@@ -132,12 +132,16 @@ Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 		//resize based off of header
 		skeleton.transforms.resize(numOfBones);
 		skeleton.names.resize(sizeOfNames);
-
+		skeleton.inverseBindPoses.resize(sizeof(DirectX::XMFLOAT4X4) * numOfBones);
+	
 		//read in skeleton bones
 		bin.read((char*)skeleton.transforms.data(), sizeof(FriendlyIOTransformNode) * numOfBones);
 
 		//read in names
 		bin.read((char*)skeleton.names.data(), sizeOfNames);
+
+		//read in inverse bind poses
+		bin.read((char*)skeleton.inverseBindPoses.data(), sizeof(DirectX::XMFLOAT4X4) * numOfBones);
 
 		bin.close();
 	}
