@@ -46,9 +46,8 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	//initialize point and spot colors
 	pointColor = float3(0, 0, 0);
 	spotColor = float3(0, 0, 0);
-
 	//get texture color with uvs help
-	diffuseColor = (float3)baseTexture.Sample(filter, input.uv);
+	diffuseColor = baseTexture.Sample(filter, input.uv).xyz;
 
 	//create new normals based on normals
 	float3 bumpNormal = input.normal;
@@ -63,8 +62,8 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float lightRatio;
 	float3 black = { 0.2f, 0.2f, 0.2f };
 
-	lightRatio = saturate(dot((float3)normalize(dirLightNorm), normalize(bumpNormal)));
-	dirColor = (lightRatio + (float3)ambientLight) * (float3)dirLightColor * black;
+	lightRatio = saturate(dot(normalize(dirLightNorm).xyz, normalize(bumpNormal)));
+	dirColor = (lightRatio + ambientLight.xyz) * dirLightColor.xyz * black;
 
 	float pointRatio;
 	float4 pointDir;
@@ -72,9 +71,9 @@ float4 main(PS_BasicInput input) : SV_TARGET
 
 	pointDir = pointLightPosition[0] - input.worldPosition;
 	pointAttenuation = 1 - saturate(length(pointDir) / lightRadius[0].x);
-	pointRatio = saturate(dot((float3)normalize(pointDir), normalize(bumpNormal)));
+	pointRatio = saturate(dot(normalize(pointDir).xyz, normalize(bumpNormal)));
 
-	pointColor += (float3)pointLightColor[0] * saturate(pointRatio * pointAttenuation) * black;
+	pointColor += pointLightColor[0].xyz * saturate(pointRatio * pointAttenuation) * black;
 
 	//calculate final color
 	finalColor = float4(saturate((dirColor + pointColor + spotColor) * diffuseColor), 1.0f);

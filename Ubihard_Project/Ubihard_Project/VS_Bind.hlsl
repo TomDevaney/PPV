@@ -42,13 +42,12 @@ PS_BasicInput main(VertexShaderInput input)
 {
 	PS_BasicInput output;
 	float4 pos = float4(input.pos, 1.0f);
-
 	//bind math
-	pos = mul(float4(input.pos, 1.0f), boneOffsets[input.blendingIndex.x] ) * input.blendingWeight.x;
+	pos = mul(float4(input.pos, 1.0f), boneOffsets[input.blendingIndex.x]) * input.blendingWeight.x;
 	pos += mul(float4(input.pos, 1.0f), boneOffsets[input.blendingIndex.y]) * input.blendingWeight.y;
 	pos += mul(float4(input.pos, 1.0f), boneOffsets[input.blendingIndex.z]) * input.blendingWeight.z;
 	pos += mul(float4(input.pos, 1.0f), boneOffsets[input.blendingIndex.w]) * input.blendingWeight.w;
-	
+
 	// Transform the vertex position into projected space.
 	pos = mul(pos, model);
 	output.worldPosition = pos;
@@ -60,14 +59,14 @@ PS_BasicInput main(VertexShaderInput input)
 	output.uv = input.uv;
 
 	//pass normal
-	output.normal = mul(input.normal, model);
+	output.normal = (float3)mul(float4(input.normal, 0), model);
 
 	// Calculate the tangent vector against the world matrix only and then normalize the final value.
-	output.tangent = mul(input.tangent, model);
+	output.tangent = (float3)mul(float4(input.tangent, 0), model);
 	output.tangent = normalize(output.tangent);
 
 	// Calculate the binormal vector against the world matrix only and then normalize the final value.
-	output.binormal = mul(input.binormal, model);
+	output.binormal = (float3)mul(float4(input.binormal, 0), model);
 	output.binormal = normalize(output.binormal);
 
 	return output;
