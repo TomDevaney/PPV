@@ -17,4 +17,5 @@ public:
 	const std::vector<FriendlyIOTransformNode>& GetBones() { return bones; }
 	unsigned int GetNumBones() { return (unsigned int)bones.size(); }
 	DirectX::XMFLOAT4X4 GetInverseBindPose(unsigned int index) { return inverseBindPoses[index]; }
+	std::string GetNames() { return names; }
 };

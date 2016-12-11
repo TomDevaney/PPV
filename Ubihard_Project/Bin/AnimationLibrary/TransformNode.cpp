@@ -2,7 +2,7 @@
 
 FriendlyIOTransformNode::FriendlyIOTransformNode()
 {
-	nameOffset = 0;
+	//nameOffset = 0;
 	world = DirectX::XMFLOAT4X4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	local = DirectX::XMFLOAT4X4(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 	parentIndex = -1;

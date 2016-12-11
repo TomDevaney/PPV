@@ -19,6 +19,7 @@ public:
 	DirectX::XMFLOAT4X4 GetLocal() { return local; }
 	DirectX::XMFLOAT4X4 GetWorld() { return world; }
 	DirectX::XMFLOAT4X4 GetBoneOffset() { return boneOffset; }
+	std::string GetName() { return name; }
 
 	//setters
 	//void SetInverseBindPose(DirectX::XMFLOAT4X4 matrix) { inverseBindPose = matrix; }

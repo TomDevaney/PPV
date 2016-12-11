@@ -209,19 +209,19 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-#if 1
+#if 0
 	// load in box animations and rig
 	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
-	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
+	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
 
-	//load in teddy animation and rig
+	////load in teddy animation and rig
 	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
 
-	//load in sphere
+	////load in sphere
 	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
 
-	//load in mage with rig and animation
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", "Mage_Bind");
+	////load in mage with rig and animation
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", "Mage_Bind");
 #endif
 }
 
@@ -383,21 +383,21 @@ void Scene::Update(WPARAM wparam)
 	//gameObjects[1]->SetCurFrame(0); //TODO: This is just a temp fix. The cur frame was going to 1, and that breaks it. So temp fix is me setting it to zero every frame
 
 	//update inverse bind poses in game objects
-	for (int i = 0; i < gameObjects.size(); ++i)
-	{
-		//gameObjects[i]->Update(0);
+	//for (int i = 0; i < gameObjects.size(); ++i)
+	//{
+	//	//gameObjects[i]->Update(0);
 
-		//if (i != 1) //to prevent bear from updating
-		{
-			//gameObjects[i]->SetCurFrame(curFrame);
-		}
-	}
+	//	//if (i != 1) //to prevent bear from updating
+	//	{
+	//		//gameObjects[i]->SetCurFrame(curFrame);
+	//	}
+	//}
 
 	gameObjects[0]->SetCurFrame(curFrame);
 	gameObjects[0]->Update(0); // box will move from key pres
 	gameObjects[1]->Update(0); // box will move from key pres
 	//gameObjects[1]->Update(dt); //bear will move based on time
-	gameObjects[2]->Update(dt / 1.5f); //box attack will move time based
+	gameObjects[2]->Update(dt / 2); //box attack will move time based
 	gameObjects[3]->Update(0);
 
 
