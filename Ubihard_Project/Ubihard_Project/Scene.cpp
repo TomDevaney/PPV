@@ -209,7 +209,7 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-#if 1
+#if 0
 	// load in box animations and rig
 	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
