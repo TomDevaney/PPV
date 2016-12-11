@@ -93,33 +93,9 @@ AnimType Interpolator::Update(float time)
 //private helper functions
 void Interpolator::Interpolate(KeyFrame* previous, KeyFrame* next, float ratio)
 {
-	//for (int i = 0; i < previous->GetBones().size(); ++i)
-	//{
-	//	XMFLOAT4X4 previousMatrix = previous->GetBone(i).GetWorld();
-	//	XMFLOAT4X4 nextMatrix = next->GetBone(i).GetWorld();
-	//	XMFLOAT4X4 curMatrix;
-
-	//	for (int row = 0; row < 4; ++row)
-	//	{
-	//		for (int col = 0; col < 4; ++col)
-	//		{
-	//			curMatrix.m[col][row] = (nextMatrix.m[col][row] - previousMatrix.m[col][row]) * ratio + previousMatrix.m[col][row];
-	//		}
-	//	}
-
-	//	Bone newBone;
-
-	//	newBone = previous->GetBone(i);
-	//	newBone.SetWorld(curMatrix);
-
-	//	betweenKeyFrame.InsertBone(newBone);
-	//}
-
 	for (int i = 0; i < previous->GetBones().size(); ++i)
 	{
 		XMFLOAT4X4 newWorld;
-
-		//XMStoreFloat4x4(&newWorld, ratio * (XMLoadFloat4x4(&next->GetBone(i).GetWorld()) - XMLoadFloat4x4(&previous->GetBone(i).GetWorld())) + XMLoadFloat4x4(&previous->GetBone(i).GetWorld()));
 		Bone newBone;
 
 		XMVECTOR quarternion = XMQuaternionSlerp(XMQuaternionRotationMatrix(XMLoadFloat4x4(&previous->GetBone(i).GetWorld())), XMQuaternionRotationMatrix(XMLoadFloat4x4(&next->GetBone(i).GetWorld())), ratio);
