@@ -38,6 +38,11 @@ struct BoneOffsetConstantBuffer
 	XMFLOAT4X4 boneOffsets[MAXBONES];
 };
 
+struct CameraPositionConstantBuffer
+{
+	XMFLOAT4 cameraposW;
+};
+
 struct VS_BasicInput
 {
 	XMFLOAT3 position;

@@ -176,6 +176,12 @@ void Model::CreateDevResources(DeviceResources const * deviceResources)
 		HRESULT baseNormalResult = CreateDDSTextureFromFile(device, wideNormalPath.c_str(), nullptr, normalSRV.GetAddressOf());
 	}
 
+	if (specPath.size())
+	{
+		wstring wideSpecPath = wstring(specPath.begin(), specPath.end());
+		HRESULT baseNormalResult = CreateDDSTextureFromFile(device, wideSpecPath.c_str(), nullptr, specSRV.GetAddressOf());
+	}
+
 }
 
 void Model::Render()
@@ -226,6 +232,8 @@ void Model::Render()
 
 	//set shader resource view
 	devContext->PSSetShaderResources(0, 1, textureSRV.GetAddressOf());
+	devContext->PSSetShaderResources(1, 1, normalSRV.GetAddressOf());
+	devContext->PSSetShaderResources(2, 1, specSRV.GetAddressOf());
 
 	//set index buffer
 	if (mIndices.data())

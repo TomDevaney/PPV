@@ -60,6 +60,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pointLightConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> spotLightConstantBuffer;
 
+	CameraPositionConstantBuffer cameraBufferData;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> cameraConstantBuffer;
+
 	//private helper functions
 	void CreateDevResources(DeviceResources const * devResources);
 	void CreateLights();

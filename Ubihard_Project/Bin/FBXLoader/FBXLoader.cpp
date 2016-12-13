@@ -190,18 +190,18 @@ namespace FBXLoader
 			{
 			case FbxGeometryElement::eDirect:
 			{
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
 				break;
 			}
 
 			case FbxGeometryElement::eIndexToDirect:
 			{
 				int index = vertexBinormal->GetIndexArray().GetAt(inCtrlPointIndex);
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]);
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
 				break;
 			}
 
@@ -214,18 +214,18 @@ namespace FBXLoader
 			{
 			case FbxGeometryElement::eDirect:
 			{
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
 				break;
 			}
 
 			case FbxGeometryElement::eIndexToDirect:
 			{
 				int index = vertexBinormal->GetIndexArray().GetAt(inVertexCounter);
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]);
+				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
 				break;
 			}
 
@@ -469,7 +469,7 @@ namespace FBXLoader
 			FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
 
 			unsigned int numOfClusters2 = currSkin->GetClusterCount();
-			for (int i = 0; i < numOfClusters2; ++i)
+			for (int i = 0; i < (int)numOfClusters2; ++i)
 			{
 				FbxCluster* currCluster2 = currSkin2->GetCluster(i);
 				std::string currJointName = currCluster2->GetLink()->GetName();
@@ -648,7 +648,6 @@ namespace FBXLoader
 				temp.mUV = ReadUV(currMesh, ctrlPointIndex, currMesh->GetTextureUVIndex(i, j), 0);
 				temp.mBinormal = ReadBinormal(currMesh, ctrlPointIndex, vertexCounter);
 				temp.mTangent = ReadTangent(currMesh, ctrlPointIndex, vertexCounter);
-
 				// Copy the blending info from each control point
 				std::vector<VertexBlendingInfo> vertInfos;
 				for (unsigned int i = 0; i < currCtrlPoint->mBlendingInfo.size(); ++i)
@@ -864,7 +863,7 @@ namespace FBXLoader
 
 			for (int i = 1; i < tomsSkeleton.transforms.size(); ++i)
 			{
-				nameOffset += tomsSkeleton.transforms[i - 1]->name.size() + 1; //plus 1 for null terminator
+				nameOffset += (unsigned int)tomsSkeleton.transforms[i - 1]->name.size() + 1; //plus 1 for null terminator
 				friendlyNodes[i].nameOffset = nameOffset;
 			}
 

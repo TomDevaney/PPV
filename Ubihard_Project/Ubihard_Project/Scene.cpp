@@ -152,16 +152,20 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	devContext->PSSetSamplers(0, 1, wrapSamplerState.GetAddressOf());
 
 	//create lighting buffers and set them
+
+	//create camera constat buffer
+	CD3D11_BUFFER_DESC cameraConstantBufferDesc(sizeof(CameraPositionConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
+	device->CreateBuffer(&cameraConstantBufferDesc, nullptr, &cameraConstantBuffer);
 }
 
 void Scene::CreateLights()
 {
 	//create only directional light
-	dirLight.Create({ 0.577f, 0.577f, -0.577f, 0 }, { 0.75f, 0.75f, 0.94f, 1.0f }, { 0.4f, 0.4f, 0.4f, 0.4f });
+	dirLight.Create({ 0.577f, 0.577f, -0.577f, 0 }, { 0.75f, 0.75f, 0.94f, 1.0f }, { 0.6f, 0.6f, 0.6f, 0.6f });
 
 	//create point lights
 	PointLight pointLight0;
-	pointLight0.Create({ 0, 1.0f, 2.0f, 0 }, { 1, 0, 0, 0 }, 5.0f);
+	pointLight0.Create({ 0, 5.0f, -2.0f, 0 }, { 1, 0, 0, 0 }, 8.0f);
 
 	PointLight pointLight1;
 	pointLight1.Create({ 0, 1.0f, 2.0f, 0 }, { 0, 1.0f, 0, 0 }, 7.0f);
@@ -293,8 +297,6 @@ void Scene::CreateModels()
 		sphereModel.CreateDevResources(deviceResources);
 		models.push_back(sphereModel);
 	}
-
-
 }
 
 void Scene::LoadModelsFromBinary()
@@ -354,7 +356,7 @@ void Scene::Update(WPARAM wparam)
 	if (pointLights.size())
 	{
 
-		pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
+		//TODO: pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
 		pointLights[1].DoRadiusEffect(7.0f, radiusChange[1]);
 
 		devContext->UpdateSubresource(pointLightConstantBuffer.Get(), NULL, NULL, pointLights.data(), NULL, NULL);
@@ -364,6 +366,12 @@ void Scene::Update(WPARAM wparam)
 
 	//update camera (private function)
 	UpdateCamera(dt, 5.0f, 0.75f, wparam);
+
+	//update camera constant buffer
+	cameraBufferData.cameraposW = XMFLOAT4(camera._41, camera._42, camera._43, 1);
+	devContext->UpdateSubresource(cameraConstantBuffer.Get(), NULL, NULL, &cameraBufferData, NULL, NULL);
+	devContext->PSSetConstantBuffers(2, 1, cameraConstantBuffer.GetAddressOf());
+
 
 	//update view on every object
 	XMFLOAT4X4 tempCamera;
@@ -518,6 +526,8 @@ void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpee
 		prevMouseX = mouseX;
 		prevMouseY = mouseY;
 	}
+
+
 
 
 }

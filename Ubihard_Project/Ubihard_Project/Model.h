@@ -14,6 +14,7 @@ private:
 	//string filePath;
 	string texturePath;
 	string normalPath;
+	string specPath;
 	vector<Vertex> mVertices;
 	vector<VS_BasicInput> mBasicVertices;
 	vector<unsigned int> mIndices;
@@ -27,6 +28,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11PixelShader > pixelShader;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> specSRV;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
 
 	//constant buffer data
@@ -46,6 +48,7 @@ public:
 	void Init(VertexShaderTypes shaderType, ID3D11VertexShader* vShader, ID3D11VertexShader* preDepthPassVShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, std::wstring name);
 	void SetBasicVerts(vector<VS_BasicInput> verts) { mBasicVertices = verts; }
 	void SetNormalMap(vector<VS_BasicInput> verts) { mBasicVertices = verts; }
+	void SetSpecMap(string sPath) { specPath = sPath; }
 	void SetIndices(vector<unsigned int> ind) { mIndices = ind; }
 	void LoadMesh(std::wstring name);
 	void LoadBasicMesh(std::wstring name);

@@ -24,6 +24,10 @@ cbuffer PointLightCB : register(b1)
 	float4 lightRadius[NUMOFPOINTLIGHTS]; //treat as float
 };
 
+cbuffer CameraPosition : register(b2)
+{
+	float4 cameraposW;
+}
 
 struct PointLight
 {
@@ -35,6 +39,7 @@ struct PointLight
 
 texture2D baseTexture : register(t0);
 texture2D normalMap : register(t1);
+texture2D specularMap : register(t2);
 
 SamplerState filter : register(s0);
 
@@ -43,40 +48,69 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float4 finalColor;
 	float3 diffuseColor, dirColor, pointColor, spotColor;
 
+	//Calculate the Tangent-Space matrix. This may need tweaking
+	float3x3 TBNMatrix = float3x3(input.binormal, input.tangent, input.normal);
+
+	float3 ViewVector = normalize(cameraposW.xyz - input.worldPosition.xyz);
+
 	//initialize point and spot colors
 	pointColor = float3(0, 0, 0);
 	spotColor = float3(0, 0, 0);
+
 	//get texture color with uvs help
 	diffuseColor = baseTexture.Sample(filter, input.uv).xyz;
+	float3 specMap = specularMap.Sample(filter, input.uv).xyz;
 
 	//create new normals based on normals
 	float3 bumpNormal = input.normal;
 
 	float4 bumpMap = normalMap.Sample(filter, input.uv);
 	bumpMap = (bumpMap * 2.0f) - 1.0f;
-	bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
-	bumpNormal = normalize(bumpNormal);
+
+
+
+	//bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+	bumpNormal = normalize(mul(bumpMap.xyz, TBNMatrix));
 
 
 	//calculate dircolor
 	float lightRatio;
 	float3 black = { 0.2f, 0.2f, 0.2f };
+	float3 dir_dir = normalize(dirLightNorm).xyz;
 
-	lightRatio = saturate(dot(normalize(dirLightNorm).xyz, normalize(bumpNormal)));
+
+	lightRatio = saturate(dot(dir_dir, normalize(bumpNormal)));
 	dirColor = (lightRatio + ambientLight.xyz) * dirLightColor.xyz * black;
+
+	//Specular directional
+	float3 dirRefelection = normalize(reflect(dir_dir, bumpNormal));
+	float dirRdotV = max(0, dot(dirRefelection, ViewVector));
+	float specDirScale = pow(dirRdotV, 32);
+	float3 dirSpecColor = saturate(/* specMap * */ specDirScale * dirColor);
 
 	float pointRatio;
 	float4 pointDir;
 	float pointAttenuation;
 
 	pointDir = pointLightPosition[0] - input.worldPosition;
-	pointAttenuation = 1 - saturate(length(pointDir) / lightRadius[0].x);
-	pointRatio = saturate(dot(normalize(pointDir).xyz, normalize(bumpNormal)));
+	//pointDir.xyz = mul(pointDir.xyz, TBNMatrix);
+	pointAttenuation = 1 - saturate(length(pointDir.xyz) / lightRadius[0].x);
+	pointRatio = saturate(dot(normalize(pointDir.xyz), normalize(bumpNormal)));
 
 	pointColor += pointLightColor[0].xyz * saturate(pointRatio * pointAttenuation) * black;
 
+	//Specular point
+	float3 pointRefelection = normalize(reflect(-pointDir.xyz, bumpNormal));
+	float pointRdotV = max(0, dot(pointRefelection, ViewVector));
+	float specPointScale = pow(pointRdotV, 32);
+	float3 pointSpecColor = saturate(/* specMap * */ specPointScale * pointColor);
+
+
 	//calculate final color
 	finalColor = float4(saturate((dirColor + pointColor + spotColor) * diffuseColor), 1.0f);
+	finalColor.xyz = saturate(finalColor.xyz + pointSpecColor + dirSpecColor);
 
+	//return float4(input.normal, 1);
 	return finalColor;
+
 }

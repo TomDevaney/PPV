@@ -121,5 +121,6 @@
     <Media Include="..\Resources\FloorTexture.dds" />
     <Media Include="..\Assets\Textures\DDS\Mage.dds" />
     <Media Include="..\Assets\Textures\DDS\Mage_NM.dds" />
+    <Media Include="..\Assets\Textures\DDS\Mage_Spec.dds" />
   </ItemGroup>
 </Project>
