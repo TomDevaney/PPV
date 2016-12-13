@@ -113,9 +113,12 @@ void Blender::SetCurAnimationIndex(unsigned int curIndex)
 void Blender::SetNextAnimationIndex(unsigned int nextIndex)
 {
 	//nextAnimationIndex = nextIndex;
-	
-	nextInterpolator->SetAnimation(animationSet->GetAnimation(nextIndex));
-	nextInterpolator->SetIsTimeBased(true);
+
+	if (!nextInterpolator->HasAnimation())
+	{
+		nextInterpolator->SetAnimation(animationSet->GetAnimation(nextIndex));
+		nextInterpolator->SetIsTimeBased(true);
+	}
 }
 
 //private helper functions

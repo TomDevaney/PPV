@@ -281,7 +281,7 @@ void Scene::CreateModels()
 	//add magician
 	Model mage;
 
-	mage.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Mage.dds", "../Assets/Textures/DDS/Mage_NM.dds", XMMatrixTranspose(XMMatrixTranslation(3, 0, 0)), camera, projection, identities, L"Mage");
+	mage.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Mage.dds", "../Assets/Textures/DDS/Mage_NM.dds", XMMatrixTranspose(XMMatrixTranslation(-3, 0, -3)), camera, projection, identities, L"Mage");
 	mage.CreateDevResources(deviceResources);
 
 	models.push_back(mage);
@@ -401,7 +401,7 @@ void Scene::Update(WPARAM wparam)
 
 	for (int i = 0; i < bonesWorlds.size(); ++i)
 	{
-		models[i + 4].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
+		models[i + models.size() - 4].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
 	}
 }
 
@@ -436,6 +436,7 @@ void Scene::HandleInput()
 		gameObjects[1]->SetBlendInfo(info);
 		//gameObjects[1]->CreateNextAnimation(true);
 	}
+
 }
 
 void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam)

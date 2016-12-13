@@ -30,7 +30,7 @@ public:
 
 	//Misc
 	AnimType Update(float time);
-	bool HasAnimation() { return animation; }
+	bool HasAnimation() { if (animation) return true; else return false; }
 
 	//setters
 	void SetAnimation(Animation* anim);

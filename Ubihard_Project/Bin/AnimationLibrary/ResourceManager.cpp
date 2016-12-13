@@ -120,7 +120,7 @@ Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 	FriendlyIOSkeleton skeleton;
 	unsigned int sizeOfNames;
 	unsigned int numOfBones;
-	unsigned int nameSize;
+	//unsigned int nameSize;
 
 	bin.open(path, std::ios::binary);
 

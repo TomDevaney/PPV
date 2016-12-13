@@ -471,7 +471,7 @@ namespace FBXLoader
 			FbxTime::EMode mode = mFBXScene->GetGlobalSettings().GetTimeMode();
 
 			unsigned int numOfClusters2 = currSkin->GetClusterCount();
-			for (int i = 0; i < numOfClusters2; ++i)
+			for (unsigned int i = 0; i < numOfClusters2; ++i)
 			{
 				FbxCluster* currCluster2 = currSkin2->GetCluster(i);
 				std::string currJointName = currCluster2->GetLink()->GetName();
@@ -869,7 +869,7 @@ namespace FBXLoader
 
 			for (int i = 1; i < tomsSkeleton.transforms.size(); ++i)
 			{
-				nameOffset += tomsSkeleton.transforms[i - 1]->name.size() + 1; //plus 1 for null terminator
+				nameOffset += (unsigned int)tomsSkeleton.transforms[i - 1]->name.size() + 1; //plus 1 for null terminator
 				friendlyNodes[i].nameOffset = nameOffset;
 			}
 
