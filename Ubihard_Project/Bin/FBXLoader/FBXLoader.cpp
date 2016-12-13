@@ -467,6 +467,8 @@ namespace FBXLoader
 			FbxTakeInfo* takeInfo = mFBXScene->GetTakeInfo(animStackName);
 			FbxTime start = takeInfo->mLocalTimeSpan.GetStart();
 			FbxTime end = takeInfo->mLocalTimeSpan.GetStop();
+	
+			FbxTime::EMode mode = mFBXScene->GetGlobalSettings().GetTimeMode();
 
 			unsigned int numOfClusters2 = currSkin->GetClusterCount();
 			for (int i = 0; i < numOfClusters2; ++i)
@@ -476,14 +478,18 @@ namespace FBXLoader
 				names[i] = currJointName;
 			}
 
+			FbxTime tweenTime;
+
+			tweenTime.SetFrame(1, mode);
+
 			//for each keyframe, loop through all of the bones and get their world matrix at that keyframe
-			for (FbxLongLong i = start.GetFrameCount(FbxTime::eFrames24); i <= end.GetFrameCount(FbxTime::eFrames24); ++i)
+			for (FbxLongLong i = start.GetFrameCount(mode); i <= end.GetFrameCount(mode); ++i)
 			{
 				//for each cluster
 				//unsigned int numOfClusters = currSkin->GetClusterCount();
 				KeyFrame tomKeyFrame;
 				FbxTime currTime;
-				currTime.SetFrame(i, FbxTime::eFrames24);
+				currTime.SetFrame(i, mode);
 				indexOffset = 0;
 
 				for (unsigned int clusterIndex = 0; clusterIndex < tomsSkeleton.transforms.size(); ++clusterIndex)
@@ -530,11 +536,12 @@ namespace FBXLoader
 					}
 
 					//push back tempBone into current keyframe
-					tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
 					tomKeyFrame.InsertBone(tempBone);
 				}
 
 				//push back current keyframe into vector of all keyframes
+				tomKeyFrame.SetTime((float)currTime.GetSecondDouble());
+				tomKeyFrame.SetTweenTime((float)tweenTime.GetSecondDouble());
 				tomKeyFrames.push_back(tomKeyFrame);
 			}
 
@@ -572,9 +579,7 @@ namespace FBXLoader
 					currBlendingIndexWeightPair.mBlendingWeight = currCluster->GetControlPointWeights()[i];
 					mControlPoints[currCluster->GetControlPointIndices()[i]]->mBlendingInfo.push_back(currBlendingIndexWeightPair);
 				}
-
 			}
-
 		}
 
 		//make up for missing bones
@@ -933,8 +938,11 @@ namespace FBXLoader
 			for (int i = 0; i < tomKeyFrames.size(); ++i)
 			{
 				float keyFrameTime = tomKeyFrames[i].GetTime();
+				float tweenTime = tomKeyFrames[i].GetTweenTime();
+
 				bout.write((const char*)tomKeyFrames[i].GetBones().data(), sizeof(Bone) * numOfBones);
 				bout.write((const char*)&keyFrameTime, sizeof(float));
+				bout.write((const char*)&tweenTime, sizeof(float));
 			}
 
 			//write out animtype

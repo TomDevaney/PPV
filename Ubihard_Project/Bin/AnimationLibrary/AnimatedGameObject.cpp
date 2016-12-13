@@ -1,11 +1,12 @@
 #include "AnimatedGameObject.h"
 
-void AnimatedGameObject::Init(std::string animSet, unsigned int curAnimationIndex, bool timeBased)
+void AnimatedGameObject::Init(std::string animSet, unsigned int curAnimationIndex, int nextAnimationIndex, bool timeBased)
 {
 	//set blender's anim state
 	blender.SetAnimationSet(animSet);
-	blender.SetCurAnimationIndex(curAnimationIndex);
-	blender.Init(timeBased); //this sets the blenders interpolator
+	//blender.SetCurAnimationIndex(curAnimationIndex);
+	//blender.SetNextAnimationIndex(nextAnimationIndex);
+	blender.Init(timeBased, curAnimationIndex, nextAnimationIndex); //this sets the blenders interpolator
 }
 
 void AnimatedGameObject::Update(float deltaTime)

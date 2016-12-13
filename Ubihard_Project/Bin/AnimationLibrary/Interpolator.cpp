@@ -10,6 +10,8 @@ Interpolator::Interpolator()
 {
 	//betweenKeyFrame = nullptr;
 	bones = new std::vector<Bone>();
+	betweenKeyFrame = new KeyFrame();
+
 	curTime = 0;
 	frameTime = 0;
 	timeBased = false;
@@ -22,73 +24,85 @@ Interpolator::~Interpolator()
 {
 	//delete animation;
 	delete bones;
+	delete betweenKeyFrame;
 }
 
 AnimType Interpolator::Update(float time)
 {
-	if (timeBased)
+	if (animation)
 	{
-		float tweenTime = 0;
-
-		betweenKeyFrame.ClearBones();
-
-		//update time
-		frameTime += time;
-		curTime += time;
-		tweenTime = animation->GetFrame(nextFrame)->GetTime() - animation->GetFrame(prevFrame)->GetTime();
-
-		if (tweenTime < 0.0f)
+		if (timeBased)
 		{
-			tweenTime = animation->GetFrame(1)->GetTime();
+			float tweenTime = 0;
+
+			//update frame time
+			frameTime += time;
+
+			//store tweentime
+			tweenTime = animation->GetFrame(nextFrame)->GetTweenTime();
+
+			//if frame time passed the tween time
+			while (frameTime > tweenTime)
+			{
+				prevFrame = nextFrame; //set previous frame equal to next frame
+				frameTime -= tweenTime; //subtract tween time from frame time
+				++nextFrame; //increment next frame
+
+				//make sure next frame is a valid keyframe
+				if (nextFrame == animation->GetNumKeyFrames())
+				{
+					nextFrame = 0;
+				}
+			}
+
+			//update between key frame
+			float delta = frameTime / tweenTime;
+
+			//blend together two frames to update key frame
+			betweenKeyFrame->ClearBones();
+			Interpolate(animation->GetFrame(prevFrame), animation->GetFrame(nextFrame), delta);
+
+			//get bones from current frame
+			for (unsigned int i = 0; i < betweenKeyFrame->GetBones().size(); ++i)
+			{
+				(*bones)[i] = betweenKeyFrame->GetBone(i);
+			}
+
 		}
-
-		//this pretty much moves both nextframe and prev frame up one
-		while (frameTime > tweenTime) // if previous frame passed next frame
+		else
 		{
-			prevFrame = nextFrame; //set previous frame equal to next frame
-			frameTime -= tweenTime; //subtract tween time from frame time
-			++nextFrame; //increment next frame
-		}
+			//get bones from current frame
+			KeyFrame* curKeyFrame;
 
-		//error check frame indices
-		if (nextFrame == animation->GetNumKeyFrames())
-		{
-			nextFrame = 0;
-		}
-		else if (prevFrame == animation->GetNumKeyFrames())
-		{
-			prevFrame = 0;
-		}
+			curKeyFrame = animation->GetFrame(curFrame);
 
-		//update between key frame
-		float delta = frameTime / tweenTime;
-
-		Interpolate(animation->GetFrame(prevFrame), animation->GetFrame(nextFrame), delta);
-
-		//get bones from current frame
-		bones->clear();
-		for (unsigned int i = 0; i < betweenKeyFrame.GetBones().size(); ++i)
-		{
-			bones->push_back(betweenKeyFrame.GetBone(i));
-		}
-
-	}
-	else
-	{
-		//get bones from current frame
-		KeyFrame* curKeyFrame;
-
-		curKeyFrame = animation->GetFrame(curFrame);
-
-		bones->clear();
-		for (unsigned int i = 0; i < curKeyFrame->GetBones().size(); ++i)
-		{
-			bones->push_back(curKeyFrame->GetBone(i));
+			///bones->clear();
+			for (unsigned int i = 0; i < curKeyFrame->GetBones().size(); ++i)
+			{
+				(*bones)[i] = curKeyFrame->GetBone(i);
+			}
 		}
 	}
 
 	return AnimType::RUN_ONCE;
 }
+
+void Interpolator::SetAnimation(Animation* anim)
+{
+	animation = anim;
+	
+	if (anim) 
+	{ 
+		bones->resize(anim->GetNumBones());
+		
+		//reinitialize variables
+		prevFrame = 0;
+		nextFrame = 1;
+		frameTime = 0;
+
+	}
+}
+
 
 //private helper functions
 void Interpolator::Interpolate(KeyFrame* previous, KeyFrame* next, float ratio)
@@ -114,7 +128,7 @@ void Interpolator::Interpolate(KeyFrame* previous, KeyFrame* next, float ratio)
 		XMStoreFloat4x4(&newWorld, resultMatrix);
 		newBone.SetWorld(newWorld);
 
-		betweenKeyFrame.InsertBone(newBone);
+		betweenKeyFrame->InsertBone(newBone);
 	}
 
 }

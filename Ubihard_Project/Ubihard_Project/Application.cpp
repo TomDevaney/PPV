@@ -66,7 +66,7 @@ void Application::HandleInput(int message)
 	//set button based off of wparam
 	if (message == WM_KEYDOWN)
 	{
-		buttons[wparam] = true;
+		buttons[wparam] = true; 
 	}
 	else if (message == WM_KEYUP)
 	{
