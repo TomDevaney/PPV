@@ -11,7 +11,7 @@ private:
 	Skeleton skeleton;
 	std::vector<std::vector<BlendInfo>> blendInfos;
 	unsigned int defaultAnimation;
-
+	//should make a hashstring for every animation set. When animation is added.
 public:
 	void AddAnimation(Animation animation) { animations.push_back(animation); }
 

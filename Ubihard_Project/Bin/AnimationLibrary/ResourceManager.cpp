@@ -120,7 +120,7 @@ Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 	FriendlyIOSkeleton skeleton;
 	unsigned int sizeOfNames;
 	unsigned int numOfBones;
-	unsigned int nameSize;
+	//unsigned int nameSize;
 
 	bin.open(path, std::ios::binary);
 
@@ -138,23 +138,7 @@ Skeleton ResourceManager::LoadInSkeleton(std::wstring path)
 		//read in skeleton bones
 		bin.read((char*)skeleton.transforms.data(), sizeof(FriendlyIOTransformNode) * numOfBones);
 
-		//read in names
-		//for (int i = 0; i < skeleton.transforms.size(); ++i)
-		//{
-		//	bin.read((char*)&nameSize, sizeof(unsigned int));
-
-		//	skeleton.transforms[i].name.resize(nameSize);
-
-		//	bin.read((char*)skeleton.transforms[i].name.data(), nameSize);
-		//
-		//	bin.read((char*)&skeleton.transforms[i].world, sizeof(DirectX::XMFLOAT4X4));
-		//	bin.read((char*)&skeleton.transforms[i].local, sizeof(DirectX::XMFLOAT4X4));
-		//	bin.read((char*)&skeleton.transforms[i].parentIndex, sizeof(int));
-		//	bin.read((char*)&skeleton.transforms[i].childIndex, sizeof(int));
-		//	bin.read((char*)&skeleton.transforms[i].siblingIndex, sizeof(int));
-		//	bin.read((char*)&skeleton.transforms[i].bDirty, sizeof(bool));
-		//}
-
+		//read in skeleton names
 		bin.read((char*)skeleton.names.data(), sizeOfNames);
 
 		//read in inverse bind poses
@@ -196,11 +180,14 @@ Animation ResourceManager::LoadInAnimation(std::wstring path)
 		for (unsigned int i = 0; i < numOfKeyFrames; ++i)
 		{
 			float keyFrameTime;
+			float tweenTime;
 
 			bin.read((char*)bones.data(), sizeof(Bone) * numOfBones);
 			bin.read((char*)&keyFrameTime, sizeof(float));
+			bin.read((char*)&tweenTime, sizeof(float));
 
 			keyFrames[i].SetTime(keyFrameTime);
+			keyFrames[i].SetTweenTime(tweenTime);
 			keyFrames[i].SetBones(bones);
 		}
 

@@ -219,11 +219,13 @@ void Scene::DoFBXExporting()
 	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
 
 	////load in teddy animation and rig
-	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
-	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Attack1.fbx", "Teddy", "Teddy_Attack1");
+	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Attack2.fbx", "Teddy", "Teddy_Attack2");
+	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Run.fbx", "Teddy", "Teddy_Run");
 
 	////load in sphere
-	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
+	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
 
 	////load in mage with rig and animation
 	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", "Mage_Bind");
@@ -283,7 +285,7 @@ void Scene::CreateModels()
 	//add magician
 	Model mage;
 
-	mage.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Mage.dds", "../Assets/Textures/DDS/Mage_NM.dds", XMMatrixTranspose(XMMatrixTranslation(3, 0, 0)), camera, projection, identities, L"Mage");
+	mage.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Mage.dds", "../Assets/Textures/DDS/Mage_NM.dds", XMMatrixTranspose(XMMatrixTranslation(-3, 0, -3)), camera, projection, identities, L"Mage");
 	mage.CreateDevResources(deviceResources);
 
 	models.push_back(mage);
@@ -309,7 +311,7 @@ void Scene::LoadModelsFromBinary()
 	AnimatedRenderNode* boxRenderNode = new AnimatedRenderNode();
 	AnimatedGameObject* boxGameObject = new AnimatedGameObject();
 
-	boxGameObject->Init("Box", 1, false);
+	boxGameObject->Init("Box", 1, -1, false);
 	boxGameObject->SetRenderNode(boxRenderNode);
 
 	renderNodes.push_back(boxRenderNode);
@@ -318,7 +320,7 @@ void Scene::LoadModelsFromBinary()
 	AnimatedRenderNode* teddyRenderNode = new AnimatedRenderNode();
 	AnimatedGameObject* teddyGameObject = new AnimatedGameObject();
 
-	teddyGameObject->Init("Teddy", 0, false);
+	teddyGameObject->Init("Teddy", 3, -1, true);
 	teddyGameObject->SetRenderNode(teddyRenderNode);
 
 	renderNodes.push_back(teddyRenderNode);
@@ -327,16 +329,16 @@ void Scene::LoadModelsFromBinary()
 	AnimatedRenderNode* boxAttackRenderNode = new AnimatedRenderNode();
 	AnimatedGameObject* boxAttackGameObject = new AnimatedGameObject();
 
-	boxAttackGameObject->Init("Box", 0, true);
+	boxAttackGameObject->Init("Box", 0, -1, true);
 	boxAttackGameObject->SetRenderNode(boxAttackRenderNode);
 
 	renderNodes.push_back(boxAttackRenderNode);
 	gameObjects.push_back(boxAttackGameObject);
-
+	
 	AnimatedRenderNode* mageRenderNode = new AnimatedRenderNode();
 	AnimatedGameObject* mageGameObject = new AnimatedGameObject();
 
-	mageGameObject->Init("Mage", 0, false);
+	mageGameObject->Init("Mage", 0, -1, false);
 	mageGameObject->SetRenderNode(mageRenderNode);
 
 	renderNodes.push_back(mageRenderNode);
@@ -383,32 +385,16 @@ void Scene::Update(WPARAM wparam)
 		models[i].SetView(tempCamera);
 	}
 
-	//TODO: we need to update bone offsets somehow by calculating: vertexOut = inverseBindMatrix  * currentWorldMatrix * bindVertexPosition
 
-	//send current frame to model[1] aka box
+	//this is for models where I want to click to move them
 	gameObjects[0]->SetCurFrame(curFrame);
-	gameObjects[1]->SetCurFrame(curFrame);
 	gameObjects[3]->SetCurFrame(curFrame);
-	//gameObjects[1]->SetCurFrame(0); //TODO: This is just a temp fix. The cur frame was going to 1, and that breaks it. So temp fix is me setting it to zero every frame
 
 	//update inverse bind poses in game objects
-	//for (int i = 0; i < gameObjects.size(); ++i)
-	//{
-	//	//gameObjects[i]->Update(0);
-
-	//	//if (i != 1) //to prevent bear from updating
-	//	{
-	//		//gameObjects[i]->SetCurFrame(curFrame);
-	//	}
-	//}
-
-	gameObjects[0]->SetCurFrame(curFrame);
 	gameObjects[0]->Update(0); // box will move from key pres
-	gameObjects[1]->Update(0); // box will move from key pres
-	//gameObjects[1]->Update(dt); //bear will move based on time
+	gameObjects[1]->Update(dt / 2); // bear will move based on time
 	gameObjects[2]->Update(dt / 2); //box attack will move time based
 	gameObjects[3]->Update(0);
-
 
 	//update model to take in bone offset data from render node
 	for (int i = 1; i < renderNodes.size() + 1; ++i) // plus one because plane is first
@@ -418,14 +404,12 @@ void Scene::Update(WPARAM wparam)
 		models[i].SetBoneOffsetData(renderNodes[i - 1]->GetBoneOffsets());
 	}
 
-	//models[6].SetBoneOffsetData
-
 	//update spheres to new bone positions
 	vector<XMFLOAT4X4> bonesWorlds = renderNodes[0]->GetBonesWorlds();
 
 	for (int i = 0; i < bonesWorlds.size(); ++i)
 	{
-		models[i + 4].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
+		models[i + models.size() - 4].SetModel(XMMatrixTranspose(XMMatrixTranslation(bonesWorlds[i]._41, bonesWorlds[i]._42, bonesWorlds[i]._43)));
 	}
 }
 
@@ -440,6 +424,27 @@ void Scene::HandleInput()
 	{
 		--curFrame;
 	}
+
+	if (buttons['K']) // go to idle
+	{
+		BlendInfo info;
+		info.totalBlendTime = 2.0f;
+
+		gameObjects[1]->SetBlendInfo(info);
+		gameObjects[1]->SetNextAnimation(2);
+		//gameObjects[1]->CreateNextAnimation(true);
+	}
+
+	if (buttons['J']) //go to run
+	{
+		BlendInfo info;
+		info.totalBlendTime = 2.0f;
+
+		gameObjects[1]->SetNextAnimation(3);
+		gameObjects[1]->SetBlendInfo(info);
+		//gameObjects[1]->CreateNextAnimation(true);
+	}
+
 }
 
 void Scene::UpdateCamera(float dt, const float moveSpeed, const float rotateSpeed, WPARAM wparam)
