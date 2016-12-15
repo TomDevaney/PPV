@@ -25,6 +25,7 @@ public:
 	IDXGISwapChain* GetSwapChain() const { return swapChain.Get(); }
 	ID3D11DepthStencilView* GetDepthStencilView() const { return depthStencilView.Get(); }
 	ID3D11RenderTargetView* GetRenderTargetView() const { return renderTargetView.Get(); }
+	ID3D11RenderTargetView* const * GetRenderTargetViewAddress() const { return renderTargetView.GetAddressOf(); }
 	D3D11_VIEWPORT GetViewport() const { return viewPort; }
 
 };

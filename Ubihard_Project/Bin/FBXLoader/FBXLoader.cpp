@@ -185,54 +185,63 @@ namespace FBXLoader
 		FbxGeometryElementBinormal* vertexBinormal = inMesh->GetElementBinormal(0);
 		switch (vertexBinormal->GetMappingMode())
 		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertexBinormal->GetReferenceMode())
+			case FbxGeometryElement::eByControlPoint:
 			{
-			case FbxGeometryElement::eDirect:
-			{
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
-				break;
-			}
+				switch (vertexBinormal->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					{
+						outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
+						outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
+						outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[3]);
+						break;
+					}
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexBinormal->GetIndexArray().GetAt(inCtrlPointIndex);
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
-				break;
-			}
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int index = vertexBinormal->GetIndexArray().GetAt(inCtrlPointIndex);
+						outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+						outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+						outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+						break;
+					}
 
-			default:
-				break;
+					default:
+						break;
+				}
 			}
+			break;
 
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertexBinormal->GetReferenceMode())
+			case FbxGeometryElement::eByPolygonVertex:
 			{
-			case FbxGeometryElement::eDirect:
-			{
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
-				break;
-			}
+				switch (vertexBinormal->GetReferenceMode())
+				{
+				case FbxGeometryElement::eDirect:
+				{
+					outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
+					outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
+					outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(inVertexCounter).mData[3]);
+					break;
+				}
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexBinormal->GetIndexArray().GetAt(inVertexCounter);
-				outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
-				outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
-				outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
-				break;
-			}
+				case FbxGeometryElement::eIndexToDirect:
+				{
+					int index = vertexBinormal->GetIndexArray().GetAt(inVertexCounter);
+					outBinormal.x = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[0]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+					outBinormal.y = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[1]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+					outBinormal.z = (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[2]) * (float)(vertexBinormal->GetDirectArray().GetAt(index).mData[3]);
+					break;
+				}
 
-			default:
-				break;
+				default:
+					break;
+				}
 			}
+			break;
 		}
+
+		outBinormal.z = -outBinormal.z;
+
 		return outBinormal;
 	}
 
@@ -244,54 +253,63 @@ namespace FBXLoader
 		FbxGeometryElementTangent* vertexTangent = inMesh->GetElementTangent(0);
 		switch (vertexTangent->GetMappingMode())
 		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertexTangent->GetReferenceMode())
+			case FbxGeometryElement::eByControlPoint:
 			{
-			case FbxGeometryElement::eDirect:
-			{
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
-				break;
-			}
+				switch (vertexTangent->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					{
+						outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
+						outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
+						outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+						break;
+					}
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexTangent->GetIndexArray().GetAt(inCtrlPointIndex);
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int index = vertexTangent->GetIndexArray().GetAt(inCtrlPointIndex);
+						outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
+						outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
+						outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
+						break;
+					}
 
-			default:
-				break;
+					default:
+						break;
+					}
 			}
+			break;
 
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertexTangent->GetReferenceMode())
+			case FbxGeometryElement::eByPolygonVertex:
 			{
-			case FbxGeometryElement::eDirect:
-			{
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[2]);
-				break;
-			}
+				switch (vertexTangent->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					{
+						outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[0]);
+						outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[1]);
+						outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+						break;
+					}
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexTangent->GetIndexArray().GetAt(inVertexCounter);
-				outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
-				outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
-				outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int index = vertexTangent->GetIndexArray().GetAt(inVertexCounter);
+						outTangent.x = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[0]);
+						outTangent.y = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[1]);
+						outTangent.z = (float)(vertexTangent->GetDirectArray().GetAt(index).mData[2]);
+						break;
+					}
 
-			default:
-				break;
+					default:
+						break;
+					}
 			}
+			break;
 		}
+
+		outTangent.z = -outTangent.z;
+
 		return outTangent;
 	}
 
@@ -304,42 +322,48 @@ namespace FBXLoader
 
 		switch (vertexUV->GetMappingMode())
 		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertexUV->GetReferenceMode())
+			case FbxGeometryElement::eByControlPoint:
 			{
-			case FbxGeometryElement::eDirect:
-			{
-				outUV.x = (float)(vertexUV->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
-				outUV.y = (float)(vertexUV->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
-				break;
-			}
+				switch (vertexUV->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					{
+						outUV.x = (float)(vertexUV->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
+						outUV.y = (float)(vertexUV->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
+						break;
+					}
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexUV->GetIndexArray().GetAt(inCtrlPointIndex);
-				outUV.x = (float)(vertexUV->GetDirectArray().GetAt(index).mData[0]);
-				outUV.y = (float)(vertexUV->GetDirectArray().GetAt(index).mData[1]);
-				break;
-			}
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int index = vertexUV->GetIndexArray().GetAt(inCtrlPointIndex);
+						outUV.x = (float)(vertexUV->GetDirectArray().GetAt(index).mData[0]);
+						outUV.y = (float)(vertexUV->GetDirectArray().GetAt(index).mData[1]);
+						break;
+					}
 
-			default:
-				break;
+					default:
+						break;
+				}
 			}
+			break;
 
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertexUV->GetReferenceMode())
+			case FbxGeometryElement::eByPolygonVertex:
 			{
-			case FbxGeometryElement::eDirect:
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				outUV.x = (float)(vertexUV->GetDirectArray().GetAt(inTextureUVIndex).mData[0]);
-				outUV.y = (float)(vertexUV->GetDirectArray().GetAt(inTextureUVIndex).mData[1]);
-				break;
-			}
+				switch (vertexUV->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						outUV.x = (float)(vertexUV->GetDirectArray().GetAt(inTextureUVIndex).mData[0]);
+						outUV.y = (float)(vertexUV->GetDirectArray().GetAt(inTextureUVIndex).mData[1]);
+						break;
+					}
 
-			default:
-				break;
+					default:
+						break;
+				}
 			}
+			break;
 		}
 
 		outUV.y = 1.0f - outUV.y;
@@ -356,57 +380,89 @@ namespace FBXLoader
 		}
 
 		FbxGeometryElementNormal* vertexNormal = inMesh->GetElementNormal(0);
+
+		FbxLayerElement::EReferenceMode ref = vertexNormal->GetReferenceMode();
+		FbxLayerElement::EMappingMode mode = vertexNormal->GetMappingMode();
+
 		switch (vertexNormal->GetMappingMode())
 		{
-		case FbxGeometryElement::eByControlPoint:
-			switch (vertexNormal->GetReferenceMode())
+			case FbxGeometryElement::eByControlPoint:
 			{
-			case FbxGeometryElement::eDirect:
-			{
-				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
-				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
-				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
-				break;
-			}
+				switch (vertexNormal->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					{
+						outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[0]);
+						outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[1]);
+						outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(inCtrlPointIndex).mData[2]);
+					}
+					break;
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexNormal->GetIndexArray().GetAt(inCtrlPointIndex);
-				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
-				break;
-			}
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int index = vertexNormal->GetIndexArray().GetAt(inCtrlPointIndex);
+						outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+						outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+						outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+					}
+					break;
 
-			default:
-				break;
-			}
+					default:
+					{
+						int z = 0;
 
-		case FbxGeometryElement::eByPolygonVertex:
-			switch (vertexNormal->GetReferenceMode())
-			{
-			case FbxGeometryElement::eDirect:
-			{
-				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
-				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
-				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
-				break;
-			}
+						z = 1 + 1;
 
-			case FbxGeometryElement::eIndexToDirect:
-			{
-				int index = vertexNormal->GetIndexArray().GetAt(inVertexCounter);
-				outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
-				outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
-				outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
-				break;
+					}
+					break;
+				}
 			}
+			break;
 
-			default:
-				break;
+			case FbxGeometryElement::eByPolygonVertex:
+			{
+				switch (vertexNormal->GetReferenceMode())
+				{
+					case FbxGeometryElement::eDirect:
+					{
+						outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[0]);
+						outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[1]);
+						outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(inVertexCounter).mData[2]);
+					}
+					break;
+
+					case FbxGeometryElement::eIndexToDirect:
+					{
+						int index = vertexNormal->GetIndexArray().GetAt(inVertexCounter);
+						outNormal.x = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[0]);
+						outNormal.y = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[1]);
+						outNormal.z = (float)(vertexNormal->GetDirectArray().GetAt(index).mData[2]);
+					}
+					break;
+
+					default:
+					{
+						int z = 0;
+
+						z = 1 + 1;
+
+
+					}
+					break;
+				}
 			}
+			break;
 		}
+
+		if (outNormal.x == 0 && outNormal.y == 0 && outNormal.z == 0)
+		{
+			int q;
+
+			q = 5;
+		}
+
 		outNormal.z = -outNormal.z;
+
 		return outNormal;
 	}
 

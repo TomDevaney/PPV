@@ -134,9 +134,9 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	CD3D11_SAMPLER_DESC samplerDesc = {};
 
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // do D3D11_FILTER_ANISOTROPIC for better quality
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
 	samplerDesc.MaxAnisotropy = 1; //16 for anisotropic
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -213,7 +213,7 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-#if 0
+#if 1
 	// load in box animations and rig
 	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
 	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
@@ -228,7 +228,7 @@ void Scene::DoFBXExporting()
 	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
 
 	////load in mage with rig and animation
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Battle Mage with Rig and textures.fbx", "Mage", "Mage_Bind");
+	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Idle.fbx", "Mage", "Mage_Idle");
 #endif
 }
 
@@ -286,6 +286,7 @@ void Scene::CreateModels()
 	Model mage;
 
 	mage.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Mage.dds", "../Assets/Textures/DDS/Mage_NM.dds", XMMatrixTranspose(XMMatrixTranslation(-3, 0, -3)), camera, projection, identities, L"Mage");
+	mage.SetSpecMap("../Assets/Textures/DDS/Mage_Spec.dds");
 	mage.CreateDevResources(deviceResources);
 
 	models.push_back(mage);
@@ -542,7 +543,7 @@ void Scene::Render()
 	//render all models
 	for (size_t i = 0; i < models.size(); ++i)
 	{
-		//if (i != 1) //to not render the idle test box
+		//if (i == 0) //to not render the idle test box
 		{
 			models[i].Render();
 		}

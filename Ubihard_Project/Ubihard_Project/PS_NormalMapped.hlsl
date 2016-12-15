@@ -86,7 +86,7 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float3 dirRefelection = normalize(reflect(dir_dir, bumpNormal));
 	float dirRdotV = max(0, dot(dirRefelection, ViewVector));
 	float specDirScale = pow(dirRdotV, 32);
-	float3 dirSpecColor = saturate(/* specMap * */ specDirScale * dirColor);
+	float3 dirSpecColor = saturate( specMap *  specDirScale * dirColor);
 
 	float pointRatio;
 	float4 pointDir;
@@ -103,14 +103,14 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float3 pointRefelection = normalize(reflect(-pointDir.xyz, bumpNormal));
 	float pointRdotV = max(0, dot(pointRefelection, ViewVector));
 	float specPointScale = pow(pointRdotV, 32);
-	float3 pointSpecColor = saturate(/* specMap * */ specPointScale * pointColor);
+	float3 pointSpecColor = saturate( specMap *  specPointScale * pointColor);
 
 
 	//calculate final color
 	finalColor = float4(saturate((dirColor + pointColor + spotColor) * diffuseColor), 1.0f);
 	finalColor.xyz = saturate(finalColor.xyz + pointSpecColor + dirSpecColor);
 
-	//return float4(input.normal, 1);
-	return finalColor;
+	return float4(input.normal, 1);
 
+	return finalColor;
 }

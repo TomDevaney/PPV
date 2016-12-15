@@ -191,6 +191,9 @@ void Model::Render()
 
 	//use computer shader to find what lights
 
+	//reset stuff I turned off in depth pre pass
+	devContext->OMSetRenderTargets(1, devResources->GetRenderTargetViewAddress(), devResources->GetDepthStencilView());
+
 	////set shaders
 	devContext->VSSetShader(vertexShader.Get(), NULL, NULL);
 	devContext->PSSetShader(pixelShader.Get(), NULL, NULL);
