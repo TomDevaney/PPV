@@ -21,7 +21,7 @@ struct VertexShaderInput
 	float3 normal : NORMAL;
 	float3 uv : TEXCOORD;
 	float3 binormal : BINORMAL;
-	float3 tangent : TANGENT;
+	float4 tangent : TANGENT;
 	int4 blendingIndex : BLENDINDICES;
 	float4 blendingWeight : BLENDWEIGHT;
 };
@@ -67,16 +67,16 @@ PS_BasicInput main(VertexShaderInput input)
 	output.normal = mul(float4(output.normal, 0), model).xyz;
 
 	// Calculate the tangent vector against the world matrix only and then normalize the final value.
-	output.tangent  = mul(float4(input.tangent, 0.0f), boneOffsets[input.blendingIndex.x]).xyz * input.blendingWeight.x;
-	output.tangent += mul(float4(input.tangent, 0.0f), boneOffsets[input.blendingIndex.y]).xyz * input.blendingWeight.y;
-	output.tangent += mul(float4(input.tangent, 0.0f), boneOffsets[input.blendingIndex.z]).xyz * input.blendingWeight.z;
-	output.tangent += mul(float4(input.tangent, 0.0f), boneOffsets[input.blendingIndex.w]).xyz * input.blendingWeight.w;
+	output.tangent  = mul(float4(input.tangent.xyz, 0.0f), boneOffsets[input.blendingIndex.x]).xyz * input.blendingWeight.x;
+	output.tangent += mul(float4(input.tangent.xyz, 0.0f), boneOffsets[input.blendingIndex.y]).xyz * input.blendingWeight.y;
+	output.tangent += mul(float4(input.tangent.xyz, 0.0f), boneOffsets[input.blendingIndex.z]).xyz * input.blendingWeight.z;
+	output.tangent += mul(float4(input.tangent.xyz, 0.0f), boneOffsets[input.blendingIndex.w]).xyz * input.blendingWeight.w;
 
 	output.tangent = mul(float4(output.tangent, 0), model).xyz;
 	output.tangent = normalize(output.tangent);
 
 	// Calculate the binormal vector against the world matrix only and then normalize the final value.
-	output.binormal = cross(output.normal, output.tangent);
+	output.binormal = cross(output.normal, output.tangent) * input.tangent.w;
 	output.binormal = normalize(output.binormal);
 
 	return output;

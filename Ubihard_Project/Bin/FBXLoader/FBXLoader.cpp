@@ -409,9 +409,7 @@ namespace FBXLoader
 
 					default:
 					{
-						int z = 0;
-
-						z = 1 + 1;
+				
 
 					}
 					break;
@@ -442,11 +440,6 @@ namespace FBXLoader
 
 					default:
 					{
-						int z = 0;
-
-						z = 1 + 1;
-
-
 					}
 					break;
 				}
@@ -454,12 +447,6 @@ namespace FBXLoader
 			break;
 		}
 
-		if (outNormal.x == 0 && outNormal.y == 0 && outNormal.z == 0)
-		{
-			int q;
-
-			q = 5;
-		}
 
 		outNormal.z = -outNormal.z;
 
@@ -687,7 +674,19 @@ namespace FBXLoader
 			break;
 		}
 	}
+	XMFLOAT3 cross_product(XMFLOAT3 lhs, XMFLOAT3 rhs)
+	{
+		XMFLOAT3 Result;
+		Result.x = (lhs.y * rhs.z) - (lhs.z * rhs.y);
+		Result.y = (lhs.z * rhs.x) - (lhs.x * rhs.z);
+		Result.z = (lhs.x * rhs.y) - (lhs.y * rhs.x);
+		return Result;
 
+	}
+	float dot_product(XMFLOAT3 lhs, XMFLOAT3 rhs)
+	{
+		return (lhs.x * rhs.x) + (lhs.y * rhs.y) + (lhs.z * rhs.z);
+	}
 	void ProcessMesh(FbxNode* inNode)
 	{
 		FbxMesh* currMesh = inNode->GetMesh();
@@ -707,8 +706,18 @@ namespace FBXLoader
 				temp.mPosition = currCtrlPoint->mPosition;
 				temp.mNormal = ReadNormal(currMesh, ctrlPointIndex, vertexCounter);
 				temp.mUV = ReadUV(currMesh, ctrlPointIndex, currMesh->GetTextureUVIndex(i, j), 0);
-				temp.mBinormal = ReadBinormal(currMesh, ctrlPointIndex, vertexCounter);
-				temp.mTangent = ReadTangent(currMesh, ctrlPointIndex, vertexCounter);
+				XMFLOAT3 tmpTan =  ReadTangent(currMesh, ctrlPointIndex, vertexCounter);
+				temp.mBinormal = cross_product(temp.mNormal, tmpTan);// ReadBinormal(currMesh, ctrlPointIndex, vertexCounter);
+		
+				temp.mTangent.x = tmpTan.x; temp.mTangent.y = tmpTan.y; temp.mTangent.z = tmpTan.z;
+				temp.mTangent.w = (dot_product(cross_product(temp.mNormal, tmpTan), temp.mBinormal) < 0.0F) ? -1.0F : 1.0F;
+
+				//temp.mTangent.w = (temp.mPosition.x <0.0f) ? -1.0F : 1.0F;
+				if (temp.mTangent.w != -1.0f)
+				{
+					int x = 0;
+					x = x * 2;
+				}
 				// Copy the blending info from each control point
 				std::vector<VertexBlendingInfo> vertInfos;
 				for (unsigned int i = 0; i < currCtrlPoint->mBlendingInfo.size(); ++i)
