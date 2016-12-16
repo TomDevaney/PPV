@@ -109,7 +109,7 @@ struct Vertex
 	XMFLOAT3 mNormal;
 	XMFLOAT2 mUV;
 	XMFLOAT3 mBinormal;
-	XMFLOAT3 mTangent;
+	XMFLOAT4 mTangent;
 	XMINT4 mBlendingIndices;
 	XMFLOAT4 mBlendingWeight;
 
