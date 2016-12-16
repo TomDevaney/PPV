@@ -27,11 +27,15 @@ enum VertexShaderTypes
 	vsBASIC = 0,
 	vsBIND,
 	vsDEPTHPREPASS,
+	vsDEPTHSHADOW,
+	vsSHADOW
 };
 enum PixelShaderTypes
 {
 	psBASIC = 0,
 	psNORMALMAPPED,
+	psDEPTHSHADOW,
+	psSHADOW,
 };
 
 using namespace std;

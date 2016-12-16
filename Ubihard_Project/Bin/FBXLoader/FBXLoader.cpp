@@ -722,6 +722,13 @@ namespace FBXLoader
 				std::sort(vertInfos.begin(), vertInfos.end());
 				StoreBlendingInfo(temp, vertInfos);
 
+				if (temp.mNormal.z < 0.0f)
+				{
+					int z = 0;
+
+					z++;
+				}
+
 				mVerts.push_back(temp);
 				++vertexCounter;
 			}

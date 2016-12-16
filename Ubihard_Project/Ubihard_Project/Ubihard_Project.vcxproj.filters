@@ -115,6 +115,18 @@
     <FxCompile Include="PS_NormalMapped.hlsl">
       <Filter>Content\Shaders\Pixel</Filter>
     </FxCompile>
+    <FxCompile Include="VS_DepthPreShadow.hlsl">
+      <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_DepthPreShadow.hlsl">
+      <Filter>Content\Shaders\Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="PS_Shadow.hlsl">
+      <Filter>Content\Shaders\Pixel</Filter>
+    </FxCompile>
+    <FxCompile Include="VS_Shadow.hlsl">
+      <Filter>Content\Shaders\Vertex</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Media Include="..\Assets\Box_Idle.fbm\TestCube.dds" />

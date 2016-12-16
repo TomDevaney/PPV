@@ -56,6 +56,7 @@ private:
 	vector<Microsoft::WRL::ComPtr<ID3D11ComputeShader>> computerShaders;
 	vector<Microsoft::WRL::ComPtr<ID3D11InputLayout>> inputLayouts; // is it safe to assume that all objects will have same input layout (same vertex)?
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> wrapSamplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> clampSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> dirLightConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pointLightConstantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> spotLightConstantBuffer;

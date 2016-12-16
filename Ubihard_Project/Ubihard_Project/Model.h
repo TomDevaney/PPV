@@ -25,7 +25,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> preDepthPassVertexShader;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> preShadowVertexShader;
 	Microsoft::WRL::ComPtr<ID3D11PixelShader > pixelShader;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader > preShadowPixelShader;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> textureSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> normalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> specSRV;
@@ -33,13 +35,17 @@ private:
 
 	//constant buffer data
 	ModelViewProjectionConstantBuffer mvpData;
+	ModelViewProjectionConstantBuffer lightMVPData;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mvpConstantBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> lightMvpConstantBuffer;
 	BoneOffsetConstantBuffer boneOffsetData;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> boneOffsetConstantBuffer;
 
 	//Private helper functions
 	void DepthPrePass();
 	void LightCulling();
+	void DepthPrePassShadow();
+
 public:
 	//for model with bones
 	void Init(VertexShaderTypes shaderType, ID3D11VertexShader* vShader, ID3D11PixelShader* pShader, ID3D11InputLayout* iLayout, string tPath, string nPath, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection, XMFLOAT4X4* boneOffData, std::wstring name);
@@ -70,4 +76,5 @@ public:
 	void SetView(XMFLOAT4X4 view) { mvpData.view = view; }
 	//void SetProjection(XMFLOAT4X4 projection) { mvpData.projection = projection; }
 	void SetBoneOffsetData(vector<XMFLOAT4X4> data);
+	void SetShadowData(ID3D11VertexShader* vShaderPreShadow, ID3D11PixelShader* pShaderPreShadow, XMMATRIX& model, XMFLOAT4X4 view, XMFLOAT4X4 projection);
 };

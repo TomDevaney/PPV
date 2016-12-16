@@ -101,3 +101,8 @@ float4 main(PS_BasicInput input) : SV_TARGET
 
 	return finalColor;
 }
+
+//float4 main(PS_BasicInput input) : SV_TARGET
+//{
+//	return input.position;
+//}

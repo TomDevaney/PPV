@@ -60,10 +60,15 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 
 	//compile shaders
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicVSBuffer;
-	Microsoft::WRL::ComPtr<ID3D10Blob> basicPSBuffer;
-	Microsoft::WRL::ComPtr<ID3D10Blob> normalPSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> depthPrePassVSBuffer;
 	Microsoft::WRL::ComPtr<ID3D10Blob> bindVSBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> vsDepthPreShadowBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> vsShadowBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> basicPSBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> normalPSBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> psDepthPreShadowBuffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> psShadowBuffer;
+
 	Microsoft::WRL::ComPtr<ID3D10Blob> basicCSBuffer;
 
 
@@ -74,28 +79,47 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	result = D3DCompileFromFile(L"PS_NormalMapped.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, normalPSBuffer.GetAddressOf(), NULL);
 	result = D3DCompileFromFile(L"VS_Bind.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, bindVSBuffer.GetAddressOf(), NULL);
 	result = D3DCompileFromFile(L"VS_Basic.hlsl", NULL, NULL, "PreDepthPass", "vs_4_0", flags, NULL, depthPrePassVSBuffer.GetAddressOf(), NULL);
+	result = D3DCompileFromFile(L"VS_DepthPreShadow.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, vsDepthPreShadowBuffer.GetAddressOf(), NULL);
+	result = D3DCompileFromFile(L"PS_DepthPreShadow.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, psDepthPreShadowBuffer.GetAddressOf(), NULL);
+	result = D3DCompileFromFile(L"VS_Shadow.hlsl", NULL, NULL, "main", "vs_4_0", flags, NULL, vsShadowBuffer.GetAddressOf(), NULL);
+	result = D3DCompileFromFile(L"PS_Shadow.hlsl", NULL, NULL, "main", "ps_4_0", flags, NULL, psShadowBuffer.GetAddressOf(), NULL);
+
 	result = D3DCompileFromFile(L"CS_Basic.hlsl", NULL, NULL, "main", "cs_4_0", flags, NULL, basicCSBuffer.GetAddressOf(), NULL);
 
 	//create shaders
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> basicVS;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
-	Microsoft::WRL::ComPtr<ID3D11PixelShader> normalPS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> bindVS;
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> depthPrePassVS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> depthPreShadowVS;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> shadowVS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> basicPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> normalPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> depthPreShadowPS;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> shadowPS;
 	Microsoft::WRL::ComPtr<ID3D11ComputeShader> basicCS;
 
 	result = device->CreateVertexShader(basicVSBuffer->GetBufferPointer(), basicVSBuffer->GetBufferSize(), NULL, basicVS.GetAddressOf());
-	result = device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
-	result = device->CreatePixelShader(normalPSBuffer->GetBufferPointer(), normalPSBuffer->GetBufferSize(), NULL, normalPS.GetAddressOf());
 	result = device->CreateVertexShader(bindVSBuffer->GetBufferPointer(), bindVSBuffer->GetBufferSize(), NULL, bindVS.GetAddressOf());
 	result = device->CreateVertexShader(depthPrePassVSBuffer->GetBufferPointer(), depthPrePassVSBuffer->GetBufferSize(), NULL, depthPrePassVS.GetAddressOf());
+	result = device->CreateVertexShader(vsDepthPreShadowBuffer->GetBufferPointer(), vsDepthPreShadowBuffer->GetBufferSize(), NULL, depthPreShadowVS.GetAddressOf());
+	result = device->CreateVertexShader(vsShadowBuffer->GetBufferPointer(), vsShadowBuffer->GetBufferSize(), NULL, shadowVS.GetAddressOf());
+
+	result = device->CreatePixelShader(basicPSBuffer->GetBufferPointer(), basicPSBuffer->GetBufferSize(), NULL, basicPS.GetAddressOf());
+	result = device->CreatePixelShader(normalPSBuffer->GetBufferPointer(), normalPSBuffer->GetBufferSize(), NULL, normalPS.GetAddressOf());
+	result = device->CreatePixelShader(psDepthPreShadowBuffer->GetBufferPointer(), psDepthPreShadowBuffer->GetBufferSize(), NULL, depthPreShadowPS.GetAddressOf());
+	result = device->CreatePixelShader(psShadowBuffer->GetBufferPointer(), psShadowBuffer->GetBufferSize(), NULL, shadowPS.GetAddressOf());
 	result = device->CreateComputeShader(basicCSBuffer->GetBufferPointer(), basicCSBuffer->GetBufferSize(), NULL, basicCS.GetAddressOf());
 
 	vertexShaders.push_back(basicVS);
 	vertexShaders.push_back(bindVS);
 	vertexShaders.push_back(depthPrePassVS);
+	vertexShaders.push_back(depthPreShadowVS);
+	vertexShaders.push_back(shadowVS);
+
 	pixelShaders.push_back(basicPS);
 	pixelShaders.push_back(normalPS);
+	pixelShaders.push_back(depthPreShadowPS);
+	pixelShaders.push_back(shadowPS);
 
 	//set up input layouts
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> basicInput;
@@ -134,9 +158,9 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	CD3D11_SAMPLER_DESC samplerDesc = {};
 
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // do D3D11_FILTER_ANISOTROPIC for better quality
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MaxAnisotropy = 1; //16 for anisotropic
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -147,9 +171,27 @@ void Scene::CreateDevResources(DeviceResources const * devResources)
 	samplerDesc.BorderColor[2] = 0;
 	samplerDesc.BorderColor[3] = 0;
 
+	CD3D11_SAMPLER_DESC samplerClampDesc = {};
+
+	samplerClampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR; // do D3D11_FILTER_ANISOTROPIC for better quality
+	samplerClampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerClampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerClampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerClampDesc.MaxAnisotropy = 1; //16 for anisotropic
+	samplerClampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerClampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerClampDesc.MipLODBias = 0.0f;
+	samplerClampDesc.MinLOD = 0;
+	samplerClampDesc.BorderColor[0] = 0;
+	samplerClampDesc.BorderColor[1] = 0;
+	samplerClampDesc.BorderColor[2] = 0;
+	samplerClampDesc.BorderColor[3] = 0;
+
 	HRESULT wrapSampleResult = device->CreateSamplerState(&samplerDesc, &wrapSamplerState);
+	HRESULT clampSampleResult = device->CreateSamplerState(&samplerClampDesc, &clampSamplerState);
 
 	devContext->PSSetSamplers(0, 1, wrapSamplerState.GetAddressOf());
+	devContext->PSSetSamplers(1, 1, wrapSamplerState.GetAddressOf());
 
 	//create lighting buffers and set them
 
@@ -165,7 +207,7 @@ void Scene::CreateLights()
 
 	//create point lights
 	PointLight pointLight0;
-	pointLight0.Create({ 0, 5.0f, -2.0f, 0 }, { 1, 0, 0, 0 }, 8.0f);
+	pointLight0.Create({ -3.0f, 0.5f, 2.0f, 0 }, { 1, 0, 0, 0 }, 8.0f);
 
 	PointLight pointLight1;
 	pointLight1.Create({ 0, 1.0f, 2.0f, 0 }, { 0, 1.0f, 0, 0 }, 7.0f);
@@ -213,19 +255,19 @@ void Scene::CreateLights()
 
 void Scene::DoFBXExporting()
 {
-#if 1
+#if 0
 	// load in box animations and rig
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
-	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Box\\Box_Idle.fbx", "Box", "Box_Idle");
+	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Box\\Box_Attack.fbx", "Box", "Box_Attack");
 
-	////load in teddy animation and rig
-	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
-	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Attack1.fbx", "Teddy", "Teddy_Attack1");
-	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Attack2.fbx", "Teddy", "Teddy_Attack2");
-	FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Run.fbx", "Teddy", "Teddy_Run");
+	//////load in teddy animation and rig
+	//FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Teddy\\Teddy_Idle.fbx", "Teddy", "Teddy_Idle");
+	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Attack1.fbx", "Teddy", "Teddy_Attack1");
+	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Attack2.fbx", "Teddy", "Teddy_Attack2");
+	//FBXLoader::Functions::FBXLoadExportAnimation("..\\Assets\\Teddy\\Teddy_Run.fbx", "Teddy", "Teddy_Run");
 
-	////load in sphere
-	FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
+	//////load in sphere
+	//FBXLoader::Functions::FBXLoadExportFileBasic("..\\Assets\\Sphere.fbx", "Sphere");
 
 	////load in mage with rig and animation
 	FBXLoader::Functions::FBXLoadExportFileBind("..\\Assets\\Mage\\Idle.fbx", "Mage", "Mage_Idle");
@@ -269,8 +311,20 @@ void Scene::CreateModels()
 	models.push_back(testModel);
 
 	//add bear
+	XMFLOAT4X4 lightView;
+
+	XMFLOAT4 lightPosition = pointLights[0].GetLight().pointLightPosition;
+
+	static const XMVECTORF32 eye = { lightPosition.x , lightPosition.y, lightPosition.z, lightPosition.w };
+	static const XMVECTORF32 at = { 0.0f, 0.0f, 0.0f, 0.0f };
+	static const XMVECTORF32 up = { 0.0f, 1.0f, 0.0f, 0.0f };
+
+	XMStoreFloat4x4(&lightView, XMMatrixInverse(nullptr, XMMatrixLookAtLH(eye, at, up)));
+
 	Model monokuma;
-	monokuma.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Teddy.dds", "", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
+	//monokuma.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsBIND].Get(), pixelShaders[PixelShaderTypes::psNORMALMAPPED].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Teddy.dds", "", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
+	monokuma.Init(VertexShaderTypes::vsBIND, vertexShaders[VertexShaderTypes::vsSHADOW].Get(), pixelShaders[PixelShaderTypes::psSHADOW].Get(), inputLayouts[VertexShaderTypes::vsBIND].Get(), "../Assets/Textures/DDS/Teddy.dds", "", XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), camera, projection, identities, L"Teddy");
+	monokuma.SetShadowData(vertexShaders[VertexShaderTypes::vsDEPTHSHADOW].Get(), pixelShaders[PixelShaderTypes::psDEPTHSHADOW].Get(), XMMatrixTranspose(XMMatrixMultiply(XMMatrixScaling(0.01f, 0.01f, 0.01f), XMMatrixTranslation(-3, 0, 3))), lightView, projection);
 	monokuma.CreateDevResources(deviceResources);
 
 	models.push_back(monokuma);
@@ -359,7 +413,7 @@ void Scene::Update(WPARAM wparam)
 	if (pointLights.size())
 	{
 
-		//TODO: pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
+		pointLights[0].DoRadiusEffect(5.0f, radiusChange[0]);
 		pointLights[1].DoRadiusEffect(7.0f, radiusChange[1]);
 
 		devContext->UpdateSubresource(pointLightConstantBuffer.Get(), NULL, NULL, pointLights.data(), NULL, NULL);

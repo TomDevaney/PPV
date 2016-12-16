@@ -8,6 +8,7 @@ struct PS_BasicInput
 	float3 binormal : BINORMAL;
 	float3 tangent : TANGENT;
 	float4 worldPosition : POSITION0;
+	float4 lightViewPosition : POSITION1;
 };
 
 cbuffer DirectionalLightCB : register(b0)
@@ -40,8 +41,10 @@ struct PointLight
 texture2D baseTexture : register(t0);
 texture2D normalMap : register(t1);
 texture2D specularMap : register(t2);
+texture2D shadowMap : register(t3);
 
 SamplerState filter : register(s0);
+SamplerState filterClamp : register(s1);
 
 float4 main(PS_BasicInput input) : SV_TARGET
 {
@@ -49,7 +52,7 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float3 diffuseColor, dirColor, pointColor, spotColor;
 
 	//Calculate the Tangent-Space matrix. This may need tweaking
-	float3x3 TBNMatrix = float3x3(input.tangent, input.binormal, input.normal);
+	float3x3 TBNMatrix = float3x3(input.binormal, input.tangent, input.normal);
 
 	float3 ViewVector = normalize(cameraposW.xyz - input.worldPosition.xyz);
 
@@ -86,7 +89,7 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float3 dirRefelection = normalize(reflect(dir_dir, bumpNormal));
 	float dirRdotV = max(0, dot(dirRefelection, ViewVector));
 	float specDirScale = pow(dirRdotV, 32);
-	float3 dirSpecColor = saturate( specMap *  specDirScale * dirColor);
+	float3 dirSpecColor = saturate(specMap *  specDirScale * dirColor);
 
 	float pointRatio;
 	float4 pointDir;
@@ -103,14 +106,33 @@ float4 main(PS_BasicInput input) : SV_TARGET
 	float3 pointRefelection = normalize(reflect(-pointDir.xyz, bumpNormal));
 	float pointRdotV = max(0, dot(pointRefelection, ViewVector));
 	float specPointScale = pow(pointRdotV, 32);
-	float3 pointSpecColor = saturate( specMap *  specPointScale * pointColor);
+	float3 pointSpecColor = saturate(specMap *  specPointScale * pointColor);
 
+	//Calculate shadow factor
+	float shadowFactor, ourDepth;
+	float2 texCoords;
+
+	ourDepth = input.lightViewPosition.z / input.lightViewPosition.w;
+	float2 tomsCoords;
+
+	tomsCoords.x = input.lightViewPosition.x / input.lightViewPosition.w / 2.0 + 0.5f;
+	tomsCoords.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0 + 0.5f;
+
+	texCoords = (input.lightViewPosition.xy / input.lightViewPosition.w + 1) * 0.5f;
+
+	//tomsCoords = float2(0.5f, 0.5f);
+
+	float sampleDepth = shadowMap.Sample(filter, tomsCoords).x;
+
+	shadowFactor = (ourDepth <= sampleDepth);
 
 	//calculate final color
 	finalColor = float4(saturate((dirColor + pointColor + spotColor) * diffuseColor), 1.0f);
 	finalColor.xyz = saturate(finalColor.xyz + pointSpecColor + dirSpecColor);
 
-	//return float4(bumpNormal, 1);
+	finalColor *= (ambientLight + shadowFactor);
+
+	//return float4(input.normal, 1);
 
 	return finalColor;
 }
